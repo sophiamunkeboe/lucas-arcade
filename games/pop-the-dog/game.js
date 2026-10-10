@@ -45,7 +45,12 @@
   // ---------------- layout + static art ----------------
   function resize() {
     const r = $('app').getBoundingClientRect();
+    const oW = W, oH = H;
     W = Math.round(r.width); H = Math.round(r.height);
+    if (oW && oH && (oW !== W || oH !== H)) {      // keep floor popcorn + Gorda in place after a resize/rotate
+      S.floor.forEach(c => { c.x *= W / oW; c.y *= H / oH; });
+      Z.x *= W / oW; Z.y *= H / oH;
+    }
     DPR = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
     L.wallY = H * 0.46;
@@ -58,7 +63,7 @@
     L.gorda = { x: W * 0.215, y: L.wallY - H * 0.035 + 4, k: Math.min(W * 0.27, 150) / 270 };
     if (!S.x) S.x = W / 2;
     bg = renderBackground(); fg = renderForeground();
-    if (Z.on) updateZoomies(0);   // keep Gorda on the new floor loop after a resize/rotate
+    if (Z.on && Z.kind === 'zoom') updateZoomies(0);   // keep Gorda on the new floor loop after a resize/rotate
   }
 
   function offscreen(w, h) {
@@ -521,30 +526,42 @@
   // ---------------- Gorda's ZOOMIES (Marley game only) ----------------
   // ~8 s: wake -> stretch -> hop down -> laps around Marley (behind on the far side, in front on
   // the near side) with a play bow -> run back -> jump up -> turn around -> lie down.
-  const Z = { on: false, t: 0, next: 35, mode: 'couch', x: 0, y: 0, k: 0.3, face: 1, layer: 'back', phi: 0,
+  const Z = { on: false, kind: 'zoom', t: 0, next: 35, mode: 'couch', x: 0, y: 0, k: 0.3, face: 1, layer: 'back', phi: 0,
     lastStep: 0, fired: {}, watchRot: 0, st: null };
   function startZoomies() {
     if (Z.on || S.dogId !== 'marley' || !G.runImgs || S.popState) return;
-    Object.assign(Z, { on: true, t: 0, fired: {}, mode: 'couch', phi: 0 });
+    Object.assign(Z, { on: true, kind: 'zoom', t: 0, fired: {}, mode: 'couch', phi: 0 });
     G.state = 'zoom'; G.until = 1e9; G.earT = 0.35;
   }
   function stopZoomies() {
-    Z.on = false; Z.next = S.time + rand(30, 45);
+    // after a cleanup, zoomies that were already due just wait a few seconds
+    Z.next = Z.kind === 'clean' ? Math.max(Z.next, S.time + 6) : S.time + rand(30, 45);
+    Z.on = false; Z.target = null;
     if (G.state === 'zoom') { G.state = 'sleep'; G.until = S.time; }
   }
   function zLoop() {
-    const rx = L.dogW * 0.5 * (1 + 0.7 * progress()) * 1.12 + 34, ry = H * 0.034;
+    const rx = Math.min(L.dogW * 0.5 * (1 + 0.7 * progress()) * 1.12 + 34, W * 0.5 - 78), ry = H * 0.034;
     return th => ({ x: S.x + rx * Math.cos(th), y: L.feetY + 4 + ry * Math.sin(th), d: Math.sin(th) });
   }
+  // Gorda on the floor is full size: about 88% of the dog's starting size (Marley and Bella grow as
+  // they fill up), with only mild +/-10% depth scaling on the far / near side.
+  function floorK() { return (L.dogW / 400) * 0.88 * 350 / 156; }
+  function depthScale(d) { return floorK() * (1 + 0.1 * clamp(d, -1, 1)); }
+  function yDepth(y) { return (y - (L.feetY + 4)) / (H * 0.034); }
+  const smooth = u => { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); };
+
   function updateZoomies(dt) {
     if (!Z.on) {
+      // cleanup duty comes first (both games); zoomies wait their turn
+      if (S.mode === 'play' && !S.popState && G.runImgs && S.floor.length >= CLEAN_AT) { startCleanup(); return; }
       if (S.dogId === 'marley' && S.mode === 'play' && !S.popState && S.time > Z.next && G.runImgs) startZoomies();
       return;
     }
+    if (Z.kind === 'clean') { updateCleanup(dt); return; }
     Z.t += dt;
     const t = Z.t, seat = { x: L.gorda.x, y: L.gorda.y - 2 }, P = zLoop();
     const base = { x: L.gorda.x + W * 0.02, y: L.wallY + H * 0.045 };
-    const kCouch = 0.3, depthK = d => 0.37 + 0.06 * d;
+    const kCouch = 0.3, depthK = depthScale;
     const once = (key, at, fn) => { if (t >= at && !Z.fired[key]) { Z.fired[key] = true; fn(); } };
     const st = { legs: [0, 0, 0, 0], frontLen: 1, bodyDY: 0, bodyRot: 0, headRot: 0, tail: -0.2 + Math.sin(S.time * 18) * 0.4, face: 'open' };
     const prevX = Z.x;
@@ -561,7 +578,7 @@
     } else if (t < 1.7) {                       // hop down
       const u = (t - 1.2) / 0.5, a = seat, b = P(Math.PI);
       Z.mode = 'stand'; Z.layer = 'back';
-      Z.x = lerp(a.x, b.x, u); Z.y = lerp(a.y, b.y, u) - 70 * Math.sin(Math.PI * u); Z.k = lerp(kCouch, depthK(0), u);
+      Z.x = lerp(a.x, b.x, u); Z.y = lerp(a.y, b.y, u) - 70 * Math.sin(Math.PI * u); Z.k = lerp(kCouch, depthK(0), smooth(u));
       st.legs = [0.7, 0.6, -0.7, -0.6]; st.face = 'happy';
     } else if (t < 3.5) {                       // lap 1: behind Marley, around the right, to the front
       const p = P(Math.PI + 1.5 * Math.PI * (t - 1.7) / 1.8);
@@ -576,11 +593,11 @@
       runTo(p.x, p.y, depthK(p.d)); Z.layer = p.d > 0.05 ? 'front' : 'back';
     } else if (t < 6.4) {                       // run back to the couch
       const u = (t - 6.0) / 0.4, a = P(Math.PI);
-      runTo(lerp(a.x, base.x, u), lerp(a.y, base.y, u), lerp(depthK(0), kCouch + 0.02, u)); Z.layer = 'back';
+      runTo(lerp(a.x, base.x, u), lerp(a.y, base.y, u), lerp(depthK(0), depthK(-1), u)); Z.layer = 'back';
     } else if (t < 6.85) {                      // jump up onto the couch
       const u = (t - 6.4) / 0.45;
       Z.mode = 'stand'; Z.layer = 'back';
-      Z.x = lerp(base.x, seat.x, u); Z.y = lerp(base.y, seat.y, u) - 55 * Math.sin(Math.PI * u); Z.k = lerp(kCouch + 0.02, kCouch, u);
+      Z.x = lerp(base.x, seat.x, u); Z.y = lerp(base.y, seat.y, u) - 55 * Math.sin(Math.PI * u); Z.k = lerp(depthK(-1), kCouch, smooth(u));
       Z.face = seat.x >= base.x ? 1 : -1;
       st.legs = [0.7, 0.6, -0.8, -0.7]; st.face = 'happy';
     } else if (t < 7.5) {                       // turn around once on the cushion
@@ -613,6 +630,130 @@
     });
     once('yip2', 6.4, () => sfx.bark(1.8, 0, 1));
   }
+  // ---------------- Gorda's CLEANUP CREW (both games) ----------------
+  // When 10 missed popcorn pieces pile up on the floor, Gorda hops down and gobbles them up
+  // (nearest piece next), then goes back to her nap. No points lost or gained. Capped at ~10 s.
+  const CLEAN_AT = 10, EAT_END = 7.6, NOSE = 95;     // NOSE: art units from her feet anchor to her nose when sniffing
+  function startCleanup() {
+    if (Z.on || !G.runImgs || S.popState) return;
+    Object.assign(Z, { on: true, kind: 'clean', t: 0, pt: 0, ph: 'wake', fired: {}, mode: 'couch', phi: 0, target: null,
+      eaten: 0, layer: 'back', face: 1, x: L.gorda.x, y: L.gorda.y, k: 0.3, watchRot: 0 });
+    G.state = 'zoom'; G.until = 1e9; G.earT = 0.35;
+    addText('Cleanup crew!', L.gorda.x + 20, L.gorda.y - 78, '#e0436b', 20, 1.6, -22);
+    sfx.bark(1.8, 0, 2);
+  }
+  function nearestPiece() {
+    // popcorn that rolled off-screen is just tidied away
+    for (let i = S.floor.length - 1; i >= 0; i--) { const c = S.floor[i]; if (c.x < 6 || c.x > W - 6) S.floor.splice(i, 1); }
+    const nx = Z.x + Z.face * NOSE * Z.k, ny = Z.y;
+    let best = null, bd = 1e18;
+    S.floor.forEach(c => { const d = (c.x - nx) ** 2 + (2 * (c.y - ny)) ** 2; if (d < bd) { bd = d; best = c; } });
+    return best;
+  }
+  function crumbs(x, y, n) {
+    for (let i = 0; i < n; i++) S.parts.push({ type: 'crumb', x: x + rand(-6, 6), y: y - 4, vx: rand(-90, 90), vy: rand(-230, -90),
+      life: rand(0.35, 0.6), max: 0.6, r: 0, size: rand(2.5, 4.5) });
+  }
+  function gobble(c) {
+    const i = S.floor.indexOf(c); if (i >= 0) S.floor.splice(i, 1);
+    crumbs(c.x, c.y, 7); sfx.chomp(); Z.eaten++;
+    if (Z.eaten % 3 === 1) addText(pick(['nom!', 'chomp!', 'yum!']), c.x, c.y - 30, '#7a4b2a', 15, 0.7);
+  }
+  function updateCleanup(dt) {
+    Z.t += dt; Z.pt += dt;
+    const seat = { x: L.gorda.x, y: L.gorda.y - 2 }, base = { x: L.gorda.x + W * 0.04, y: L.wallY + H * 0.06 }, kCouch = 0.3;
+    const kAt = y => depthScale(yDepth(y));
+    const st = { legs: [0, 0, 0, 0], frontLen: 1, bodyDY: 0, bodyRot: 0, headRot: 0, tail: -0.2 + Math.sin(S.time * 18) * 0.4, face: 'happy' };
+    const go = ph => { Z.ph = ph; Z.pt = 0; };
+    const prevX = Z.x;
+    let running = false;
+    // run toward (x, y) at Z.speed; returns true on arrival
+    const runTo = (x, y) => {
+      const dx = x - Z.x, dy = y - Z.y, d = Math.hypot(dx, dy), step = Z.speed * dt;
+      running = true; Z.mode = 'stand';
+      if (d <= step || d < 0.5) { Z.x = x; Z.y = y; } else { Z.x += dx / d * step; Z.y += dy / d * step; }
+      Z.k = kAt(Z.y); Z.layer = Z.y > L.feetY + 2 ? 'front' : 'back';
+      return d <= step || d < 0.5;
+    };
+
+    if (Z.ph === 'wake') {                       // wakes up on the couch, ears up
+      Z.mode = 'couch';
+      if (Z.pt >= 0.5) go('hop');
+    }
+    if (Z.ph === 'hop') {                        // hops down, growing from couch size to full floor size
+      const u = clamp(Z.pt / 0.5, 0, 1);
+      Z.mode = 'stand'; Z.layer = 'back'; Z.face = base.x >= seat.x ? 1 : -1;
+      Z.x = lerp(seat.x, base.x, u); Z.y = lerp(seat.y, base.y, u) - 60 * Math.sin(Math.PI * u); Z.k = lerp(kCouch, kAt(base.y), smooth(u));
+      st.legs = [0.7, 0.6, -0.7, -0.6];
+      if (u >= 1) { sfx.patter(); go('seek'); }
+    }
+    if (Z.ph === 'seek') {                       // run to the nearest piece
+      if (!Z.target || S.floor.indexOf(Z.target) < 0) {
+        Z.target = nearestPiece();
+        if (!Z.target) { go('home'); addText('Gorda: nom nom!', Z.x, Z.y - 150 * Z.k, '#e0436b', 18, 1.4, -25); sfx.bark(1.8, 0, 1); }
+        else if (Z.t > EAT_END) go('slurp');
+        else {
+          const c = Z.target, f = c.x >= Z.x ? 1 : -1, sx = c.x - f * NOSE * kAt(c.y);
+          const per = Math.max(0.25, EAT_END - Z.t) / S.floor.length;     // time budget per piece (~10 s total cap)
+          Z.eatDur = clamp(per * 0.45, 0.16, 0.5);
+          Z.speed = Math.max(W * 0.9, Math.hypot(sx - Z.x, c.y - Z.y) / Math.max(0.1, per - Z.eatDur));
+          Z.tf = f;
+        }
+      }
+      if (Z.ph === 'seek') {
+        const c = Z.target;
+        if (runTo(c.x - Z.tf * NOSE * kAt(c.y), c.y - 1)) { Z.face = Z.tf; go('eat'); sfx.sniff(); }
+      }
+    }
+    if (Z.ph === 'eat') {                        // snuffle, then chomp
+      const u = Z.pt / Z.eatDur, b = u < 0.75 ? smooth(u / 0.3) : 1 - smooth((u - 0.75) / 0.25);
+      Z.mode = 'stand';
+      st.bodyRot = 0.3 * b; st.legs[2] = st.legs[3] = -1.0 * b; st.frontLen = 1 - 0.3 * b; st.headRot = 0.8 * b;
+      st.bodyDY = Math.sin(Z.pt * 40) * 1.5 * b; st.face = u < 0.55 ? 'open' : 'happy';
+      if (u >= 0.55 && Z.target && S.floor.indexOf(Z.target) >= 0) gobble(Z.target);
+      if (u >= 1) { Z.target = null; go('seek'); }
+    }
+    if (Z.ph === 'slurp') {                      // time's up: vacuum up whatever is left
+      const n = S.floor.length;
+      S.floor.splice(0).forEach(c => crumbs(c.x, c.y, 3));
+      if (n) { sfx.chomp(); setTimeout(() => sfx.chomp(), 90); addText('SLURP!', Z.x, Z.y - 150 * Z.k, '#e0436b', 20, 1, -25); }
+      go('home');
+    }
+    if (Z.ph === 'home') {                       // back to the couch
+      if (Z.pt === dt || !Z.homeSpeed) Z.homeSpeed = Math.max(W * 1.1, Math.hypot(base.x - Z.x, base.y - Z.y) / 0.6);
+      Z.speed = Z.homeSpeed;
+      if (runTo(base.x, base.y)) { Z.homeSpeed = 0; go('jump'); sfx.bark(1.8, 0, 1); }
+    }
+    if (Z.ph === 'jump') {                       // jump up, shrinking back to couch size
+      const u = clamp(Z.pt / 0.45, 0, 1);
+      Z.mode = 'stand'; Z.layer = 'back'; Z.face = seat.x >= base.x ? 1 : -1;
+      Z.x = lerp(base.x, seat.x, u); Z.y = lerp(base.y, seat.y, u) - 55 * Math.sin(Math.PI * u); Z.k = lerp(kAt(base.y), kCouch, smooth(u));
+      st.legs = [0.7, 0.6, -0.8, -0.7];
+      if (u >= 1) go('turn');
+    }
+    if (Z.ph === 'turn') {                       // circle once on the cushion
+      Z.mode = 'stand'; Z.x = seat.x; Z.y = seat.y - Math.abs(Math.sin(Z.pt * 10)) * 4; Z.k = kCouch;
+      Z.face = (Z.pt < 0.15 || (Z.pt >= 0.35 && Z.pt < 0.5)) ? -1 : 1;
+      if (Math.floor(Z.pt * 10) !== Math.floor((Z.pt - dt) * 10)) sfx.patter();
+      if (Z.pt >= 0.6) go('lie');
+    }
+    if (Z.ph === 'lie') {                        // and back to her nap
+      if (Z.mode !== 'couch') { Z.mode = 'couch'; G.state = 'sleep'; G.until = S.time; G.headDY = 0; G.nextSnore = S.time + rand(5, 9); }
+      if (Z.pt >= 0.5) { stopZoomies(); return; }
+    }
+    if (running) {
+      if (Math.abs(Z.x - prevX) > 0.3) Z.face = Z.x > prevX ? 1 : -1;
+      Z.phi += dt * 17;
+      const a = 0.75;
+      st.legs = [Math.sin(Z.phi + 0.7) * a, Math.sin(Z.phi) * a, Math.sin(Z.phi + Math.PI + 0.7) * a, Math.sin(Z.phi + Math.PI) * a];
+      st.bodyDY = -Math.abs(Math.sin(Z.phi)) * 9; st.bodyRot = Math.sin(Z.phi) * 0.06; st.face = 'happy';
+      if (S.time - Z.lastStep > 0.1) { sfx.patter(); Z.lastStep = S.time; }
+    }
+    Z.st = st;
+    // the dog keeps an eye on her helper
+    Z.watchRot = (Z.mode === 'stand' && (Z.ph === 'seek' || Z.ph === 'eat' || Z.ph === 'home')) ? clamp((Z.x - S.x) / (W * 0.45), -1, 1) * 0.32 : 0;
+  }
+
   function gordaBox() {     // where standing Gorda is on screen (for popcorn bouncing off her)
     if (!Z.on || Z.mode !== 'stand') return null;
     const w = 125 * Z.k, h = 150 * Z.k;
@@ -879,6 +1020,16 @@
       ctx.beginPath(); ctx.ellipse(pd.x, pd.y, 10, 4, 0, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
     });
     S.floor.forEach(c => drawCorn(ctx, c.x, c.y, c.size * 0.7, c.r, c.v));
+    if (S.mode === 'play' && S.floor.length > 0) {      // tiny "popcorn on the floor" counter (Gorda cleans up at 10)
+      const cx = W - 40, cy = L.feetY + H * 0.115;
+      ctx.save(); ctx.globalAlpha = 0.75;
+      drawCorn(ctx, cx, cy, 18, 0.3, 1);
+      ctx.font = '900 13px ' + FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(80,45,20,.8)'; ctx.fillStyle = '#fff';
+      const label = '\u00d7' + Math.min(S.floor.length, 99);
+      ctx.strokeText(label, cx + 10, cy + 1); ctx.fillText(label, cx + 10, cy + 1);
+      ctx.restore();
+    }
 
     // dog
     const imgs = S.imgs[S.dogId];
@@ -998,6 +1149,7 @@
     else if (q.type === 'corn') { ctx.restore(); ctx.save(); ctx.globalAlpha = a; drawCorn(ctx, q.x, q.y, q.size, q.r, q.v); }
     else if (q.type === 'puff') { ctx.globalAlpha = a * 0.75; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0, 0, q.size * (1.4 - q.life / q.max * 0.6), 0, 7); ctx.fill(); }
     else if (q.type === 'heart') { ctx.fillStyle = '#ff3d7f'; ctx.beginPath(); ctx.moveTo(0, 6); ctx.bezierCurveTo(-14, -4, -6, -14, 0, -6); ctx.bezierCurveTo(6, -14, 14, -4, 0, 6); ctx.fill(); }
+    else if (q.type === 'crumb') { ctx.fillStyle = '#fff3d6'; ctx.strokeStyle = '#d9b46a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(0, 0, q.size, 0, 7); ctx.fill(); ctx.stroke(); }
     else if (q.type === 'drop') { ctx.fillStyle = '#cfefff'; ctx.beginPath(); ctx.arc(0, 0, 4, 0, 7); ctx.fill(); }
     ctx.restore();
   }
@@ -1017,7 +1169,7 @@
     last = ts;
     if (!(freezeArmed && FREEZE !== null && S.time >= FREEZE)) update(dt);
     draw();
-    if (window.__S) document.title = 't=' + S.time.toFixed(2) + ' pop=' + S.popState + ' z=' + Z.on + ' ' + Z.t.toFixed(2) + ' ' + Z.mode + ' ' + Z.layer + ' g=' + G.state + ' Z=' + Z.x.toFixed(0) + ',' + Z.y.toFixed(0) + ' k=' + Z.k.toFixed(2) + ' feet=' + L.feetY.toFixed(0) + ' H=' + H;
+    if (window.__S) document.title = 't=' + S.time.toFixed(2) + ' pop=' + S.popState + ' z=' + Z.on + ' ' + Z.t.toFixed(2) + ' ' + Z.mode + ' ' + Z.layer + ' g=' + G.state + ' ' + Z.kind + '/' + (Z.ph || '') + ' fl=' + S.floor.length + ' Z=' + Z.x.toFixed(0) + ',' + Z.y.toFixed(0) + ' k=' + Z.k.toFixed(2) + ' feet=' + L.feetY.toFixed(0) + ' H=' + H;
     requestAnimationFrame(frame);
   }
 
@@ -1093,6 +1245,15 @@
     }
     if (DEBUG === 'pop') { S.score = GOAL; updateHud(); startPop(); }
     if (Q.has('zoomies')) { Z.next = 1e9; startZoomies(); Z.t = parseFloat(Q.get('zoomies')) || 0; S.flying = []; S.texts = []; }
+    if (Q.has('cleanup')) {
+      let seed = 7; const rnd = (a, b) => { seed = (seed * 16807) % 2147483647; return a + (b - a) * (seed / 2147483647); };
+      S.floor = []; S.flying = []; S.texts = []; Z.next = 1e9; S.lastThrow = 1e9;
+      const n = parseInt(Q.get('cleanup'), 10) || CLEAN_AT;
+      for (let i = 0; i < n; i++) S.floor.push({ x: rnd(W * 0.08, W * 0.92), y: L.feetY + rnd(-H * 0.02, H * 0.09), r: rnd(0, 6), v: i, size: 22 });
+      if (n >= CLEAN_AT && Q.has('ct')) { startCleanup(); const ct = parseFloat(Q.get('ct')) || 0; while (Z.on && Z.t < ct) update(1 / 60); }
+      else if (n >= CLEAN_AT) startCleanup();
+      if (FREEZE !== null) S.time = Math.min(S.time, FREEZE);     // freeze right here
+    }
     if (Q.get('gorda') === 'watch') { gordaWake('watch', 99); S.flying.push({ x0: L.launch.x, y0: L.launch.y, tx: W * 0.3, ty: L.feetY - L.dogW, t: 0.3, spin: 2, v: 1, x: 0, y: 0, size: 30 }); }
     // fast-forward to the freeze moment (headless browsers barely run animation frames)
     if (FREEZE !== null) while (S.time < FREEZE) { update(1 / 60); draw(); }

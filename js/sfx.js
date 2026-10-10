@@ -227,6 +227,17 @@
       noise(t, 0.035, 0.07, 'bandpass', 1800 + Math.random() * 1400, 0, 2);
       tone('sine', 180 + Math.random() * 60, 120, t, 0.04, 0.04);
     },
+    // Gorda snuffling for popcorn on the floor: 2-3 quick nose sniffs
+    sniff() {
+      if (!ready()) return; const t = ctx.currentTime;
+      for (let i = 0; i < 3; i++) noise(t + i * 0.07, 0.05, 0.16, 'bandpass', 2600 + i * 300, 1600, 3);
+    },
+    // Gorda gobbling a popcorn piece: small chomp + crispy crunch
+    chomp() {
+      if (!ready()) return; const t = ctx.currentTime;
+      tone('square', 240, 110, t, 0.06, 0.09);
+      for (let i = 0; i < 3; i++) noise(t + 0.03 + i * 0.045, 0.035, 0.32, 'highpass', 2200 + Math.random() * 1500, 0, 0.7);
+    },
     // popcorn bouncing off Gorda
     boop() {
       if (!ready()) return; const t = ctx.currentTime;
