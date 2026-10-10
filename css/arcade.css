@@ -1,0 +1,44 @@
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; background: #1d1630; }
+body { font-family: Nunito, "Arial Rounded MT Bold", ui-rounded, system-ui, -apple-system, sans-serif; color: #fff;
+  -webkit-user-select: none; user-select: none; }
+#app { position: relative; max-width: 520px; min-height: 100vh; min-height: 100dvh; margin: 0 auto; overflow: hidden;
+  padding: calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 18px);
+  background: radial-gradient(circle at 50% 0%, #5a3fa8 0%, #2b2140 55%, #1d1630 100%); }
+.stars { position: absolute; inset: 0; pointer-events: none; opacity: .7;
+  background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 120px 80px, #ffd23f, transparent),
+    radial-gradient(1.5px 1.5px at 200px 40px, #fff, transparent), radial-gradient(2px 2px at 300px 120px, #7cf, transparent),
+    radial-gradient(1.5px 1.5px at 360px 60px, #fff, transparent), radial-gradient(2px 2px at 80px 160px, #ff7fb0, transparent);
+  background-size: 400px 200px; }
+header { position: relative; display: flex; align-items: flex-start; justify-content: center; padding: 0 46px; }
+.marquee { margin: 6px auto 4px; padding: 10px 22px 12px; border-radius: 22px; background: #ff3d7f; border: 4px solid #ffd23f;
+  box-shadow: 0 0 0 4px #ff3d7f, 0 0 26px #ff3d7f, 0 8px 0 4px #a8124a; transform: rotate(-2deg); }
+h1 { margin: 0; text-align: center; line-height: .95; }
+h1 .l1 { display: block; font-size: 30px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+h1 .l2 { display: block; font-size: 46px; font-weight: 900; color: #ffd23f; letter-spacing: 4px; text-shadow: 3px 3px 0 #a8124a; }
+.round-btn { position: absolute; right: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; border: 3px solid #fff;
+  background: #5b8def; box-shadow: 0 3px 0 #2f5bb5; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+.round-btn svg { width: 24px; height: 24px; }
+main { position: relative; }
+.section { margin: 22px 4px 10px; font-size: 22px; font-weight: 900; color: #ffd23f; letter-spacing: .5px; }
+.section span { color: #fff; font-size: 17px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tile { display: block; text-decoration: none; color: #fff; border-radius: 22px; padding: 10px 10px 12px; text-align: center;
+  background: var(--c); border: 4px solid #fff; box-shadow: 0 6px 0 rgba(0,0,0,.35); transition: transform .1s; }
+.tile:active { transform: scale(.95); }
+.tile .thumb { aspect-ratio: 1; border-radius: 16px; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.tile .thumb img, .tile .thumb svg { width: 100%; height: 100%; display: block; }
+.tile .title { margin-top: 8px; font-size: 21px; font-weight: 900; text-shadow: 2px 2px 0 rgba(0,0,0,.2); }
+.tile .tag { font-size: 13px; font-weight: 700; opacity: .95; }
+.tile.soon { opacity: .55; filter: grayscale(.5); border-style: dashed; }
+#shelf { border-radius: 18px; padding: 12px 10px 6px; background: linear-gradient(#5b3a22, #4a2e1a); border: 4px solid #3a2414;
+  box-shadow: inset 0 0 20px rgba(0,0,0,.4); }
+.plank-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; align-items: end; min-height: 80px; }
+.plank { height: 12px; margin: 0 -4px 12px; border-radius: 4px; background: linear-gradient(#c98d55, #8a5a34); box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.trophy { position: relative; text-align: center; }
+.trophy svg { width: 62px; height: 62px; display: block; margin: 0 auto; filter: drop-shadow(0 3px 2px rgba(0,0,0,.4)); }
+.trophy .count { position: absolute; top: -4px; right: 2px; background: #ff3d7f; color: #fff; font-weight: 900; font-size: 13px;
+  padding: 1px 6px; border-radius: 10px; border: 2px solid #fff; }
+.trophy .tname { font-size: 11px; font-weight: 800; color: #ffe9c9; line-height: 1.1; min-height: 24px; }
+.empty { text-align: center; padding: 18px 8px 22px; font-weight: 800; color: #ffe9c9; font-size: 16px; line-height: 1.4; }
+footer { position: relative; text-align: center; margin-top: 22px; font-size: 13px; font-weight: 700; opacity: .6; }

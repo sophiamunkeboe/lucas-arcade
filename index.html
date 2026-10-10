@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Lucas's Arcade</title>
+<meta name="theme-color" content="#2b2140">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucas's Arcade">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/arcade.css">
+</head>
+<body>
+<div id="app">
+  <div class="stars" aria-hidden="true"></div>
+  <header>
+    <div class="marquee">
+      <h1><span class="l1">Lucas's</span><span class="l2">ARCADE</span></h1>
+    </div>
+    <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
+  </header>
+
+  <main>
+    <h2 class="section">Pick a game!</h2>
+    <div id="games" class="grid"></div>
+
+    <h2 class="section">Trophy Shelf <span id="trophyCount"></span></h2>
+    <div id="shelf"></div>
+  </main>
+  <footer>Made by Lucas &amp; Dad</footer>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/prizes.js"></script>
+<script src="js/games.js"></script>
+<script src="js/arcade.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
+  }
+</script>
+</body>
+</html>

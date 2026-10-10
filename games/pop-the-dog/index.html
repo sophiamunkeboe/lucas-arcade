@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Pop the Dog - Lucas's Arcade</title>
+<meta name="theme-color" content="#ff8a3d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucas's Arcade">
+<link rel="manifest" href="../../manifest.json">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../../icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="c"></canvas>
+
+  <!-- top bar: always visible -->
+  <div id="topbar">
+    <a id="homeBtn" class="round-btn" href="../../index.html" aria-label="Back to Arcade">
+      <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3 Z" fill="currentColor"/></svg>
+    </a>
+    <div id="hud" class="hidden">
+      <div id="meter"><div id="meterFill"></div><span id="meterLabel">POP METER</span></div>
+      <div id="score">0</div>
+    </div>
+    <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
+  </div>
+
+  <!-- trick buttons (built by game.js) -->
+  <div id="tricks" class="hidden"></div>
+
+  <!-- 1. pick a dog -->
+  <section id="screen-select" class="screen">
+    <div class="panel">
+      <h1 class="logo">Pop the Dog!</h1>
+      <p class="sub">Who do you want to feed?</p>
+      <div id="dogCards"></div>
+    </div>
+  </section>
+
+  <!-- 2. how to play -->
+  <section id="screen-howto" class="screen hidden">
+    <div class="panel">
+      <h2>How to play</h2>
+      <img id="howtoDog" alt="">
+      <ol class="steps">
+        <li><b>Swipe up</b> from the popcorn bowl to flick popcorn. (Or just <b>tap</b> where you want it to go!)</li>
+        <li>Every catch puffs <span class="dogname">Bella</span> up <b>bigger</b>... and she starts to wiggle!</li>
+        <li>Tap a <b>trick</b> button. When she's done, toss her a treat for a <b>GOOD DOG</b> bonus!</li>
+        <li>Fill the <b>POP METER</b> and she goes <b>POP!</b> Then win a prize for your Trophy Shelf.</li>
+      </ol>
+      <p id="howtoPower" class="power"></p>
+      <button id="goBtn" class="big-btn">Let's go!</button>
+    </div>
+  </section>
+
+  <!-- 3. prize! -->
+  <section id="screen-prize" class="screen hidden">
+    <div class="panel prize-panel">
+      <h2 id="prizeTitle">She POPPED!</h2>
+      <div id="card">
+        <div class="card-inner">
+          <div class="card-face card-back"><span>?</span></div>
+          <div class="card-face card-front"><div id="prizeArt"></div><div id="prizeName"></div></div>
+        </div>
+      </div>
+      <p id="prizeMsg">&nbsp;</p>
+      <div class="btn-row">
+        <button id="againBtn" class="big-btn">Play again</button>
+        <button id="arcadeBtn" class="big-btn alt">Back to Arcade</button>
+      </div>
+      <button id="switchBtn" class="link-btn">Pick another dog</button>
+    </div>
+  </section>
+</div>
+
+<script src="../../js/storage.js"></script>
+<script src="../../js/sfx.js"></script>
+<script src="../../js/prizes.js"></script>
+<script src="dogs.js"></script>
+<script src="game.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(() => {});
+  }
+</script>
+</body>
+</html>
