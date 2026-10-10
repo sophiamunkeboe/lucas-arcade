@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 440">
+ <!-- chubby body -->
+ <ellipse cx="200" cy="345" rx="140" ry="85" fill="#fff8ee" stroke="#c9b79c" stroke-width="3"/>
+ <ellipse cx="270" cy="330" rx="70" ry="60" fill="#d9a066"/>
+ <circle cx="120" cy="400" r="30" fill="#fff8ee" stroke="#c9b79c" stroke-width="3"/>
+ <circle cx="280" cy="400" r="30" fill="#fff8ee" stroke="#c9b79c" stroke-width="3"/>
+ <!-- shed fur bits -->
+ <g stroke="#e6d6be" stroke-width="3" stroke-linecap="round">
+  <path d="M40 400 l12 -4"/><path d="M60 425 l10 3"/><path d="M345 410 l12 -2"/><path d="M360 380 l8 6"/><path d="M30 360 l10 5"/>
+ </g>
+ <!-- purple collar -->
+ <rect x="110" y="258" width="180" height="24" rx="12" fill="#7a1f6a"/>
+ <circle cx="200" cy="296" r="12" fill="#e2b33c" stroke="#a37a1c" stroke-width="2"/>
+ <!-- ears -->
+ <path d="M95 105 C70 70 120 60 140 95 Z" fill="#4a2e22"/>
+ <path d="M305 105 C330 70 280 60 260 95 Z" fill="#4a2e22"/>
+ <!-- big round head -->
+ <ellipse cx="200" cy="170" rx="118" ry="105" fill="#d9a066" stroke="#a9733f" stroke-width="3"/>
+ <!-- white blaze and muzzle -->
+ <path d="M185 70 C190 120 175 160 140 195 C130 250 270 250 260 195 C225 160 210 120 215 70 Z" fill="#fff8ee"/>
+ <!-- dark eye patch -->
+ <ellipse cx="148" cy="160" rx="34" ry="30" fill="#3d2a22"/>
+ <!-- big pleading eyes -->
+ <circle cx="150" cy="160" r="19" fill="#fff"/><circle cx="250" cy="160" r="19" fill="#fff"/>
+ <circle cx="152" cy="163" r="13" fill="#3a2414"/><circle cx="248" cy="163" r="13" fill="#3a2414"/>
+ <circle cx="157" cy="157" r="5" fill="#fff"/><circle cx="253" cy="157" r="5" fill="#fff"/>
+ <path d="M130 135 Q150 125 168 140" stroke="#3d2a22" stroke-width="5" fill="none" stroke-linecap="round"/>
+ <path d="M232 140 Q250 125 270 135" stroke="#6b4a32" stroke-width="5" fill="none" stroke-linecap="round"/>
+ <!-- jowls -->
+ <ellipse cx="200" cy="232" rx="72" ry="40" fill="#fff8ee" stroke="#d6c3a6" stroke-width="2"/>
+ <path d="M135 225 Q200 285 265 225" fill="#3d2a22" opacity="0.85"/>
+ <ellipse cx="200" cy="205" rx="28" ry="18" fill="#2a1d18"/>
+ <ellipse cx="192" cy="199" rx="8" ry="4" fill="#6b5a52"/>
+ <!-- happy goofy tongue -->
+ <path d="M185 248 Q200 280 215 248 Z" fill="#ff7f93"/>
+ <!-- slobber -->
+ <path d="M150 248 q-4 30 4 40 q8 -10 2 -40 Z" fill="#cfefff" stroke="#8fc7e6" stroke-width="2"/>
+ <circle cx="152" cy="298" r="7" fill="#cfefff" stroke="#8fc7e6" stroke-width="2"/>
+ <g fill="#e9f8ff" stroke="#8fc7e6" stroke-width="2"><circle cx="240" cy="258" r="7"/><circle cx="252" cy="250" r="5"/><circle cx="232" cy="266" r="4"/></g>
+ <text x="200" y="438" font-family="Arial Rounded MT Bold,Arial" font-weight="bold" font-size="30" text-anchor="middle" fill="#444">MARLEY</text>
+</svg>
