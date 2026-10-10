@@ -12,10 +12,10 @@ own icon and works offline.
 | *Coming soon* | | Lucas's next idea! |
 
 ### Pop the Dog
-- Pick **Bella** (fluffy Goldendoodle, famous RBF face when you miss) or **Marley** (chubby, slobbery American Bulldog; her drool gives a **slobber bonus**, and fur floats off her).
+- Pick **Bella** (fluffy Goldendoodle, famous RBF face when you miss) or **Marley** (chubby, slobbery American Bulldog in her #4 Suns-style jersey; her drool gives a **slobber bonus**, and fur floats off her).
 - **Swipe up** from the bowl to flick popcorn (or **tap** where you want it to go).
 - The bigger she gets, the more she wiggles side to side.
-- **Tricks:** Shake, Sit, Stay, Roll Over, Sit Pretty. When she finishes, toss her a treat for a **GOOD DOG** bonus. Sometimes she asks for a trick herself, and doing the one she asked for gives extra points.
+- **Tricks:** Shake, Sit, Stay, Speak, Roll Over, Sit Pretty. When she finishes, toss her a treat for a **GOOD DOG** bonus. Sometimes she asks for a trick herself, and doing the one she asked for gives extra points.
 - Stop tossing popcorn and she starts whimpering and begging. She barks too (Bella yips higher, Marley barks lower and gruffer).
 - Fill the **POP METER**, she pops into popcorn and confetti (and comes right back, totally fine), and a prize card flips over. Prizes go on the **Trophy Shelf** on the home screen.
 - All sounds are made in code (Web Audio). The speaker button mutes them.
@@ -45,9 +45,10 @@ screens/              screenshots
 2. Add it to `js/games.js`.
 3. Add its files to `FILES` in `sw.js` and bump `VERSION`.
 
-### Give a dog an outfit (like a Suns jersey for Marley)
-See the note at the top of `games/pop-the-dog/dogs.js`: add an entry to `OUTFITS`
-and set `outfit:` on the dog.
+### Outfits
+Marley wears Lucas's pick: a purple and orange Suns-style fan jersey, number **4**
+(`suns-jersey` in `OUTFITS` in `games/pop-the-dog/dogs.js`). To add another outfit, add an
+entry to `OUTFITS` and set `outfit:` on the dog.
 
 ### Testing shortcuts
 Add these to the Pop the Dog URL: `?debug=play`, `?debug=mid`, `?debug=pop`, `?debug=prize`,

@@ -6,7 +6,7 @@
    Each part is a small SVG that gets turned into a picture once, then the
    game moves/rotates the parts every frame using a POSE.
 
-   Faces:  normal | happy | miss   (Bella's "miss" face is her famous RBF)
+   Faces:  normal | happy | miss | bark   (Bella's "miss" face is her famous RBF)
 
    HOW TO ADD AN OUTFIT (example: a Suns jersey for Marley)
      1. Add an entry to OUTFITS below, e.g.
@@ -16,7 +16,33 @@
      2. Set  outfit: 'suns-jersey'  on the dog in DOGS below.             */
 (function () {
   const OUTFITS = {
-    // none yet - Lucas is still deciding!
+    // Lucas's pick: a Phoenix-Suns-style fan jersey, number 4 (generic design, not an official logo)
+    'suns-jersey': {
+      name: 'Sun Jersey #4',
+      box: [80, 255, 240, 130],
+      tagUp: true,              // move the collar tag up onto the collar so it doesn't cover the jersey
+      svg: () =>
+        '<defs><clipPath id="jc"><ellipse cx="200" cy="322" rx="121" ry="79"/></clipPath></defs>' +
+        '<g clip-path="url(#jc)">' +
+        // main jersey
+        '<path d="M70 262 L330 262 L330 362 Q200 392 70 362 Z" fill="#5a2d91"/>' +
+        // orange side panels
+        '<path d="M70 262 L104 262 Q96 320 102 372 L70 366 Z" fill="#f47b20"/>' +
+        '<path d="M330 262 L296 262 Q304 320 298 372 L330 366 Z" fill="#f47b20"/>' +
+        '<path d="M104 262 Q96 320 102 372 M296 262 Q304 320 298 372" stroke="#fff" stroke-width="3" fill="none"/>' +
+        // hem trim
+        '<path d="M70 358 Q200 388 330 358" stroke="#f47b20" stroke-width="7" fill="none"/>' +
+        '<path d="M70 352 Q200 382 330 352" stroke="#fff" stroke-width="2.5" fill="none"/>' +
+        '</g>' +
+        // little sun burst + SUNS
+        '<g transform="translate(200 307)">' +
+        '<g stroke="#f9a825" stroke-width="3" stroke-linecap="round">' +
+        '<path d="M-30 0 l-10 0 M30 0 l10 0 M-21 -15 l-7 -7 M21 -15 l7 -7 M0 -20 l0 -9 M-11 -19 l-4 -8 M11 -19 l4 -8"/></g>' +
+        '<path d="M-17 0 A17 17 0 0 1 17 0 Z" fill="#f9a825"/></g>' +
+        '<text x="200" y="326" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="20" fill="#fff" letter-spacing="2">SUNS</text>' +
+        // big number 4
+        '<text x="200" y="368" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="46" fill="#f47b20" stroke="#fff" stroke-width="3" paint-order="stroke">4</text>',
+    },
   };
 
   const GROUND = 410;
@@ -95,11 +121,12 @@
       '<path d="M154 399 v10 M165 398 v11 M176 399 v10" stroke="#c9b79c" stroke-width="2"/>' },
     head: { box: [58, 52, 286, 266], pivot: [200, 262] },
   };
-  function marleyHead() {
+  function marleyHead(tagUp) {
     return '<path d="M95 105 C70 70 120 60 140 95 Z" fill="#4a2e22"/>' +
       '<path d="M305 105 C330 70 280 60 260 95 Z" fill="#4a2e22"/>' +
       '<rect x="110" y="254" width="180" height="24" rx="12" fill="#7a1f6a"/>' +
-      '<circle cx="200" cy="292" r="12" fill="#e2b33c" stroke="#a37a1c" stroke-width="2"/>' +
+      (tagUp ? '<circle cx="200" cy="270" r="11" fill="#e2b33c" stroke="#a37a1c" stroke-width="2"/>'
+             : '<circle cx="200" cy="292" r="12" fill="#e2b33c" stroke="#a37a1c" stroke-width="2"/>') +
       '<ellipse cx="200" cy="170" rx="118" ry="105" fill="#d9a066" stroke="#a9733f" stroke-width="3"/>' +
       '<path d="M185 70 C190 120 175 160 140 195 C130 250 270 250 260 195 C225 160 210 120 215 70 Z" fill="#fff8ee"/>' +
       '<ellipse cx="148" cy="160" rx="34" ry="30" fill="#3d2a22"/>';
@@ -125,12 +152,14 @@
         snout +
         '<path d="M182 242 L222 239" stroke="#5a4636" stroke-width="4" stroke-linecap="round"/>';
     }
-    // normal: wide-eyed popcorn stare
+    // normal: wide-eyed popcorn stare  (bark: same eyes, mouth wide open)
     return '<circle cx="160" cy="165" r="18" fill="#2a1a10"/><circle cx="240" cy="165" r="18" fill="#2a1a10"/>' +
       '<circle cx="166" cy="159" r="6" fill="#fff"/><circle cx="246" cy="159" r="6" fill="#fff"/>' +
       '<circle cx="156" cy="171" r="2.5" fill="#fff"/><circle cx="236" cy="171" r="2.5" fill="#fff"/>' +
-      snout +
-      '<path d="M184 240 Q200 248 216 240" stroke="#5a4636" stroke-width="4" fill="none" stroke-linecap="round"/>';
+      (face === 'bark'
+        ? '<path d="M120 135 Q160 122 180 140 M220 140 Q240 122 280 135" stroke="#cbbfa8" stroke-width="5" fill="none" stroke-linecap="round"/>' + snout +
+          '<ellipse cx="200" cy="252" rx="24" ry="22" fill="#5a2c24"/><path d="M186 262 Q200 278 214 262 Z" fill="#ff7f93"/>'
+        : snout + '<path d="M184 240 Q200 248 216 240" stroke="#5a4636" stroke-width="4" fill="none" stroke-linecap="round"/>');
   }
 
 
@@ -161,9 +190,11 @@
           '<path d="M232 140 Q250 125 270 135" stroke="#6b4a32" stroke-width="5" fill="none" stroke-linecap="round"/>') +
       jowls +
       (sad ? '<path d="M165 252 Q200 232 235 252" stroke="#3d2a22" stroke-width="6" fill="none" stroke-linecap="round"/>'
+           : face === 'bark' ? '<path d="M138 222 Q200 318 262 222 Z" fill="#3d2a22"/>'
            : '<path d="M135 225 Q200 285 265 225" fill="#3d2a22" opacity="0.85"/>') +
       nose +
-      (sad ? '' : '<path d="M185 248 Q200 280 215 248 Z" fill="#ff7f93"/>') +
+      (sad ? '' : face === 'bark' ? '<path d="M178 262 Q200 300 222 262 Z" fill="#ff7f93" stroke="#e0607a" stroke-width="2"/>'
+           : '<path d="M185 248 Q200 280 215 248 Z" fill="#ff7f93"/>') +
       marleyDrool;
   }
 
@@ -184,13 +215,13 @@
       blurb: 'Chubby, slobbery, lovable goober.',
       power: 'Slobber bonus: drool makes popcorn stick!',
       color: '#e8b27a',
-      outfit: null,
+      outfit: 'suns-jersey',   // Lucas's pick! (set to null to take it off)
       catchBonus: 1.15,
       voice: { pitch: 0.72, gruff: 0.8 },  // lower, gruffer bark
       parts: marleyParts, headSvg: marleyHead, face: marleyFace,
     },
   };
-  const FACES = ['normal', 'happy', 'miss'];
+  const FACES = ['normal', 'happy', 'miss', 'bark'];
 
   // ---------- turn part SVGs into pictures (offscreen canvases) ----------
   const RES = 2;   // pixels per art unit (sharp enough for phones)
@@ -217,7 +248,8 @@
     const jobs = [];
     ['tail', 'backStand', 'backSit', 'body', 'leg', 'paw'].forEach(k =>
       jobs.push(svgImage(P[k].box, P[k].svg).then(c => { out[k] = c; })));
-    FACES.forEach(f => jobs.push(svgImage(P.head.box, d.headSvg() + d.face(f)).then(c => { out.faces[f] = c; })));
+    const tagUp = !!(d.outfit && OUTFITS[d.outfit] && OUTFITS[d.outfit].tagUp);
+    FACES.forEach(f => jobs.push(svgImage(P.head.box, d.headSvg(tagUp) + d.face(f)).then(c => { out.faces[f] = c; })));
     if (d.outfit && OUTFITS[d.outfit]) {
       const o = OUTFITS[d.outfit];
       jobs.push(svgImage(o.box, o.svg(dogId)).then(c => { out.outfit = c; out.outfitBox = o.box; }));
@@ -262,6 +294,7 @@
     pretty: { dy: -8, back: 'sit', fl: -2.1, fls: 0.42, fr: -2.1, frs: 0.42, headDY: -6, sy: 1.04, tail: 0.4 },
     pretty2: { dy: -14, back: 'sit', fl: -1.85, fls: 0.45, fr: -1.85, frs: 0.45, headDY: -8, headRot: 0.1, sy: 1.05, tail: 0.4 },
     beg: { dy: 0, headRot: 0.22, wag: 0.4 },
+    speak: { dy: 22, back: 'sit', headDY: -18, headRot: -0.08, tail: 0.6, wag: 1.3, sy: 1.03 },
   };
   function pose(name, extra) { return Object.assign({}, BASE, POSES[name] || {}, extra || {}); }
   const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -289,7 +322,13 @@
       [0, pose('stand')], [0.35, pose('sit')], [0.8, pose('pretty')], [1.1, pose('pretty2')], [1.4, pose('pretty')],
       [1.7, pose('pretty2')], [2.0, pose('pretty')], [2.4, pose('sit')], [2.8, pose('sit')]] },
   };
-  const TRICK_ORDER = ['shake', 'sit', 'stay', 'rollover', 'sitpretty'];
+  // Speak: she barks on command (game.js plays a bark + WOOF! at each time in "barks")
+  TRICKS.speak = { name: 'Speak', icon: 'speak', dur: 2.3, barks: [0.55, 1.05, 1.55], keys: [
+    [0, pose('stand')], [0.35, pose('sit', { dy: 22 })],
+    [0.55, pose('speak')], [0.8, pose('sit', { dy: 22, headDY: -4 })],
+    [1.05, pose('speak', { headRot: 0.08 })], [1.3, pose('sit', { dy: 22, headDY: -4 })],
+    [1.55, pose('speak')], [1.9, pose('sit', { dy: 22 })], [2.3, pose('sit')]] };
+  const TRICK_ORDER = ['shake', 'sit', 'stay', 'speak', 'rollover', 'sitpretty'];
   function trickPose(id, time) {
     const k = TRICKS[id].keys;
     if (time <= k[0][0]) return k[0][1];
@@ -336,7 +375,6 @@
     t.save(); t.translate(0, p.dy);
     t.about(200, 330, () => t.rotate(p.lean));
     put(imgs.body, P.body.box);
-    if (imgs.outfit) put(imgs.outfit, imgs.outfitBox);
     info.body = t.m();
     t.restore();
 
@@ -359,6 +397,14 @@
     const raised = Math.abs(p.fl) > 1.6 || Math.abs(p.fr) > 1.6;
     const legs = () => { leg(-1, p.fl, p.fls); leg(1, p.fr, p.frs); };
     if (!raised) legs();
+
+    // outfit: worn over the chest, so the front legs come out from under it
+    if (imgs.outfit) {
+      t.save(); t.translate(0, p.dy);
+      t.about(200, 330, () => t.rotate(p.lean));
+      put(imgs.outfit, imgs.outfitBox);
+      t.restore();
+    }
 
     // head
     t.save(); t.translate(0, p.dy + p.headDY);

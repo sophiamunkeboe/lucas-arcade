@@ -1,6 +1,6 @@
 /* Lucas's Arcade - service worker: keeps every file on the phone so the arcade works offline.
    When you change or add files: add them to FILES and bump VERSION. */
-const VERSION = 'lucas-arcade-v1';
+const VERSION = 'lucas-arcade-v2';
 const FILES = [
   './',
   './index.html',

@@ -354,6 +354,7 @@
     sit: '<svg viewBox="0 0 32 32"><path d="M9 28 V20 Q9 12 15 11 L15 6 Q15 3 18 3 L22 4 L25 7 L21 9 L21 13 Q25 17 24 28 Z" fill="#fff"/></svg>',
     hand: '<svg viewBox="0 0 32 32"><path d="M10 29 Q6 22 6 16 L6 10 Q6 8 8 8 Q10 8 10 10 L10 15 L10 5 Q10 3 12 3 Q14 3 14 5 L14 14 L14 3.5 Q14 1.5 16 1.5 Q18 1.5 18 3.5 L18 14 L18 5 Q18 3 20 3 Q22 3 22 5 L22 17 L24 13 Q25.5 11 27 12 Q28.5 13 27.5 15 L23 25 Q21 29 17 29 Z" fill="#fff"/></svg>',
     roll: '<svg viewBox="0 0 32 32"><path d="M16 4 A12 12 0 1 1 5 11" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M1 6 L6 13 L11 7 Z" fill="#fff"/></svg>',
+    speak: '<svg viewBox="0 0 32 32"><path d="M4 6 Q4 3 7 3 L25 3 Q28 3 28 6 L28 18 Q28 21 25 21 L13 21 L7 28 L8 21 L7 21 Q4 21 4 18 Z" fill="#fff"/><text x="16" y="16" text-anchor="middle" font-size="9" font-weight="900" fill="#7c5cff" font-family="Arial">WOOF</text></svg>',
     pretty: '<svg viewBox="0 0 32 32"><g fill="#fff"><ellipse cx="10" cy="16" rx="5" ry="6"/><ellipse cx="22" cy="16" rx="5" ry="6"/><circle cx="7" cy="9" r="2"/><circle cx="11" cy="8" r="2"/><circle cx="21" cy="8" r="2"/><circle cx="25" cy="9" r="2"/></g><path d="M8 27 Q16 23 24 27" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
   };
   function buildTrickBar() {
@@ -379,7 +380,7 @@
     S.trickAsked = S.request === id;
     S.request = null; S.reward = 0; S.trick = id; S.trickT = 0; S.begT = 0;
     S.nextRequest = S.time + rand(12, 18);
-    addText(dog().name + ', ' + PTD.TRICKS[id].name.toUpperCase() + '!', W / 2, H * 0.24, '#7c5cff', 24, 1.3, 0);
+    addText(dog().name + ', ' + PTD.TRICKS[id].name.toUpperCase() + '!', W / 2, H * 0.26, '#7c5cff', 24, 1.3, 0);
     updateTrickButtons();
   }
   function finishTrick() {
@@ -550,6 +551,14 @@
     if (S.trick) {
       S.trickT += dt;
       S.pose = PTD.trickPose(S.trick, S.trickT);
+      const tk = PTD.TRICKS[S.trick];
+      if (tk.barks) tk.barks.forEach(bt => {
+        if (S.trickT >= bt && S.trickT - dt < bt) {
+          sfx.bark(dog().voice.pitch, dog().voice.gruff, 1);
+          setFace('bark', 0.28);
+          S.bubble = { text: S.dogId === 'marley' ? 'WOOF!' : 'YIP! YIP!', t: 0.45 };
+        }
+      });
       if (S.trick === 'stay' && Math.floor(S.trickT - 0.6) !== Math.floor(S.trickT - 0.6 - dt) && S.trickT > 0.6 && S.trickT < 3.6) sfx.click();
       if (S.trickT >= PTD.TRICKS[S.trick].dur) finishTrick();
     } else {
@@ -764,7 +773,7 @@
     ctx.save();
     ctx.font = '800 17px ' + FONT;
     const w = ctx.measureText(text).width + 26, h = 36;
-    let x = clamp(S.headTop.x + 30, w / 2 + 6, W - w / 2 - 6), y = Math.max(S.headTop.y - 40, 128);
+    let x = clamp(S.headTop.x + 30, w / 2 + 6, W - w / 2 - 6), y = Math.max(S.headTop.y - 40, 168);
     ctx.fillStyle = isAsk ? '#ffb800' : '#fff'; ctx.strokeStyle = isAsk ? '#b37f00' : '#6b3f1d'; ctx.lineWidth = 3;
     roundRect(ctx, x - w / 2, y - h / 2, w, h, 16); ctx.fill(); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x - 18, y + h / 2 - 2); ctx.lineTo(x - 30, y + h / 2 + 14); ctx.lineTo(x - 4, y + h / 2 - 2); ctx.closePath();
@@ -879,7 +888,7 @@
       const id = Q.get('trick') || 'shake';
       doTrick(id); S.trickT = parseFloat(Q.get('tt') || '0.8');
       S.texts = [];
-      addText(S.dogId[0].toUpperCase() + S.dogId.slice(1) + ', ' + PTD.TRICKS[id].name.toUpperCase() + '!', W / 2, H * 0.24, '#7c5cff', 24, 99, 0);
+      addText(S.dogId[0].toUpperCase() + S.dogId.slice(1) + ', ' + PTD.TRICKS[id].name.toUpperCase() + '!', W / 2, H * 0.26, '#7c5cff', 24, 99, 0);
     }
     if (DEBUG === 'pop') { S.score = GOAL; updateHud(); startPop(); }
     // fast-forward to the freeze moment (headless browsers barely run animation frames)
