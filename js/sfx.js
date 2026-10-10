@@ -221,6 +221,18 @@
       tone('sine', 260, 170, t + 0.05, 0.6, 0.03);
     },
 
+    // little paw-patter footstep (Gorda's zoomies)
+    patter() {
+      if (!ready()) return; const t = ctx.currentTime;
+      noise(t, 0.035, 0.07, 'bandpass', 1800 + Math.random() * 1400, 0, 2);
+      tone('sine', 180 + Math.random() * 60, 120, t, 0.04, 0.04);
+    },
+    // popcorn bouncing off Gorda
+    boop() {
+      if (!ready()) return; const t = ctx.currentTime;
+      tone('sine', 700, 320, t, 0.12, 0.15);
+    },
+
     bonus() {
       if (!ready()) return; const t = ctx.currentTime;
       [880, 1175, 1568].forEach((f, i) => tone('sine', f, 0, t + i * 0.06, 0.1, 0.15));

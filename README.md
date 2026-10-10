@@ -29,7 +29,7 @@ security. Trophies won before logins existed went to the first player created.
 - **Tricks:** Shake, Sit, Stay, Speak, Roll Over, Sit Pretty. When she finishes, toss her a treat for a **GOOD DOG** bonus. Sometimes she asks for a trick herself, and doing the one she asked for gives extra points.
 - Stop tossing popcorn and she starts whimpering and begging. She barks too (Bella yips higher, Marley barks lower and gruffer).
 - Fill the **POP METER**, she pops into popcorn and confetti (and comes right back, totally fine), and a prize card flips over. Prizes go on the **Trophy Shelf** on the home screen.
-- **Gorda**, Marley's sister (brindle bulldog, pink collar), naps on the couch in the background: she snores, twitches her ears, lifts her head to watch the popcorn, and perks up when the dog pops. Not playable yet!
+- **Gorda**, Marley's sister (brindle bulldog, pink collar), naps on the couch in the background: she snores, twitches her ears, lifts her head to watch the popcorn, and perks up when the dog pops. In Marley's game she sometimes gets the zoomies (every ~30-45 s, and once just after Marley comes back from a POP): she stretches, hops down, runs 2 laps around Marley (behind him on the far side, in front on the near side), does a play bow while Marley turns to watch and barks, then jumps back on the couch and naps. Popcorn that hits her just bounces off (no points lost). Debug: `?debug=mid&dog=marley&freeze=0.02&zoomies=<seconds>`. Not playable yet!
 - All sounds are made in code (Web Audio). The speaker button mutes them.
 
 ## How it's built

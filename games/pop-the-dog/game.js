@@ -58,6 +58,7 @@
     L.gorda = { x: W * 0.215, y: L.wallY - H * 0.035 + 4, k: Math.min(W * 0.27, 150) / 270 };
     if (!S.x) S.x = W / 2;
     bg = renderBackground(); fg = renderForeground();
+    if (Z.on) updateZoomies(0);   // keep Gorda on the new floor loop after a resize/rotate
   }
 
   function offscreen(w, h) {
@@ -303,6 +304,9 @@
   }
   function startPlay() {
     resetRound(); setMode('play');
+    if (Z.on) stopZoomies();
+    Z.next = S.time + (S.justPopped ? 1.5 : rand(30, 45));   // Gorda celebrates right after a POP
+    S.justPopped = false;
     setTimeout(() => sfx.bark(dog().voice.pitch, dog().voice.gruff, 2), 250);
   }
 
@@ -320,7 +324,7 @@
     tx = clamp(tx, -W * 0.2, W * 1.2);
     S.flying.push({ x0: L.launch.x + rand(-L.bowlW * 0.15, L.bowlW * 0.15), y0: L.launch.y, tx, ty: S.mouth.y,
       t: 0, spin: rand(-8, 8), v: Math.floor(rand(0, 4)), x: 0, y: 0, size: 30 });
-    if (G.state === 'sleep' && Math.random() < 0.18) gordaWake('watch', rand(3, 5));
+    if (G.state === 'sleep' && !Z.on && Math.random() < 0.18) gordaWake('watch', rand(3, 5));
     S.handT = 0.2; S.handAim = clamp((tx - L.launch.x) / (W * 0.5), -1, 1);
     sfx.whoosh();
   }
@@ -433,11 +437,12 @@
   }
 
   function onMiss(f) {
-    S.streak = 0;
     const floorY = Math.max(f.y + 4, L.feetY + rand(-H * 0.02, H * 0.09));
     S.falling.push({ x: f.x, y: f.y, vx: (f.tx - f.x0) / FLIGHT * 0.25, vy: -60, floorY, spin: f.spin, r: 0, v: f.v, size: f.size, bounced: false });
   }
   function landed(c) {
+    if (c.noPenalty) { S.floor.push({ x: c.x, y: c.floorY, r: c.r, v: c.v, size: c.size }); if (S.floor.length > 40) S.floor.shift(); return; }
+    S.streak = 0;
     sfx.boing();
     S.floor.push({ x: c.x, y: c.floorY, r: c.r, v: c.v, size: c.size });
     if (S.floor.length > 40) S.floor.shift();
@@ -462,15 +467,16 @@
   function updateGorda(dt) {
     G.t += dt;
     G.breathe = Math.sin(G.t * (G.state === 'sleep' ? 1.6 : 2.4));
+    if ((S.popState === 'boom' || S.popState === 'swell') && Z.on) stopZoomies();
     if (S.popState === 'boom' || S.popState === 'swell') gordaWake('perk', 4.5);
     if (G.state !== 'sleep' && S.time > G.until) {
       G.state = 'sleep'; G.nextSnore = S.time + rand(4, 8);
       if (S.mode === 'play') sfx.sigh();
     }
-    if (G.state === 'sleep' && S.time > G.until + 8 && Math.random() < dt / 9) gordaWake('watch', rand(3, 5));  // just looking around
+    if (G.state === 'sleep' && !Z.on && S.time > G.until + 8 && Math.random() < dt / 9) gordaWake('watch', rand(3, 5));  // just looking around
     // targets
     let tDY = 22, tRot = -0.12, face = 'sleep';
-    if (G.state === 'watch') {
+    if (G.state === 'watch' || G.state === 'zoom') {
       tDY = 2; face = 'open';
       const f = S.flying[0] || S.falling[0];
       tRot = f ? clamp((f.x - L.gorda.x) / W * 0.9, -0.35, 0.35) : 0.12 * Math.sin(G.t * 0.8);
@@ -495,6 +501,7 @@
   }
   function drawGorda() {
     if (!G.imgs) return;
+    if (Z.on && Z.mode !== 'couch') { drawZoomies('back'); return; }
     const g = L.gorda;
     ctx.save(); ctx.translate(g.x, g.y); ctx.scale(g.k, g.k); ctx.translate(-150, -PTD.Gorda.BASE_Y);
     PTD.Gorda.draw(ctx, G.imgs, G);
@@ -508,6 +515,118 @@
       ctx.strokeText('Z', zx + 10, zy - 12); ctx.fillText('Z', zx + 10, zy - 12);
       ctx.restore();
     }
+  }
+
+
+  // ---------------- Gorda's ZOOMIES (Marley game only) ----------------
+  // ~8 s: wake -> stretch -> hop down -> laps around Marley (behind on the far side, in front on
+  // the near side) with a play bow -> run back -> jump up -> turn around -> lie down.
+  const Z = { on: false, t: 0, next: 35, mode: 'couch', x: 0, y: 0, k: 0.3, face: 1, layer: 'back', phi: 0,
+    lastStep: 0, fired: {}, watchRot: 0, st: null };
+  function startZoomies() {
+    if (Z.on || S.dogId !== 'marley' || !G.runImgs || S.popState) return;
+    Object.assign(Z, { on: true, t: 0, fired: {}, mode: 'couch', phi: 0 });
+    G.state = 'zoom'; G.until = 1e9; G.earT = 0.35;
+  }
+  function stopZoomies() {
+    Z.on = false; Z.next = S.time + rand(30, 45);
+    if (G.state === 'zoom') { G.state = 'sleep'; G.until = S.time; }
+  }
+  function zLoop() {
+    const rx = L.dogW * 0.5 * (1 + 0.7 * progress()) * 1.12 + 34, ry = H * 0.034;
+    return th => ({ x: S.x + rx * Math.cos(th), y: L.feetY + 4 + ry * Math.sin(th), d: Math.sin(th) });
+  }
+  function updateZoomies(dt) {
+    if (!Z.on) {
+      if (S.dogId === 'marley' && S.mode === 'play' && !S.popState && S.time > Z.next && G.runImgs) startZoomies();
+      return;
+    }
+    Z.t += dt;
+    const t = Z.t, seat = { x: L.gorda.x, y: L.gorda.y - 2 }, P = zLoop();
+    const base = { x: L.gorda.x + W * 0.02, y: L.wallY + H * 0.045 };
+    const kCouch = 0.3, depthK = d => 0.37 + 0.06 * d;
+    const once = (key, at, fn) => { if (t >= at && !Z.fired[key]) { Z.fired[key] = true; fn(); } };
+    const st = { legs: [0, 0, 0, 0], frontLen: 1, bodyDY: 0, bodyRot: 0, headRot: 0, tail: -0.2 + Math.sin(S.time * 18) * 0.4, face: 'open' };
+    const prevX = Z.x;
+    let running = false;
+    const runTo = (x, y, k) => { Z.x = x; Z.y = y; Z.k = k; running = true; };
+
+    if (t < 0.6) {
+      Z.mode = 'couch';
+    } else if (t < 1.2) {                       // stand up on the couch and stretch (play bow)
+      Z.mode = 'stand'; Z.layer = 'back'; Z.x = seat.x; Z.y = seat.y; Z.k = kCouch;
+      Z.face = P(Math.PI).x >= seat.x ? 1 : -1;
+      const b = Math.sin(clamp((t - 0.6) / 0.6, 0, 1) * Math.PI);
+      st.bodyRot = 0.26 * b; st.legs[2] = st.legs[3] = -0.9 * b; st.frontLen = 1 - 0.25 * b; st.face = 'happy';
+    } else if (t < 1.7) {                       // hop down
+      const u = (t - 1.2) / 0.5, a = seat, b = P(Math.PI);
+      Z.mode = 'stand'; Z.layer = 'back';
+      Z.x = lerp(a.x, b.x, u); Z.y = lerp(a.y, b.y, u) - 70 * Math.sin(Math.PI * u); Z.k = lerp(kCouch, depthK(0), u);
+      st.legs = [0.7, 0.6, -0.7, -0.6]; st.face = 'happy';
+    } else if (t < 3.5) {                       // lap 1: behind Marley, around the right, to the front
+      const p = P(Math.PI + 1.5 * Math.PI * (t - 1.7) / 1.8);
+      runTo(p.x, p.y, depthK(p.d)); Z.layer = p.d > 0 ? 'front' : 'back';
+    } else if (t < 4.1) {                       // play bow in front of Marley
+      const p = P(2.5 * Math.PI); Z.mode = 'stand'; Z.x = p.x; Z.y = p.y; Z.k = depthK(1); Z.layer = 'front';
+      const b = Math.sin(clamp((t - 3.5) / 0.6, 0, 1) * Math.PI);
+      st.bodyRot = 0.3 * b; st.legs[2] = st.legs[3] = -1.0 * b; st.frontLen = 1 - 0.3 * b; st.face = 'happy';
+      st.tail = -0.5 + Math.sin(S.time * 24) * 0.5;
+    } else if (t < 6.0) {                       // lap 2 (faster zoomies!) ending on the left
+      const p = P(2.5 * Math.PI + 2.5 * Math.PI * (t - 4.1) / 1.9);
+      runTo(p.x, p.y, depthK(p.d)); Z.layer = p.d > 0.05 ? 'front' : 'back';
+    } else if (t < 6.4) {                       // run back to the couch
+      const u = (t - 6.0) / 0.4, a = P(Math.PI);
+      runTo(lerp(a.x, base.x, u), lerp(a.y, base.y, u), lerp(depthK(0), kCouch + 0.02, u)); Z.layer = 'back';
+    } else if (t < 6.85) {                      // jump up onto the couch
+      const u = (t - 6.4) / 0.45;
+      Z.mode = 'stand'; Z.layer = 'back';
+      Z.x = lerp(base.x, seat.x, u); Z.y = lerp(base.y, seat.y, u) - 55 * Math.sin(Math.PI * u); Z.k = lerp(kCouch + 0.02, kCouch, u);
+      Z.face = seat.x >= base.x ? 1 : -1;
+      st.legs = [0.7, 0.6, -0.8, -0.7]; st.face = 'happy';
+    } else if (t < 7.5) {                       // turn around once on the cushion
+      Z.mode = 'stand'; Z.x = seat.x; Z.y = seat.y - Math.abs(Math.sin((t - 6.85) * 10)) * 4; Z.k = kCouch;
+      Z.face = (t < 7.0 || (t >= 7.2 && t < 7.35)) ? -1 : 1;
+      if (Math.floor(t * 10) !== Math.floor((t - dt) * 10)) sfx.patter();
+    } else if (t < 8.0) {                       // lie back down
+      if (Z.mode !== 'couch') { Z.mode = 'couch'; G.state = 'sleep'; G.until = S.time; G.headDY = 0; G.nextSnore = S.time + rand(5, 9); }
+    } else {
+      stopZoomies(); return;
+    }
+    if (running) {
+      Z.mode = 'stand';
+      if (Math.abs(Z.x - prevX) > 0.3) Z.face = Z.x > prevX ? 1 : -1;
+      Z.phi += dt * 17;
+      const a = 0.75;
+      st.legs = [Math.sin(Z.phi + 0.7) * a, Math.sin(Z.phi) * a, Math.sin(Z.phi + Math.PI + 0.7) * a, Math.sin(Z.phi + Math.PI) * a];
+      st.bodyDY = -Math.abs(Math.sin(Z.phi)) * 9; st.bodyRot = Math.sin(Z.phi) * 0.06; st.face = 'happy';
+      if (S.time - Z.lastStep > 0.1) { sfx.patter(); Z.lastStep = S.time; }
+    }
+    Z.st = st;
+    // Marley watches her and barks happily at the play bow
+    Z.watchRot = (t > 1.2 && t < 6.4) ? clamp((Z.x - S.x) / (W * 0.45), -1, 1) * 0.32 : 0;
+    once('yip1', 1.2, () => { sfx.bark(1.8, 0, 2); addText('yip yip!', Z.x, Z.y - 70 * Z.k / 0.3, '#e0436b', 16, 0.9); });
+    once('bow', 3.55, () => { sfx.bark(1.8, 0, 1); });
+    once('marley', 3.75, () => {
+      if (!S.trick) setFace('happy', 0.8);
+      sfx.bark(dog().voice.pitch, dog().voice.gruff, 2);
+      addText('RUFF RUFF!', S.headTop.x, S.headTop.y - 6, '#5a2d91', 22, 1);
+    });
+    once('yip2', 6.4, () => sfx.bark(1.8, 0, 1));
+  }
+  function gordaBox() {     // where standing Gorda is on screen (for popcorn bouncing off her)
+    if (!Z.on || Z.mode !== 'stand') return null;
+    const w = 125 * Z.k, h = 150 * Z.k;
+    return { x0: Z.x - w, x1: Z.x + w, y0: Z.y - h, y1: Z.y };
+  }
+  function drawZoomies(layer) {
+    if (!Z.on || Z.mode !== 'stand' || Z.layer !== layer || !G.runImgs || !Z.st) return;
+    // shadow
+    const onFloor = Z.y > L.wallY + 4;
+    if (onFloor) { ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.beginPath(); ctx.ellipse(Z.x, Z.y + 2, 85 * Z.k, 12 * Z.k, 0, 0, 7); ctx.fill(); }
+    ctx.save(); ctx.translate(Z.x, Z.y); ctx.scale(Z.k * Z.face, Z.k);
+    ctx.translate(-160, -PTD.Gorda.RUN_GROUND);
+    PTD.Gorda.drawStanding(ctx, G.runImgs, Z.st);
+    ctx.restore();
   }
 
   // ---------------- particles ----------------
@@ -552,6 +671,7 @@
     S.stuck = [];
   }
   function comeBack() {
+    S.justPopped = true;
     S.popState = 'back'; S.popT = 0;
     S.score = 0; S.streak = 0; updateHud();
     sfx.poof(); setFace('happy', 2);
@@ -595,6 +715,7 @@
   function update(dt) {
     S.time += dt;
     updateGorda(dt);
+    updateZoomies(dt);
     const p = progress();
     S.cooldown = Math.max(0, S.cooldown - dt);
     S.handT = Math.max(0, S.handT - dt);
@@ -636,6 +757,7 @@
       if (S.reward > 0) target = 'sit';
       else if (S.begT > 0) target = 'beg';
       const tp = PTD.pose(target, target === 'beg' ? { headRot: 0.22 * S.begDir } : null);
+      if (Z.on) tp.headRot += Z.watchRot;
       S.pose = PTD.lerpPose(S.pose, tp, 1 - Math.exp(-10 * dt));
     }
     if (S.reward > 0) { S.reward -= dt; if (S.reward <= 0) S.reward = 0; }
@@ -697,6 +819,12 @@
     for (let i = S.falling.length - 1; i >= 0; i--) {
       const c = S.falling[i];
       c.vy += 1500 * dt; c.x += c.vx * dt; c.y += c.vy * dt; c.r += c.spin * dt;
+      const gb = gordaBox();
+      if (gb && !c.gBounce && c.x > gb.x0 && c.x < gb.x1 && c.y > gb.y0 && c.y < gb.y1) {
+        c.gBounce = true; c.noPenalty = true; c.vy = -380; c.vx = (c.x < Z.x ? -1 : 1) * rand(90, 160);
+        c.floorY = Math.max(c.floorY, Z.y + rand(4, 20));
+        sfx.boop(); addText('boop!', c.x, c.y - 10, '#e0436b', 15, 0.6);
+      }
       if (c.y >= c.floorY) {
         if (!c.bounced) { c.bounced = true; c.y = c.floorY; c.vy = -c.vy * 0.3; c.vx *= 0.5; landed(c); }
         else { c.y = c.floorY; S.falling.splice(i, 1); S.floor[S.floor.length - 1] && Object.assign(S.floor[S.floor.length - 1], { x: c.x }); }
@@ -776,6 +904,7 @@
       S.mouth = S.headMat.apply(PTD.MOUTH.x, PTD.MOUTH.y);
       S.headTop = S.headMat.apply(200, 55);
     }
+    drawZoomies('front');
 
     // stay countdown / reward ring / bubbles
     if (S.trick === 'stay' && S.trickT > 0.6) {
@@ -888,7 +1017,7 @@
     last = ts;
     if (!(freezeArmed && FREEZE !== null && S.time >= FREEZE)) update(dt);
     draw();
-    if (window.__S) document.title = 't=' + S.time.toFixed(2) + ' pop=' + S.popState + ' ' + (S.popT || 0).toFixed(2);
+    if (window.__S) document.title = 't=' + S.time.toFixed(2) + ' pop=' + S.popState + ' z=' + Z.on + ' ' + Z.t.toFixed(2) + ' ' + Z.mode + ' ' + Z.layer + ' g=' + G.state + ' Z=' + Z.x.toFixed(0) + ',' + Z.y.toFixed(0) + ' k=' + Z.k.toFixed(2) + ' feet=' + L.feetY.toFixed(0) + ' H=' + H;
     requestAnimationFrame(frame);
   }
 
@@ -928,9 +1057,9 @@
     $('arcadeBtn').addEventListener('click', () => { location.href = '../../index.html'; });
     $('switchBtn').addEventListener('click', () => { sfx.click(); setMode('select'); show('screen-select'); });
 
-    PTD.Gorda.load().then(imgs => { G.imgs = imgs; });
     // preload both dogs so the game can start instantly
-    Promise.all(['bella', 'marley'].map(id => PTD.load(id).then(imgs => { S.imgs[id] = imgs; }))).then(debugStart);
+    Promise.all(['bella', 'marley'].map(id => PTD.load(id).then(imgs => { S.imgs[id] = imgs; }))
+      .concat([PTD.Gorda.load().then(i => { G.imgs = i; }), PTD.Gorda.loadRun().then(i => { G.runImgs = i; })])).then(debugStart);
     requestAnimationFrame(frame);
   }
 
@@ -963,6 +1092,7 @@
       addText(S.dogId[0].toUpperCase() + S.dogId.slice(1) + ', ' + PTD.TRICKS[id].name.toUpperCase() + '!', W / 2, H * 0.26, '#7c5cff', 24, 99, 0);
     }
     if (DEBUG === 'pop') { S.score = GOAL; updateHud(); startPop(); }
+    if (Q.has('zoomies')) { Z.next = 1e9; startZoomies(); Z.t = parseFloat(Q.get('zoomies')) || 0; S.flying = []; S.texts = []; }
     if (Q.get('gorda') === 'watch') { gordaWake('watch', 99); S.flying.push({ x0: L.launch.x, y0: L.launch.y, tx: W * 0.3, ty: L.feetY - L.dogW, t: 0.3, spin: 2, v: 1, x: 0, y: 0, size: 30 }); }
     // fast-forward to the freeze moment (headless browsers barely run animation frames)
     if (FREEZE !== null) while (S.time < FREEZE) { update(1 / 60); draw(); }

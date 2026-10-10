@@ -83,6 +83,76 @@
     ctx.restore();
   }
 
+
+  // ================= STANDING / RUNNING Gorda (side view, facing right) =================
+  // art space 300 x 200, ground at y = 196. Legs swing from the hips/shoulders.
+  const RUN_GROUND = 196, HIP = [112, 116], SHOULDER = [196, 116];
+  const RBODY = BRINDLE +
+    '<ellipse cx="152" cy="112" rx="74" ry="36" fill="url(#br)" ' + OUT + '/>' +
+    '<ellipse cx="206" cy="122" rx="22" ry="25" fill="#fbf6ee"/>' +                 // white chest
+    '<ellipse cx="160" cy="138" rx="40" ry="9" fill="#fbf6ee" opacity=".55"/>';    // light belly
+  const RTAIL = '<path d="M84 104 Q66 96 64 80" stroke="#2b1c13" stroke-width="10" fill="none" stroke-linecap="round"/>';
+  const leg = dark =>
+    '<rect x="9" y="0" width="22" height="70" rx="10" fill="' + (dark ? '#33241a' : '#4a3426') + '" stroke="#20150e" stroke-width="2.5"/>' +
+    '<rect x="10.5" y="48" width="19" height="21" rx="7" fill="' + (dark ? '#d9cfc2' : '#fbf6ee') + '"/>' +
+    '<ellipse cx="22" cy="72" rx="13" ry="7" fill="' + (dark ? '#d9cfc2' : '#fbf6ee') + '" stroke="#b9a996" stroke-width="2"/>';
+  function rhead(face) {
+    const eye = face === 'happy'
+      ? '<path d="M238 72 Q245 64 252 72" stroke="#1a110b" stroke-width="4" fill="none" stroke-linecap="round"/>'
+      : '<circle cx="245" cy="71" r="7" fill="#fff"/><circle cx="246" cy="72" r="5" fill="#1a110b"/><circle cx="248" cy="70" r="1.8" fill="#fff"/>';
+    return BRINDLE +
+      '<path d="M200 92 L222 116" stroke="#e0436b" stroke-width="12" stroke-linecap="round"/>' +      // pink-red collar
+      '<circle cx="216" cy="118" r="5" fill="#e2b33c" stroke="#a37a1c" stroke-width="1.5"/>' +
+      '<circle cx="232" cy="80" r="35" fill="url(#br)" ' + OUT + '/>' +
+      '<path d="M238 46 Q244 46 246 50 L250 80 L236 82 Z" fill="#fbf6ee"/>' +                     // blaze
+      '<ellipse cx="258" cy="94" rx="24" ry="17" fill="#fbf6ee" stroke="#cdbfae" stroke-width="2"/>' + // muzzle
+      '<ellipse cx="278" cy="88" rx="9" ry="7" fill="#1d130d"/>' +
+      eye +
+      (face === 'happy' ? '<path d="M258 104 Q266 122 274 104 Z" fill="#ff7f93" stroke="#e0607a" stroke-width="1.5"/>' : '') +
+      '<path d="M252 104 Q262 110 274 102" stroke="#5b4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M222 52 Q198 52 200 86 Q206 90 212 84 Q216 66 230 60 Z" fill="#2b1c13" stroke="#20150e" stroke-width="2.5" stroke-linejoin="round"/>';  // droopy ear
+  }
+  const RP = {
+    body: { box: [72, 70, 164, 84] },
+    tail: { box: [52, 66, 44, 46] },
+    leg: { box: [0, 0, 40, 82], pivot: [20, 6] },
+    head: { box: [192, 40, 102, 90], pivot: [214, 104] },
+  };
+  let loadingRun = null;
+  function loadRun() {
+    if (loadingRun) return loadingRun;
+    const out = {}, mk = PTD.svgImage;
+    loadingRun = Promise.all([
+      mk(RP.body.box, RBODY).then(c => { out.body = c; }),
+      mk(RP.tail.box, RTAIL).then(c => { out.tail = c; }),
+      mk(RP.leg.box, leg(false)).then(c => { out.leg = c; }),
+      mk(RP.leg.box, leg(true)).then(c => { out.legFar = c; }),
+      mk(RP.head.box, rhead('open')).then(c => { out.open = c; }),
+      mk(RP.head.box, rhead('happy')).then(c => { out.happy = c; }),
+    ]).then(() => out);
+    return loadingRun;
+  }
+  // st: { legs:[backFar, backNear, frontFar, frontNear] (radians), frontLen, bodyDY, bodyRot, headRot, tail, face }
+  function drawStanding(ctx, imgs, st) {
+    const put = (img, b) => ctx.drawImage(img, b[0], b[1], b[2], b[3]);
+    const legAt = (img, at, ang, len, dx) => {
+      ctx.save(); ctx.translate(at[0] + dx, at[1]); ctx.rotate(ang); ctx.scale(1, len || 1);
+      ctx.translate(-RP.leg.pivot[0], -RP.leg.pivot[1]); put(img, RP.leg.box); ctx.restore();
+    };
+    ctx.save();
+    ctx.translate(0, st.bodyDY);
+    ctx.translate(HIP[0], HIP[1]); ctx.rotate(st.bodyRot); ctx.translate(-HIP[0], -HIP[1]);
+    legAt(imgs.legFar, HIP, st.legs[0], 1, 10);
+    legAt(imgs.legFar, SHOULDER, st.legs[2], st.frontLen, -10);
+    ctx.save(); ctx.translate(84, 104); ctx.rotate(st.tail); ctx.translate(-84, -104); put(imgs.tail, RP.tail.box); ctx.restore();
+    put(imgs.body, RP.body.box);
+    legAt(imgs.leg, HIP, st.legs[1], 1, -6);
+    legAt(imgs.leg, SHOULDER, st.legs[3], st.frontLen, 6);
+    ctx.save(); ctx.translate(RP.head.pivot[0], RP.head.pivot[1]); ctx.rotate(st.headRot); ctx.translate(-RP.head.pivot[0], -RP.head.pivot[1]);
+    put(imgs[st.face] || imgs.open, RP.head.box); ctx.restore();
+    ctx.restore();
+  }
+
   window.PTD = window.PTD || {};
-  window.PTD.Gorda = { load, draw, ART_W: 300, BASE_Y: 225 };
+  window.PTD.Gorda = { load, draw, loadRun, drawStanding, ART_W: 300, BASE_Y: 225, RUN_GROUND };
 })();
