@@ -1,0 +1,3 @@
+# Deploy: netlify deploy --prod --dir <copy of site files> --site 09e06eec-f811-4e64-9360-9567e398c164
+[build]
+  publish = "."
