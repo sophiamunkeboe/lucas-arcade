@@ -4,6 +4,17 @@ Lucas's own game room, made by Lucas and his dad. It's a phone web app: open it,
 **Share > Add to Home Screen** (iPhone) or **Add to Home screen** (Android), and it gets its
 own icon and works offline.
 
+## Players ("Who's playing?")
+Each launch starts at **Who's playing?**. Tap your picture and type your 4-digit secret code on
+the number pad (a wrong code just wiggles, there's no lockout). **Add Player** makes a new
+player (name, picture, secret code typed twice). Every player has their own Trophy Shelf and
+their own best score, fastest pop, and total pops. The home screen says "Hi Lucas!" and has a
+**Switch player** button.
+
+Everything stays on the device in localStorage: no server, no email, no passwords, nothing sent
+anywhere. The code is stored scrambled, but this is a kid-friendly "whose turn is it", not real
+security. Trophies won before logins existed went to the first player created.
+
 ## Games
 
 | Game | Folder | What it is |
@@ -28,7 +39,8 @@ index.html            arcade home (game buttons + Trophy Shelf)
 css/arcade.css
 js/games.js           THE GAMES LIST - add new games here
 js/prizes.js          prize pictures (SVG) - add new prizes here
-js/storage.js         saves trophies + mute setting on the phone
+js/storage.js         players, trophies, stats + mute setting (all on the phone)
+js/avatars.js         player pictures
 js/sfx.js             all sound effects, including barks and whimpers
 games/pop-the-dog/    the Pop the Dog game
   dogs.js             Bella + Marley drawn in parts (legs, tail, head...) + poses + tricks + outfits

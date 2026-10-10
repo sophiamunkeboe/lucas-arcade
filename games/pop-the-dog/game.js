@@ -295,7 +295,7 @@
       score: 0, streak: 0, flying: [], floor: [], falling: [], stuck: [], drips: [], puddles: [], bubble: null,
       trick: null, trickT: 0, reward: 0, request: null, popState: null, popT: 0, face: 'normal', faceT: 0,
       pose: PTD.pose('stand'), x: W / 2, phase: 0, tilt: 0, lastThrow: S.time, nextWhimper: S.time + 3,
-      nextRequest: S.time + 9, nextBark: S.time + rand(6, 10),
+      nextRequest: S.time + 9, nextBark: S.time + rand(6, 10), roundStart: S.time,
     });
     updateHud(); updateTrickButtons();
   }
@@ -464,6 +464,7 @@
   }
 
   function startPop() {
+    S.popScore = S.score; S.popSeconds = Math.max(1, Math.round(S.time - (S.roundStart || 0)));
     S.popState = 'swell'; S.popT = 0; S.trick = null; S.request = null; S.reward = 0; S.bubble = null;
     S.pose = PTD.pose('stand'); setFace('normal', 0);
     sfx.stretch(1.1);
@@ -506,7 +507,13 @@
     let prize = LA.prizes.random();
     if (S.lastPrize && prize.id === S.lastPrize) prize = LA.prizes.random();
     S.lastPrize = prize.id;
-    if (!debugNoSave) LA.store.addTrophy(prize.id, GAME_ID, { dog: S.dogId });
+    let newBest = false;
+    if (!debugNoSave) {
+      const before = LA.store.stats(GAME_ID);
+      LA.store.addTrophy(prize.id, GAME_ID, { dog: S.dogId });
+      LA.store.recordResult(GAME_ID, { score: S.popScore || 0, seconds: S.popSeconds });
+      newBest = before.pops > 0 && (S.popScore || 0) > before.best;
+    }
     setMode('prize');
     $('prizeTitle').textContent = dog().name + ' POPPED!';
     $('prizeArt').innerHTML = prize.svg;
@@ -518,7 +525,7 @@
       $('card').classList.add('flipped');
       sfx.fanfare();
       const a = /^[aeiou]/i.test(prize.name) ? 'an' : 'a';
-      $('prizeMsg').textContent = 'You won ' + a + ' ' + prize.name + '! It\u2019s on your Trophy Shelf.';
+      $('prizeMsg').textContent = 'You won ' + a + ' ' + prize.name + '! It\u2019s on your Trophy Shelf.' + (newBest ? ' NEW BEST SCORE: ' + S.popScore + '!' : '');
     }, DEBUG === 'prize' ? 50 : 700);
   }
 
@@ -895,5 +902,7 @@
     if (FREEZE !== null) while (S.time < FREEZE) { update(1 / 60); draw(); }
   }
 
+  // only logged-in players can play (debug links skip this for testing)
+  if (!DEBUG && !LA.players.current()) { location.replace('../../index.html'); return; }
   init();
 })();

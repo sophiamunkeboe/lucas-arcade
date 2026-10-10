@@ -24,11 +24,45 @@
     <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
   </header>
 
-  <main>
+  <!-- WHO'S PLAYING? (local-only player login) -->
+  <section id="who" class="hidden">
+    <!-- pick a player -->
+    <div id="whoList" class="who-view">
+      <h2 class="who-title">Who's playing?</h2>
+      <div id="playerTiles" class="player-grid"></div>
+    </div>
+    <!-- make a new player -->
+    <div id="whoNew" class="who-view hidden">
+      <button class="back-btn" data-back aria-label="Back">&larr;</button>
+      <h2 class="who-title" id="newTitle">New player</h2>
+      <label class="field-label" for="nameInput">Your name</label>
+      <input id="nameInput" maxlength="14" autocomplete="off" autocapitalize="words" spellcheck="false">
+      <div class="field-label">Pick your picture</div>
+      <div id="avatarGrid" class="avatar-grid"></div>
+      <button id="nameNext" class="big-btn">Next</button>
+    </div>
+    <!-- secret code -->
+    <div id="whoCode" class="who-view hidden">
+      <button class="back-btn" data-back aria-label="Back">&larr;</button>
+      <div id="codeAvatar"></div>
+      <h2 class="who-title" id="codeTitle">Type your secret code</h2>
+      <p id="codeHint" class="code-hint">&nbsp;</p>
+      <div id="dots" class="dots"><i></i><i></i><i></i><i></i></div>
+      <div id="pad" class="pad"></div>
+    </div>
+  </section>
+
+  <main id="arcade" class="hidden">
+    <div id="playerBar">
+      <span id="meAvatar"></span>
+      <span id="hiName">Hi!</span>
+      <button id="switchBtn" class="pill-btn">Switch player</button>
+    </div>
+
     <h2 class="section">Pick a game!</h2>
     <div id="games" class="grid"></div>
 
-    <h2 class="section">Trophy Shelf <span id="trophyCount"></span></h2>
+    <h2 class="section"><span id="shelfOwner">Trophy Shelf</span> <span id="trophyCount"></span></h2>
     <div id="shelf"></div>
   </main>
   <footer>Made by Lucas &amp; Dad</footer>
@@ -37,6 +71,7 @@
 <script src="js/storage.js"></script>
 <script src="js/sfx.js"></script>
 <script src="js/prizes.js"></script>
+<script src="js/avatars.js"></script>
 <script src="js/games.js"></script>
 <script src="js/arcade.js"></script>
 <script>

@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- Helper used to draw the app icons + game thumbnail.
-     Open with ?what=icon or ?what=thumb in headless Chrome and screenshot (see README). -->
+     Open with ?what=icon, ?what=thumb or ?what=avatar&dog=bella|marley in headless Chrome and screenshot (see README). -->
 <html><body style="margin:0;background:#000">
 <canvas id="c" width="512" height="512" style="display:block"></canvas>
 <script src="../games/pop-the-dog/dogs.js"></script>
@@ -14,6 +14,13 @@ function corn(cx, cy, s) {
   x.fillStyle = '#e7a93f'; x.beginPath(); x.ellipse(0, 9, 4, 3, 0, 0, 7); x.fill(); x.restore();
 }
 Promise.all([PTD.load('bella'), PTD.load('marley')]).then(([b, m]) => {
+  if (what === 'avatar') {   // ?what=avatar&dog=bella  -> 512x512 head-and-shoulders picture
+    const id = new URLSearchParams(location.search).get('dog') || 'bella';
+    x.fillStyle = id === 'bella' ? '#bfe3ff' : '#ffd9a8'; x.fillRect(0, 0, 512, 512);
+    x.save(); x.translate(256 - 200 * 1.2, 512 - 395 * 1.2); x.scale(1.2, 1.2);
+    PTD.draw(x, id, id === 'bella' ? b : m, PTD.pose('stand'), { face: 'normal', time: 0.25 }); x.restore();
+    document.title = 'done'; return;
+  }
   const g = x.createRadialGradient(256, 200, 40, 256, 256, 360);
   if (what === 'icon') { g.addColorStop(0, '#ff6fa8'); g.addColorStop(1, '#5a3fa8'); }
   else { g.addColorStop(0, '#ffe28a'); g.addColorStop(1, '#ff8a3d'); }
