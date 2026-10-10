@@ -197,6 +197,30 @@
       noise(t, dur * 0.8, 0.03, 'highpass', 3000, 0, 0.5); // a little breath
     },
 
+    // Gorda on the couch: a soft sleepy snore (in + out) and a little sigh
+    snore() {
+      if (!ready()) return; const t = ctx.currentTime;
+      [[0, 1.0, 0.07], [1.25, 0.8, 0.05]].forEach(([d, dur, peak]) => {
+        const o = ctx.createOscillator(); o.type = 'sawtooth';
+        o.frequency.setValueAtTime(d ? 70 : 55, t + d); o.frequency.linearRampToValueAtTime(d ? 50 : 65, t + d + dur);
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; lp.Q.value = 3;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t + d); g.gain.linearRampToValueAtTime(peak, t + d + dur * 0.6);
+        g.gain.linearRampToValueAtTime(0.0001, t + d + dur);
+        // rattle
+        const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 26; lg.gain.value = peak * 0.6;
+        lfo.connect(lg); lg.connect(g.gain);
+        o.connect(lp); lp.connect(g); g.connect(master);
+        o.start(t + d); lfo.start(t + d); o.stop(t + d + dur + 0.05); lfo.stop(t + d + dur + 0.05);
+        noise(t + d, dur, peak * 0.6, 'bandpass', d ? 700 : 500, d ? 400 : 650, 1.2);
+      });
+    },
+    sigh() {
+      if (!ready()) return; const t = ctx.currentTime;
+      noise(t, 0.9, 0.1, 'bandpass', 900, 300, 1.5);
+      tone('sine', 260, 170, t + 0.05, 0.6, 0.03);
+    },
+
     bonus() {
       if (!ready()) return; const t = ctx.currentTime;
       [880, 1175, 1568].forEach((f, i) => tone('sine', f, 0, t + i * 0.06, 0.1, 0.15));

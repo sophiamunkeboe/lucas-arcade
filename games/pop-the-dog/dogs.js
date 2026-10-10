@@ -429,7 +429,7 @@
   window.PTD = window.PTD || {};
   Object.assign(window.PTD, {
     DOGS, OUTFITS, TRICKS, TRICK_ORDER, POSES, BASE,
-    load, draw, pose, lerpPose, trickPose, svgPreview, Mat,
+    load, draw, pose, lerpPose, trickPose, svgPreview, Mat, svgImage,
     MOUTH: { x: 200, y: 238 },     // mouth, in head space
     DROOL: { x: 152, y: 302 },     // Marley's drool drip point, head space
     ART_W: 400, ART_H: 420, GROUND,

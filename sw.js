@@ -1,6 +1,6 @@
 /* Lucas's Arcade - service worker: keeps every file on the phone so the arcade works offline.
    When you change or add files: add them to FILES and bump VERSION. */
-const VERSION = 'lucas-arcade-v3';
+const VERSION = 'lucas-arcade-v4';
 const FILES = [
   './',
   './index.html',
@@ -21,6 +21,7 @@ const FILES = [
   './games/pop-the-dog/index.html',
   './games/pop-the-dog/style.css',
   './games/pop-the-dog/dogs.js',
+  './games/pop-the-dog/gorda.js',
   './games/pop-the-dog/game.js',
   './games/pop-the-dog/thumb.png',
 ];

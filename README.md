@@ -29,6 +29,7 @@ security. Trophies won before logins existed went to the first player created.
 - **Tricks:** Shake, Sit, Stay, Speak, Roll Over, Sit Pretty. When she finishes, toss her a treat for a **GOOD DOG** bonus. Sometimes she asks for a trick herself, and doing the one she asked for gives extra points.
 - Stop tossing popcorn and she starts whimpering and begging. She barks too (Bella yips higher, Marley barks lower and gruffer).
 - Fill the **POP METER**, she pops into popcorn and confetti (and comes right back, totally fine), and a prize card flips over. Prizes go on the **Trophy Shelf** on the home screen.
+- **Gorda**, Marley's sister (brindle bulldog, pink collar), naps on the couch in the background: she snores, twitches her ears, lifts her head to watch the popcorn, and perks up when the dog pops. Not playable yet!
 - All sounds are made in code (Web Audio). The speaker button mutes them.
 
 ## How it's built
@@ -43,6 +44,7 @@ js/storage.js         players, trophies, stats + mute setting (all on the phone)
 js/avatars.js         player pictures
 js/sfx.js             all sound effects, including barks and whimpers
 games/pop-the-dog/    the Pop the Dog game
+  gorda.js            Gorda, the background couch dog
   dogs.js             Bella + Marley drawn in parts (legs, tail, head...) + poses + tricks + outfits
   game.js             the game itself
 manifest.json, sw.js  make it installable + work offline

@@ -54,6 +54,8 @@
     L.bowlW = Math.min(W * 0.64, 300); L.bowlH = L.bowlW * 0.42;
     L.bowlX = W / 2; L.rimY = H - L.bowlH * 0.95;
     L.launch = { x: L.bowlX, y: L.rimY - 6 };
+    // Gorda sits on the left of the couch seat (must match the couch drawn in renderBackground)
+    L.gorda = { x: W * 0.215, y: L.wallY - H * 0.035 + 4, k: Math.min(W * 0.27, 150) / 270 };
     if (!S.x) S.x = W / 2;
     bg = renderBackground(); fg = renderForeground();
   }
@@ -318,6 +320,7 @@
     tx = clamp(tx, -W * 0.2, W * 1.2);
     S.flying.push({ x0: L.launch.x + rand(-L.bowlW * 0.15, L.bowlW * 0.15), y0: L.launch.y, tx, ty: S.mouth.y,
       t: 0, spin: rand(-8, 8), v: Math.floor(rand(0, 4)), x: 0, y: 0, size: 30 });
+    if (G.state === 'sleep' && Math.random() < 0.18) gordaWake('watch', rand(3, 5));
     S.handT = 0.2; S.handAim = clamp((tx - L.launch.x) / (W * 0.5), -1, 1);
     sfx.whoosh();
   }
@@ -448,6 +451,65 @@
     }
   }
 
+  // ---------------- Gorda (background couch dog) ----------------
+  const G = { imgs: null, state: 'sleep', t: 0, until: 6, headDY: 22, headRot: -0.12, face: 'sleep', blink: 0, nextBlink: 2,
+    earL: 0, earR: 0, earT: 0, earSide: 1, nextEar: 3, nextSnore: 5, breathe: 0 };
+  function gordaWake(state, dur) {
+    if (state === 'watch' && G.state === 'perk') return;
+    if (G.state === 'sleep') G.earT = 0.35;
+    G.state = state; G.until = S.time + dur;
+  }
+  function updateGorda(dt) {
+    G.t += dt;
+    G.breathe = Math.sin(G.t * (G.state === 'sleep' ? 1.6 : 2.4));
+    if (S.popState === 'boom' || S.popState === 'swell') gordaWake('perk', 4.5);
+    if (G.state !== 'sleep' && S.time > G.until) {
+      G.state = 'sleep'; G.nextSnore = S.time + rand(4, 8);
+      if (S.mode === 'play') sfx.sigh();
+    }
+    if (G.state === 'sleep' && S.time > G.until + 8 && Math.random() < dt / 9) gordaWake('watch', rand(3, 5));  // just looking around
+    // targets
+    let tDY = 22, tRot = -0.12, face = 'sleep';
+    if (G.state === 'watch') {
+      tDY = 2; face = 'open';
+      const f = S.flying[0] || S.falling[0];
+      tRot = f ? clamp((f.x - L.gorda.x) / W * 0.9, -0.35, 0.35) : 0.12 * Math.sin(G.t * 0.8);
+    } else if (G.state === 'perk') {
+      tDY = -8; face = 'wide'; tRot = clamp(((S.boomAt ? S.boomAt.x : S.x) - L.gorda.x) / W * 0.6, -0.25, 0.25);
+    }
+    G.headDY = lerp(G.headDY, tDY, 1 - Math.exp(-6 * dt));
+    G.headRot = lerp(G.headRot, tRot, 1 - Math.exp(-6 * dt));
+    // blinking (awake only)
+    if (face !== 'sleep' && S.time > G.nextBlink) { G.blink = 0.14; G.nextBlink = S.time + rand(2, 5); }
+    if (G.blink > 0) { G.blink -= dt; if (face !== 'wide') face = 'sleep'; }
+    G.face = face;
+    // ear twitches
+    if (S.time > G.nextEar) { G.earT = 0.35; G.earSide = Math.random() < 0.5 ? -1 : 1; G.nextEar = S.time + rand(3, 7); }
+    if (G.earT > 0) G.earT -= dt;
+    const tw = G.earT > 0 ? Math.sin((0.35 - G.earT) / 0.35 * Math.PI * 3) * 0.35 : 0;
+    const up = G.state === 'perk' ? 0.35 : G.state === 'watch' ? 0.12 : 0;
+    G.earL = up + (G.earSide < 0 ? tw : 0); G.earR = up + (G.earSide > 0 ? tw : 0);
+    // snores while asleep
+    if (G.state === 'sleep' && S.mode === 'play' && S.time > G.nextSnore) { sfx.snore(); G.nextSnore = S.time + rand(9, 16); G.zz = 2.2; }
+    if (G.zz > 0) G.zz -= dt;
+  }
+  function drawGorda() {
+    if (!G.imgs) return;
+    const g = L.gorda;
+    ctx.save(); ctx.translate(g.x, g.y); ctx.scale(g.k, g.k); ctx.translate(-150, -PTD.Gorda.BASE_Y);
+    PTD.Gorda.draw(ctx, G.imgs, G);
+    ctx.restore();
+    if (G.state === 'sleep') {       // little floating Zzz
+      const a = 0.35 + 0.35 * Math.sin(G.t * 1.5) + (G.zz > 0 ? 0.3 : 0);
+      ctx.save(); ctx.globalAlpha = clamp(a, 0, 1); ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#4f6f8a'; ctx.lineWidth = 3;
+      ctx.font = '900 ' + Math.round(14 * g.k / 0.39) + 'px ' + FONT; ctx.textAlign = 'center';
+      const zx = g.x + 40 * g.k / 0.39, zy = g.y - 70 * g.k / 0.39 - (G.t * 6 % 12);
+      ctx.strokeText('z', zx, zy); ctx.fillText('z', zx, zy);
+      ctx.strokeText('Z', zx + 10, zy - 12); ctx.fillText('Z', zx + 10, zy - 12);
+      ctx.restore();
+    }
+  }
+
   // ---------------- particles ----------------
   function bodyPoint() {
     const a = rand(0, Math.PI * 2), r = Math.sqrt(Math.random());
@@ -532,6 +594,7 @@
   // ---------------- update ----------------
   function update(dt) {
     S.time += dt;
+    updateGorda(dt);
     const p = progress();
     S.cooldown = Math.max(0, S.cooldown - dt);
     S.handT = Math.max(0, S.handT - dt);
@@ -680,6 +743,7 @@
     ctx.save();
     if (S.shake > 0) ctx.translate(rand(-1, 1) * S.shake * 22, rand(-1, 1) * S.shake * 22);
     if (bg) ctx.drawImage(bg, 0, 0, W, H);
+    drawGorda();
 
     // drool puddles + popcorn on the floor
     S.puddles.forEach(pd => {
@@ -864,6 +928,7 @@
     $('arcadeBtn').addEventListener('click', () => { location.href = '../../index.html'; });
     $('switchBtn').addEventListener('click', () => { sfx.click(); setMode('select'); show('screen-select'); });
 
+    PTD.Gorda.load().then(imgs => { G.imgs = imgs; });
     // preload both dogs so the game can start instantly
     Promise.all(['bella', 'marley'].map(id => PTD.load(id).then(imgs => { S.imgs[id] = imgs; }))).then(debugStart);
     requestAnimationFrame(frame);
@@ -898,6 +963,7 @@
       addText(S.dogId[0].toUpperCase() + S.dogId.slice(1) + ', ' + PTD.TRICKS[id].name.toUpperCase() + '!', W / 2, H * 0.26, '#7c5cff', 24, 99, 0);
     }
     if (DEBUG === 'pop') { S.score = GOAL; updateHud(); startPop(); }
+    if (Q.get('gorda') === 'watch') { gordaWake('watch', 99); S.flying.push({ x0: L.launch.x, y0: L.launch.y, tx: W * 0.3, ty: L.feetY - L.dogW, t: 0.3, spin: 2, v: 1, x: 0, y: 0, size: 30 }); }
     // fast-forward to the freeze moment (headless browsers barely run animation frames)
     if (FREEZE !== null) while (S.time < FREEZE) { update(1 / 60); draw(); }
   }
