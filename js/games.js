@@ -14,6 +14,16 @@ window.LA.games = [
     color: '#ff8a3d',
   },
   {
+    id: 'fetch-frenzy',
+    title: 'Fetch Frenzy',
+    tagline: 'Throw it, catch it, bring it back!',
+    url: 'games/fetch-frenzy/index.html',
+    thumb: 'games/fetch-frenzy/thumb.png',
+    color: '#31c46c',
+    statWord: 'round',           // tile says "Best 812 · 3 rounds"
+    noFastest: true,
+  },
+  {
     id: 'coming-soon',
     title: 'Coming soon',
     tagline: "Lucas's next big idea!",

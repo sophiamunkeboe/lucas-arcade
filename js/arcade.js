@@ -159,8 +159,9 @@
       let stats = '';
       if (!g.comingSoon) {
         const s = LA.store.stats(g.id);
-        stats = s.pops ? '<div class="stats">Best ' + s.best + (s.fastest ? ' &middot; ' + s.fastest + 's pop' : '') +
-          ' &middot; ' + s.pops + ' pop' + (s.pops === 1 ? '' : 's') + '</div>' : '<div class="stats">Not played yet</div>';
+        const word = g.statWord || 'pop';
+        stats = s.pops ? '<div class="stats">Best ' + s.best + (s.fastest && !g.noFastest ? ' &middot; ' + s.fastest + 's ' + word : '') +
+          ' &middot; ' + s.pops + ' ' + word + (s.pops === 1 ? '' : 's') + '</div>' : '<div class="stats">Not played yet</div>';
       }
       el.innerHTML =
         '<div class="thumb">' + (g.thumb ? '<img src="' + g.thumb + '" alt="">' :

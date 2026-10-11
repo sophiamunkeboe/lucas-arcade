@@ -1,6 +1,6 @@
 /* Lucas's Arcade - service worker: keeps every file on the phone so the arcade works offline.
    When you change or add files: add them to FILES and bump VERSION. */
-const VERSION = 'lucas-arcade-v6';
+const VERSION = 'lucas-arcade-v7';
 const FILES = [
   './',
   './index.html',
@@ -24,6 +24,12 @@ const FILES = [
   './games/pop-the-dog/gorda.js',
   './games/pop-the-dog/game.js',
   './games/pop-the-dog/thumb.png',
+  './games/fetch-frenzy/index.html',
+  './games/fetch-frenzy/style.css',
+  './games/fetch-frenzy/runners.js',
+  './games/fetch-frenzy/scenes.js',
+  './games/fetch-frenzy/game.js',
+  './games/fetch-frenzy/thumb.png',
 ];
 
 self.addEventListener('install', e => {

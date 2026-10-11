@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Fetch Frenzy - Lucas's Arcade</title>
+<meta name="theme-color" content="#31c46c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucas's Arcade">
+<link rel="manifest" href="../../manifest.json">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../../icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="c"></canvas>
+
+  <div id="topbar">
+    <a id="homeBtn" class="round-btn" href="../../index.html" aria-label="Back to Arcade">
+      <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3 Z" fill="currentColor"/></svg>
+    </a>
+    <div id="hud" class="hidden">
+      <div id="meter"><div id="meterFill"></div><span id="meterLabel">FETCH METER</span></div>
+      <div id="score">0</div>
+    </div>
+    <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
+  </div>
+
+  <!-- toy switcher (built by game.js) -->
+  <div id="toyBar" class="hidden"></div>
+
+  <!-- 1. setup: dog, place, toy -->
+  <section id="screen-select" class="screen">
+    <div class="panel">
+      <h1 class="logo">Fetch Frenzy!</h1>
+      <p class="sub">1. Pick your dog</p>
+      <div id="dogCards" class="cards"></div>
+      <p class="sub">2. Pick a place</p>
+      <div id="placeCards" class="cards four"></div>
+      <p class="sub">3. Pick a toy</p>
+      <div id="toyCards" class="cards four"></div>
+      <p class="howto"><b>Swipe up</b> to throw (longer + faster = farther). <b>Mid-air catches</b> score big!
+        Tap <b>squirrels</b> to shoo them and tap the <b>toy thief</b> to say &ldquo;Leave it!&rdquo;</p>
+      <button id="goBtn" class="big-btn">Let's fetch!</button>
+    </div>
+  </section>
+
+  <!-- 2. prize! -->
+  <section id="screen-prize" class="screen hidden">
+    <div class="panel prize-panel">
+      <h2 id="prizeTitle">Good dog!</h2>
+      <div id="card">
+        <div class="card-inner">
+          <div class="card-face card-back"><span>?</span></div>
+          <div class="card-face card-front"><div id="prizeArt"></div><div id="prizeName"></div></div>
+        </div>
+      </div>
+      <p id="prizeMsg">&nbsp;</p>
+      <div class="btn-row">
+        <button id="againBtn" class="big-btn">Play again</button>
+        <button id="arcadeBtn" class="big-btn alt">Back to Arcade</button>
+      </div>
+      <button id="switchBtn" class="link-btn">Change dog, place or toy</button>
+    </div>
+  </section>
+</div>
+
+<script src="../../js/storage.js"></script>
+<script src="../../js/sfx.js"></script>
+<script src="../../js/prizes.js"></script>
+<script src="../pop-the-dog/dogs.js"></script>
+<script src="../pop-the-dog/gorda.js"></script>
+<script src="runners.js"></script>
+<script src="scenes.js"></script>
+<script src="game.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(() => {});
+  }
+</script>
+</body>
+</html>

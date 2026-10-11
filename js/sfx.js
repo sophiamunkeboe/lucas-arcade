@@ -238,6 +238,37 @@
       tone('square', 240, 110, t, 0.06, 0.09);
       for (let i = 0; i < 3; i++) noise(t + 0.03 + i * 0.045, 0.035, 0.32, 'highpass', 2200 + Math.random() * 1500, 0, 0.7);
     },
+    // ---- Fetch Frenzy ----
+    // muddy puddle splash
+    splash() {
+      if (!ready()) return; const t = ctx.currentTime;
+      noise(t, 0.35, 0.45, 'bandpass', 1400, 500, 1.2);
+      noise(t + 0.05, 0.25, 0.25, 'lowpass', 900, 300, 1);
+      for (let i = 0; i < 4; i++) tone('sine', 900 + Math.random() * 700, 300, t + 0.04 + i * 0.05, 0.06, 0.06);
+    },
+    // squirrel chatter: fast squeaky chit-chit-chit
+    chatter() {
+      if (!ready()) return; const t = ctx.currentTime;
+      for (let i = 0; i < 7; i++) tone('square', 2400 + Math.random() * 600, 1700, t + i * 0.055, 0.035, 0.05);
+    },
+    // the thief's playful "hey!" growl (grr-RUFF!)
+    heyGrowl(pitch) {
+      if (!ready()) return; const t = ctx.currentTime, p = pitch || 1;
+      const o = ctx.createOscillator(), g = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(120 * p, t); o.frequency.linearRampToValueAtTime(150 * p, t + 0.4);
+      lfo.frequency.value = 28; lg.gain.value = 0.5; lfo.connect(lg);
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 700;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      lg.connect(g.gain);
+      o.connect(f); f.connect(g); g.connect(master);
+      o.start(t); lfo.start(t); o.stop(t + 0.5); lfo.stop(t + 0.5);
+      setTimeout(() => sfx.bark(p, 0.4, 1), 420);
+    },
+    // little hop for a jump catch
+    hop() {
+      if (!ready()) return; const t = ctx.currentTime;
+      tone('sine', 380, 760, t, 0.12, 0.12);
+    },
     // popcorn bouncing off Gorda
     boop() {
       if (!ready()) return; const t = ctx.currentTime;

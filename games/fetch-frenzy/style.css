@@ -1,0 +1,90 @@
+/* Fetch Frenzy - styles (base copied from Pop the Dog so the arcade games feel the same) */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: #2b2140; overflow: hidden; overscroll-behavior: none; }
+body { font-family: Nunito, "Arial Rounded MT Bold", ui-rounded, system-ui, -apple-system, sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; color: #3a2a1a; }
+#app { position: relative; width: 100%; max-width: 520px; height: 100%; height: 100dvh; margin: 0 auto; overflow: hidden; background: #7ccf5a; }
+canvas#c { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+.hidden { display: none !important; }
+
+/* ---------- top bar / HUD ---------- */
+#topbar { position: absolute; left: 0; right: 0; top: 0; padding: calc(env(safe-area-inset-top) + 8px) 10px 0;
+  display: flex; align-items: center; gap: 8px; z-index: 20; pointer-events: none; }
+#topbar > * { pointer-events: auto; }
+.round-btn { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 50%; border: 3px solid #fff; background: #ff8a3d;
+  color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 0 #c45a17; padding: 0; cursor: pointer; }
+.round-btn svg { width: 24px; height: 24px; }
+.round-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c45a17; }
+#muteBtn { margin-left: auto; background: #5b8def; box-shadow: 0 3px 0 #2f5bb5; }
+#hud { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+#meter { position: relative; flex: 1; height: 28px; border-radius: 14px; background: #fff; border: 3px solid #fff;
+  box-shadow: 0 3px 0 rgba(0,0,0,.18), inset 0 0 0 2px #e6d4b8; overflow: hidden; }
+#meterFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; border-radius: 12px;
+  background: linear-gradient(90deg, #ffd23f, #ff8a3d, #ff3d7f); transition: width .25s ease-out; }
+#meterLabel { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 900;
+  font-size: 13px; letter-spacing: 1px; color: #6b3f1d; text-shadow: 0 1px 0 #fff; }
+#meter.full { animation: pulse .5s ease-in-out infinite alternate; }
+@keyframes pulse { to { transform: scale(1.05); } }
+#score { min-width: 54px; padding: 4px 10px; border-radius: 14px; background: #fff; font-weight: 900; font-size: 20px;
+  text-align: center; color: #ff5a1f; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+
+/* ---------- screens ---------- */
+.screen { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center;
+  padding: calc(env(safe-area-inset-top) + 64px) 14px calc(env(safe-area-inset-bottom) + 14px);
+  background: rgba(43, 33, 64, .55); overflow-y: auto; }
+#screen-select { background: radial-gradient(circle at 50% 15%, #c9f59a, #5fcf6a 55%, #2f9e8f); align-items: flex-start; }
+.panel { width: 100%; max-width: 420px; background: #fffaf0; border-radius: 26px; padding: 18px 16px 20px; text-align: center;
+  border: 4px solid #fff; box-shadow: 0 8px 0 rgba(0,0,0,.15), 0 12px 30px rgba(0,0,0,.25); }
+.logo { margin: 0; font-size: 42px; font-weight: 900; color: #ff5a1f; letter-spacing: 1px; line-height: 1;
+  text-shadow: 3px 3px 0 #ffd23f, 6px 6px 0 rgba(0,0,0,.12); transform: rotate(-3deg); }
+.sub { margin: 10px 0 12px; font-size: 19px; font-weight: 800; }
+h2 { margin: 0 0 8px; font-size: 30px; color: #7c5cff; font-weight: 900; }
+#howtoDog { width: 110px; height: auto; display: block; margin: 0 auto 2px; }
+.steps { text-align: left; margin: 6px 0 8px; padding-left: 26px; font-size: 16px; font-weight: 700; line-height: 1.3; }
+.steps li { margin-bottom: 7px; }
+.power { margin: 4px 0 12px; padding: 8px; border-radius: 12px; background: #fff1c4; font-weight: 800; font-size: 15px; }
+.big-btn { font: inherit; font-weight: 900; font-size: 22px; color: #fff; background: #31c46c; border: 4px solid #fff;
+  border-radius: 20px; padding: 12px 22px; box-shadow: 0 5px 0 #1d8a49; cursor: pointer; }
+.big-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1d8a49; }
+.big-btn.alt { background: #5b8def; box-shadow: 0 5px 0 #2f5bb5; }
+.btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn-row .big-btn { flex: 1; font-size: 19px; padding: 12px 10px; }
+.link-btn { margin-top: 12px; background: none; border: none; font: inherit; font-weight: 800; font-size: 15px; color: #7c5cff;
+  text-decoration: underline; cursor: pointer; }
+
+/* ---------- prize card ---------- */
+.prize-panel h2 { color: #ff3d7f; font-size: 34px; }
+#card { width: 210px; height: 250px; margin: 6px auto 4px; perspective: 900px; }
+.card-inner { position: relative; width: 100%; height: 100%; transition: transform .8s cubic-bezier(.3,1.6,.5,1); transform-style: preserve-3d; }
+#card.flipped .card-inner { transform: rotateY(180deg); }
+.card-face { position: absolute; inset: 0; border-radius: 22px; border: 5px solid #fff; backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 6px 0 rgba(0,0,0,.2); }
+.card-back { background: repeating-linear-gradient(45deg, #7c5cff 0 14px, #6a48f0 14px 28px); }
+.card-back span { font-size: 110px; font-weight: 900; color: #ffd23f; text-shadow: 4px 4px 0 #4a2fc4; }
+.card-front { background: radial-gradient(circle, #fffbe0, #ffe08a); transform: rotateY(180deg); }
+#prizeArt { width: 150px; height: 150px; }
+#prizeArt svg { width: 100%; height: 100%; }
+#prizeName { font-size: 24px; font-weight: 900; color: #6b3f1d; margin-top: 4px; padding: 0 6px; }
+#prizeMsg { font-size: 17px; font-weight: 800; margin: 8px 0 12px; min-height: 1.3em; }
+
+/* ---------- Fetch Frenzy setup screen ---------- */
+#screen-select .panel { padding: 14px 12px 16px; }
+#screen-select .sub { margin: 10px 0 6px; font-size: 17px; text-align: left; color: #2f6b2f; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cards.four { grid-template-columns: repeat(4, 1fr); }
+.pick { border: 4px solid #fff; border-radius: 16px; padding: 4px 3px 6px; background: #eef7e6; font: inherit; color: #3a2a1a;
+  cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.15); display: flex; flex-direction: column; align-items: center; gap: 2px; transition: transform .1s; }
+.pick:active { transform: scale(.95); }
+.pick img { width: 100%; display: block; border-radius: 10px; }
+.pick .name { font-weight: 900; font-size: 15px; line-height: 1.05; }
+.pick .blurb { font-size: 11px; font-weight: 700; opacity: .8; line-height: 1.15; min-height: 26px; }
+.pick.on { border-color: #ffb800; background: #fff3c4; box-shadow: 0 4px 0 #b37f00; transform: translateY(-2px); }
+.howto { font-size: 13.5px; font-weight: 700; line-height: 1.3; margin: 10px 2px 12px; padding: 8px; border-radius: 12px; background: #fff1c4; }
+
+/* ---------- toy switcher ---------- */
+#toyBar { position: absolute; right: 10px; top: calc(env(safe-area-inset-top) + 62px); z-index: 15; display: flex; gap: 6px; }
+.toy-btn { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #fff; background: rgba(255,255,255,.55); padding: 3px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.2); cursor: pointer; }
+.toy-btn img { width: 100%; height: 100%; display: block; }
+.toy-btn.on { background: #ffd23f; box-shadow: 0 3px 0 #b37f00; }

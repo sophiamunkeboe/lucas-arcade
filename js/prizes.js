@@ -75,6 +75,92 @@
       '<path d="M22 36 L78 36 Q94 36 94 58 Q94 78 82 78 Q74 78 68 66 L32 66 Q26 78 18 78 Q6 78 6 58 Q6 36 22 36 Z" fill="#5b5fc7" stroke="#2f3283" stroke-width="2"/>' +
       '<rect x="20" y="48" width="18" height="6" rx="2" fill="#fff"/><rect x="26" y="42" width="6" height="18" rx="2" fill="#fff"/>' +
       '<circle cx="68" cy="46" r="4.5" fill="#ffd54f"/><circle cx="78" cy="54" r="4.5" fill="#ef5350"/><circle cx="68" cy="60" r="4.5" fill="#66bb6a"/><circle cx="58" cy="54" r="4.5" fill="#42a5f5"/>') },
+
+    // ---- Fetch Frenzy prizes (Lucas's list) ----
+    { id: 'sunglasses', pool: 'fetch', name: 'Sunglasses', svg: W(
+      '<path d="M8 40 Q50 32 92 40" stroke="#222" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M12 40 L46 40 Q46 66 30 66 Q12 66 12 40 Z" fill="#1d1d2b" stroke="#111" stroke-width="3"/>' +
+      '<path d="M54 40 L88 40 Q88 66 70 66 Q54 66 54 40 Z" fill="#1d1d2b" stroke="#111" stroke-width="3"/>' +
+      '<path d="M18 46 L26 46 L20 58 Z M60 46 L68 46 L62 58 Z" fill="#7fd3ff" opacity=".8"/>' +
+      '<path d="M46 42 Q50 38 54 42" stroke="#111" stroke-width="4" fill="none"/>') },
+
+    { id: 'dirtbike', pool: 'fetch', name: 'Dirtbike', svg: W(
+      '<circle cx="24" cy="70" r="15" fill="#222"/><circle cx="24" cy="70" r="6" fill="#bbb"/>' +
+      '<circle cx="78" cy="70" r="15" fill="#222"/><circle cx="78" cy="70" r="6" fill="#bbb"/>' +
+      '<g stroke="#999" stroke-width="2"><path d="M24 58 l0 -4 M14 66 l-4 -2 M34 66 l4 -2 M78 58 l0 -4 M68 66 l-4 -2 M88 66 l4 -2"/></g>' +
+      '<path d="M24 70 L44 50 L62 52 L78 70" stroke="#555" stroke-width="5" fill="none" stroke-linejoin="round"/>' +
+      '<path d="M36 50 Q42 36 60 40 L70 46 L56 54 Z" fill="#31c46c" stroke="#1d8a49" stroke-width="2"/>' +
+      '<path d="M30 44 L48 42 L46 48 L28 50 Z" fill="#222"/>' +
+      '<path d="M66 44 L74 30 M70 30 L80 28" stroke="#333" stroke-width="4" stroke-linecap="round"/>' +
+      '<rect x="46" y="54" width="14" height="9" rx="2" fill="#777"/>' +
+      '<text x="55" y="50" font-size="9" font-weight="900" font-family="Arial" fill="#fff">7</text>') },
+
+    { id: 'sports-car', pool: 'fetch', name: 'Sports Car', svg: W(
+      '<path d="M6 64 Q8 52 24 50 L36 40 Q50 34 66 40 L78 50 Q94 52 94 64 L94 70 L6 70 Z" fill="#e53935" stroke="#8e1b19" stroke-width="2"/>' +
+      '<path d="M38 43 Q50 38 62 42 L72 50 L30 50 Z" fill="#9fd8ff" stroke="#3a6f8f" stroke-width="1.5"/>' +
+      '<path d="M50 40 L50 50" stroke="#8e1b19" stroke-width="2"/>' +
+      '<path d="M8 58 L20 58 M80 58 L92 58" stroke="#ffe066" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M20 60 L80 60" stroke="#fff" stroke-width="3" opacity=".7"/>' +
+      '<circle cx="26" cy="70" r="10" fill="#222"/><circle cx="26" cy="70" r="4.5" fill="#ddd"/>' +
+      '<circle cx="74" cy="70" r="10" fill="#222"/><circle cx="74" cy="70" r="4.5" fill="#ddd"/>' +
+      '<path d="M88 46 L96 44" stroke="#8e1b19" stroke-width="3"/>') },
+
+    { id: 'computer', pool: 'fetch', name: 'Computer', svg: W(
+      '<rect x="12" y="16" width="76" height="52" rx="5" fill="#3b4252" stroke="#1f2430" stroke-width="3"/>' +
+      '<rect x="18" y="22" width="64" height="40" rx="2" fill="#5bc0ff"/>' +
+      '<path d="M18 50 L36 36 L50 48 L62 40 L82 56 L82 62 L18 62 Z" fill="#31c46c"/>' +
+      '<circle cx="70" cy="30" r="5" fill="#ffe066"/>' +
+      '<path d="M44 68 L40 80 L60 80 L56 68 Z" fill="#9aa3b5"/>' +
+      '<rect x="22" y="80" width="56" height="8" rx="3" fill="#cfd5e1" stroke="#9aa3b5" stroke-width="1.5"/>' +
+      '<rect x="80" y="78" width="12" height="10" rx="5" fill="#cfd5e1" stroke="#9aa3b5" stroke-width="1.5"/>') },
+
+    { id: 'game-console', pool: 'fetch', name: 'X BOX', svg: W(
+      // a generic black game console + controller (just labeled "X BOX", no real logo)
+      '<rect x="14" y="14" width="44" height="58" rx="6" fill="#1b1d22" stroke="#000" stroke-width="2"/>' +
+      '<rect x="18" y="20" width="36" height="3" rx="1.5" fill="#33363d"/>' +
+      '<circle cx="36" cy="42" r="8" fill="#2a2d33" stroke="#4be37a" stroke-width="2.5"/>' +
+      '<text x="36" y="66" font-size="8.5" font-weight="900" text-anchor="middle" font-family="Arial" fill="#4be37a">X BOX</text>' +
+      '<path d="M50 70 Q50 58 62 56 L86 56 Q98 58 96 72 Q94 84 86 84 Q80 84 77 78 L71 78 Q68 84 62 84 Q52 84 50 70 Z" fill="#2a2d33" stroke="#000" stroke-width="2"/>' +
+      '<circle cx="62" cy="66" r="4" fill="#555"/><circle cx="86" cy="64" r="2.5" fill="#4be37a"/><circle cx="90" cy="69" r="2.5" fill="#ef5350"/>' +
+      '<circle cx="82" cy="69" r="2.5" fill="#42a5f5"/><circle cx="86" cy="74" r="2.5" fill="#ffd54f"/>') },
+
+    { id: 'dollar-1', pool: 'fetch', name: '$1 Bill', svg: W(
+      '<g transform="rotate(-8 50 50)"><rect x="6" y="30" width="88" height="42" rx="3" fill="#cfe8c4" stroke="#4e7d43" stroke-width="2.5"/>' +
+      '<rect x="11" y="35" width="78" height="32" rx="2" fill="none" stroke="#6f9e63" stroke-width="1.5"/>' +
+      '<ellipse cx="50" cy="51" rx="12" ry="13" fill="#e6f3df" stroke="#4e7d43" stroke-width="2"/>' +
+      '<circle cx="50" cy="47" r="5" fill="#8db582"/><path d="M42 58 Q50 52 58 58" fill="#8db582"/>' +
+      '<text x="20" y="48" font-size="12" font-weight="900" text-anchor="middle" font-family="Arial" fill="#2f5a27">1</text>' +
+      '<text x="80" y="64" font-size="12" font-weight="900" text-anchor="middle" font-family="Arial" fill="#2f5a27">1</text>' +
+      '<text x="76" y="47" font-size="10" font-weight="900" text-anchor="middle" font-family="Arial" fill="#2f5a27">$1</text></g>') },
+
+    { id: 'dollar-50', pool: 'fetch', name: '$50 Bill', svg: W(
+      '<g transform="rotate(6 50 50)"><rect x="6" y="30" width="88" height="42" rx="3" fill="#d9e6f2" stroke="#3f6a8a" stroke-width="2.5"/>' +
+      '<rect x="11" y="35" width="78" height="32" rx="2" fill="none" stroke="#e46b6b" stroke-width="1.5" stroke-dasharray="4 2"/>' +
+      '<ellipse cx="50" cy="51" rx="12" ry="13" fill="#eef4fa" stroke="#3f6a8a" stroke-width="2"/>' +
+      '<circle cx="50" cy="47" r="5" fill="#93b2cc"/><path d="M42 58 Q50 52 58 58" fill="#93b2cc"/>' +
+      '<text x="22" y="49" font-size="13" font-weight="900" text-anchor="middle" font-family="Arial" fill="#2e4f6b">50</text>' +
+      '<text x="78" y="65" font-size="13" font-weight="900" text-anchor="middle" font-family="Arial" fill="#c94545">50</text>' +
+      '<text x="78" y="47" font-size="9" font-weight="900" text-anchor="middle" font-family="Arial" fill="#2e4f6b">$50</text></g>') },
+
+    { id: 'milkshake', pool: 'fetch', name: 'Milkshake', svg: W(
+      '<path d="M60 6 L52 40" stroke="#ff3d7f" stroke-width="5" stroke-linecap="round"/>' +
+      '<path d="M26 40 L74 40 L66 92 L34 92 Z" fill="#ffc6dd" stroke="#d96b98" stroke-width="2.5"/>' +
+      '<path d="M28 52 L72 52" stroke="#fff" stroke-width="4" opacity=".7"/>' +
+      '<path d="M24 42 Q24 26 38 28 Q42 16 54 22 Q66 16 70 28 Q80 28 76 42 Z" fill="#fffaf0" stroke="#e2d6c2" stroke-width="2"/>' +
+      '<circle cx="52" cy="16" r="6" fill="#e53935"/><path d="M52 10 q4 -6 8 -4" stroke="#3a7d2b" stroke-width="2" fill="none"/>' +
+      '<g fill="#ff9ec4"><rect x="36" y="32" width="5" height="2" rx="1"/><rect x="58" y="34" width="5" height="2" rx="1" transform="rotate(30 60 35)"/></g>') },
+
+    { id: 'trash-bags', pool: 'fetch', name: 'Trash Bags', svg: W(
+      // the joke prize :)
+      '<path d="M18 86 Q8 60 26 46 L34 40 L44 46 Q60 62 50 86 Z" fill="#2d2f36" stroke="#111" stroke-width="2"/>' +
+      '<path d="M30 40 L28 30 M34 40 L38 30" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M48 88 Q40 56 62 42 L70 36 L80 42 Q98 60 88 88 Z" fill="#3a3d46" stroke="#111" stroke-width="2"/>' +
+      '<path d="M66 36 L64 26 M70 36 L74 26" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M58 60 q6 -4 10 2 M72 56 q4 6 10 2" stroke="#5a5e6a" stroke-width="2" fill="none"/>' +
+      '<g fill="#fff"><circle cx="64" cy="70" r="3"/><circle cx="78" cy="70" r="3"/></g><g fill="#111"><circle cx="64" cy="71" r="1.6"/><circle cx="78" cy="71" r="1.6"/></g>' +
+      '<path d="M66 78 q5 4 10 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+      '<g stroke="#666" stroke-width="1.5" fill="none"><path d="M20 22 q4 -4 8 0 q4 4 8 0"/><path d="M78 14 q3 -3 6 0 q3 3 6 0"/></g>' +
+      '<g fill="#333"><circle cx="26" cy="20" r="2"/><circle cx="86" cy="12" r="2"/></g>') },
   ];
 
   const byId = {};
@@ -84,6 +170,8 @@
   window.LA.prizes = {
     list: PRIZES,
     get: id => byId[id],
-    random: () => PRIZES[Math.floor(Math.random() * PRIZES.length)],
+    // random(pool): each game has its own prize list (Pop the Dog = no pool, Fetch Frenzy = 'fetch')
+    random: pool => { const l = PRIZES.filter(p => (p.pool || null) === (pool || null)); return l[Math.floor(Math.random() * l.length)]; },
+    pool: pool => PRIZES.filter(p => (p.pool || null) === (pool || null)),
   };
 })();
