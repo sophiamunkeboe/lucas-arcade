@@ -80,6 +80,9 @@
         if (r.seconds && (g.fastest == null || r.seconds < g.fastest)) g.fastest = r.seconds;
       }).games[gameId];
     },
+    // small per-player save slot for a game (e.g. Blackjack chips): getData('blackjack') / setData('blackjack', {...})
+    getData: gameId => { const p = players.current(); return (p && p.data && p.data[gameId]) || null; },
+    setData: (gameId, obj) => { const p = players.current(); if (p) edit(p.id, q => { (q.data || (q.data = {}))[gameId] = obj; }); },
     stats: gameId => { const p = players.current(); return (p && p.games[gameId]) || { best: 0, fastest: null, pops: 0 }; },
     isMuted: () => read(MUTE_KEY, false) === true,
     setMuted: (m) => write(MUTE_KEY, !!m),

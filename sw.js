@@ -1,6 +1,8 @@
 /* Lucas's Arcade - service worker: keeps every file on the phone so the arcade works offline.
    When you change or add files: add them to FILES and bump VERSION. */
-const VERSION = 'lucas-arcade-v7';
+const VERSION = 'lucas-arcade-v8';
+// Note: Poker Table also needs internet to talk to its game server; its page and art are cached here so it can
+// open offline and show a friendly "Poker needs internet" message.
 const FILES = [
   './',
   './index.html',
@@ -30,6 +32,29 @@ const FILES = [
   './games/fetch-frenzy/scenes.js',
   './games/fetch-frenzy/game.js',
   './games/fetch-frenzy/thumb.png',
+  './games/cards/cards.js',
+  './games/cards/cards.css',
+  './games/cards/casino.js',
+  './games/cards/casino.css',
+  './games/blackjack/index.html',
+  './games/blackjack/style.css',
+  './games/blackjack/game.js',
+  './games/blackjack/thumb.png',
+  './games/poker/index.html',
+  './games/poker/style.css',
+  './games/poker/game.js',
+  './games/poker/thumb.png',
+  './js/vendor/supabase.js',
+  './art/neon/aer-on.webp',
+  './art/neon/aer-off.webp',
+  './art/neon/munkeboe-on.webp',
+  './art/neon/munkeboe-off.webp',
+  './art/neon/sel-on.webp',
+  './art/neon/sel-off.webp',
+  './art/neon/taylor-on.webp',
+  './art/neon/taylor-off.webp',
+  './art/neon/thankq-on.webp',
+  './art/neon/thankq-off.webp',
 ];
 
 self.addEventListener('install', e => {

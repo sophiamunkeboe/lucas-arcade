@@ -1,0 +1,29 @@
+/* Lucas's Arcade - Las Vegas casino room (shared by Blackjack + Poker). See casino.js. */
+.casino-room { background:
+    radial-gradient(ellipse 40% 22% at 12% 9%, rgba(255, 196, 92, .16), transparent 70%),
+    radial-gradient(ellipse 40% 22% at 88% 9%, rgba(255, 196, 92, .16), transparent 70%),
+    radial-gradient(ellipse 90% 45% at 50% 0%, #3c1f55 0%, #1d1030 55%, #0c0716 100%) !important; }
+/* gold marquee bulbs along the ceiling, chasing */
+.bulbs { position: absolute; left: 0; right: 0; top: 0; height: 12px; z-index: 1; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, #fff6cf 0 2px, #ffc93a 3px, rgba(255, 180, 40, .35) 5px, transparent 7px) 0 0 / 22px 12px repeat-x;
+  animation: bulbs 1.6s steps(2) infinite; filter: drop-shadow(0 0 4px rgba(255, 190, 60, .8)); }
+@keyframes bulbs { to { background-position: 22px 0; } }
+/* neon wall */
+.neon-wall { display: flex; justify-content: space-between; gap: 10px; pointer-events: none; }
+.neon-slot { position: relative; flex: 0 1 46%; max-width: 230px; aspect-ratio: 640 / 242; }
+.neon { position: absolute; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center; }
+.neon img { position: absolute; max-width: 100%; max-height: 100%; display: block; }
+.neon .on { animation: neon-buzz 3.1s infinite var(--buzz-delay, 0s); }
+.neon.flicker .on { animation: neon-flicker 1.5s linear 1; }
+.neon.flicker.hold .on { animation: none; opacity: .15; }
+.neon.enter { animation: neon-in .9s ease-out both; } .neon.leave { animation: neon-out .9s ease-in both; }
+@keyframes neon-buzz { 0%, 100% { opacity: 1; } 18% { opacity: .93; } 21% { opacity: 1; } 55% { opacity: .96; } 57% { opacity: .9; } 60% { opacity: 1; } }
+@keyframes neon-flicker { 0% { opacity: 1; } 8% { opacity: .1; } 12% { opacity: .9; } 16% { opacity: .05; } 30% { opacity: .05; } 34% { opacity: 1; }
+  40% { opacity: .3; } 44% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes neon-in { from { opacity: 0; } } @keyframes neon-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .neon .on, .bulbs { animation: none; } }
+/* green felt table with a padded leather rail and gold trim */
+.felt-table { position: absolute; left: -35%; right: -35%; top: var(--felt-top, 260px); bottom: -60px; z-index: 0; pointer-events: none;
+  border-radius: 50% 50% 0 0 / 110px 110px 0 0;
+  background: radial-gradient(ellipse 60% 55% at 50% 28%, #22b874 0%, #13915a 45%, #0b6a40 78%, #084d2f 100%);
+  border-top: 18px solid #5a2f14; box-shadow: 0 -3px 0 #ffcf5a, 0 -10px 24px rgba(0,0,0,.6), inset 0 4px 0 rgba(255, 207, 90, .55), inset 0 14px 22px rgba(0,0,0,.35); }

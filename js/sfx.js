@@ -279,6 +279,49 @@
       if (!ready()) return; const t = ctx.currentTime;
       [880, 1175, 1568].forEach((f, i) => tone('sine', f, 0, t + i * 0.06, 0.1, 0.15));
     },
+
+    // ---- card games (Blackjack + Poker) ----
+    // a card sliding across the felt
+    card() {
+      if (!ready()) return; const t = ctx.currentTime;
+      noise(t, 0.09, 0.3, 'highpass', 2500, 5000, 0.8);
+      tone('triangle', 260, 140, t + 0.05, 0.04, 0.08);
+    },
+    // card turning over
+    flip() {
+      if (!ready()) return; const t = ctx.currentTime;
+      noise(t, 0.05, 0.28, 'bandpass', 3000, 1800, 1.5);
+      noise(t + 0.05, 0.04, 0.2, 'bandpass', 2000, 1200, 1.5);
+    },
+    // clicky plastic chips
+    chip(n) {
+      if (!ready()) return; const t = ctx.currentTime;
+      for (let i = 0; i < (n || 2); i++) {
+        tone('sine', 2600 + Math.random() * 900, 2200, t + i * 0.045, 0.03, 0.12);
+        tone('square', 5200 + Math.random() * 800, 0, t + i * 0.045, 0.015, 0.03);
+      }
+    },
+    // riffle shuffle
+    shuffle() {
+      if (!ready()) return; const t = ctx.currentTime;
+      for (let i = 0; i < 14; i++) noise(t + i * 0.03, 0.035, 0.15, 'highpass', 3000 + i * 80, 0, 0.7);
+      noise(t + 0.48, 0.12, 0.25, 'lowpass', 1500, 400, 1);
+    },
+    // sad trombone-ish "womp womp"
+    womp() {
+      if (!ready()) return; const t = ctx.currentTime;
+      [[392, 370], [370, 330], [330, 262]].forEach(([a, b], i) => tone('sawtooth', a / 2, b / 2, t + i * 0.28, i === 2 ? 0.55 : 0.24, 0.07));
+    },
+    // little "your turn" ding
+    ding() {
+      if (!ready()) return; const t = ctx.currentTime;
+      tone('sine', 1320, 0, t, 0.25, 0.18); tone('sine', 1760, 0, t + 0.12, 0.35, 0.14);
+    },
+    // short win jingle (smaller than the prize fanfare)
+    win() {
+      if (!ready()) return; const t = ctx.currentTime;
+      [659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => tone('triangle', f, 0, t + i * 0.08, 0.16, 0.14));
+    },
   };
 
   window.LA = window.LA || {};

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Poker Table - Lucas's Arcade</title>
+<meta name="theme-color" content="#5a2d91">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucas's Arcade">
+<link rel="manifest" href="../../manifest.json">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../../icons/icon-192.png">
+<link rel="stylesheet" href="../cards/cards.css">
+<link rel="stylesheet" href="../cards/casino.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app" class="casino-room">
+  <div class="bulbs"></div>
+  <div class="felt-table"></div>
+  <div id="wall" class="neon-wall"></div>
+  <canvas id="dealer" width="400" height="330" aria-label="Marley the dealer in a tuxedo"></canvas>
+  <div id="topbar">
+    <a id="homeBtn" class="round-btn" href="../../index.html" aria-label="Back to Arcade">
+      <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3 Z" fill="currentColor"/></svg>
+    </a>
+    <button id="tablePill" class="hidden"><span id="pillCode">----</span><small id="pillHand"></small></button>
+    <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
+  </div>
+
+  <!-- 1. create or join -->
+  <section id="screen-home" class="screen">
+    <div class="panel">
+      <h1 class="logo">Poker Table</h1>
+      <p class="tagline">Texas Hold'em &middot; a table for up to 6 &middot; each on your own phone</p>
+      <div id="me" class="me-chip"></div>
+      <div id="offline" class="notice hidden"><b>Poker needs internet.</b><br>Connect to Wi-Fi, then tap Try again. (The other arcade games work offline.)
+        <button id="retryBtn" class="small-btn">Try again</button></div>
+      <div id="rejoin" class="hidden"><button id="rejoinBtn" class="big-btn gold">Back to table <span id="rejoinCode"></span></button></div>
+      <button id="createBtn" class="big-btn">Create a table</button>
+      <div class="or"><span>or join a friend</span></div>
+      <div class="join-row">
+        <input id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Table code">
+        <button id="joinBtn" class="big-btn alt">Join</button>
+      </div>
+      <p id="homeMsg" class="msg">&nbsp;</p>
+      <p class="fine">Pretend chips only &ndash; everyone starts with 1,000. Win all the chips to win the table and a prize card!</p>
+    </div>
+  </section>
+
+  <!-- 2. waiting for players -->
+  <section id="screen-lobby" class="screen hidden">
+    <div class="panel">
+      <p class="sub">Table code</p>
+      <div id="bigCode" class="big-code">----</div>
+      <p class="hint">Friends open <b>Poker Table</b> on their phone and type this code. Up to 6 players.</p>
+      <div id="lobbySeats" class="lobby-seats"></div>
+      <label id="openRow" class="toggle hidden"><input type="checkbox" id="openChk"><span>Let people join between hands</span></label>
+      <button id="startBtn" class="big-btn hidden">Start the game</button>
+      <p id="waitHost" class="hint hidden">Waiting for the host to tap Start&hellip;</p>
+      <button id="leaveBtn1" class="link-btn">Leave table</button>
+    </div>
+  </section>
+
+  <!-- 3. the table -->
+  <section id="screen-table" class="hidden">
+    <div id="felt">
+      <div id="center">
+        <div id="pot">Pot 0</div>
+        <div id="board"></div>
+        <div id="sideInfo"></div>
+      </div>
+      <div id="seats"></div>
+      <div id="log"></div>
+    </div>
+    <div id="mine">
+      <div id="myCards"></div>
+      <div id="myInfo"><div id="myHandName"></div><div id="myStatus"></div></div>
+    </div>
+    <div id="actions">
+      <div id="waitMsg" class="wait-msg"></div>
+      <div id="actRow" class="act-row hidden">
+        <button id="foldBtn" class="act red">Fold</button>
+        <button id="callBtn" class="act green">Check</button>
+        <button id="raiseBtn" class="act blue">Raise</button>
+      </div>
+      <div id="raisePanel" class="raise-panel hidden">
+        <div class="raise-top"><button id="minusBtn" class="pm">&minus;</button><div id="raiseAmt">40</div><button id="plusBtn" class="pm">+</button></div>
+        <input id="raiseSlider" type="range" min="0" max="100" step="1">
+        <div class="quick"><button data-q="min">Min</button><button data-q="half">&frac12; Pot</button><button data-q="pot">Pot</button><button data-q="all">All-in</button></div>
+        <div class="act-row"><button id="raiseCancel" class="act gray">Back</button><button id="raiseGo" class="act blue">Raise to 40</button></div>
+      </div>
+      <div id="handOverRow" class="act-row hidden"><button id="nextBtn" class="act green">Next hand</button></div>
+    </div>
+  </section>
+
+  <!-- match over -->
+  <section id="screen-over" class="screen hidden">
+    <div class="panel prize-panel">
+      <h2 id="overTitle">Winner!</h2>
+      <div id="overWho"></div>
+      <div id="card" class="hidden">
+        <div class="card-inner">
+          <div class="card-face card-back"><span>?</span></div>
+          <div class="card-face card-front"><div id="prizeArt"></div><div id="prizeName"></div></div>
+        </div>
+      </div>
+      <p id="prizeMsg">&nbsp;</p>
+      <div class="btn-row">
+        <button id="rematchBtn" class="big-btn">Rematch</button>
+        <button id="leaveBtn2" class="big-btn alt">Leave</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- table menu (tap the code at the top) -->
+  <section id="screen-menu" class="screen hidden">
+    <div class="panel">
+      <p class="sub">Table code</p>
+      <div id="menuCode" class="big-code">----</div>
+      <label id="openRow2" class="toggle hidden"><input type="checkbox" id="openChk2"><span>Let people join between hands</span></label>
+      <p id="menuSeats" class="hint"></p>
+      <div class="btn-row"><button id="menuClose" class="big-btn">Back to game</button></div>
+      <button id="leaveBtn3" class="link-btn">Leave table</button>
+    </div>
+  </section>
+
+  <div id="toast" class="hidden"></div>
+</div>
+
+<script src="../../js/storage.js"></script>
+<script src="../../js/sfx.js"></script>
+<script src="../../js/prizes.js"></script>
+<script src="../../js/avatars.js"></script>
+<script src="../../js/vendor/supabase.js"></script>
+<script src="../pop-the-dog/dogs.js"></script>
+<script src="../cards/cards.js"></script>
+<script src="../cards/casino.js"></script>
+<script src="game.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(() => {});
+  }
+</script>
+</body>
+</html>

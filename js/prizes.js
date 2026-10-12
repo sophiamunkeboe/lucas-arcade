@@ -4,7 +4,7 @@
   const W = (inner) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + inner + '</svg>';
 
   const PRIZES = [
-    { id: 'cash', name: 'Stack of Cash', svg: W(
+    { id: 'cash', also: ['cards'], name: 'Stack of Cash', svg: W(
       '<g stroke="#2f6b2f" stroke-width="2">' +
       '<rect x="14" y="58" width="72" height="22" rx="3" fill="#7cc576"/>' +
       '<rect x="12" y="46" width="72" height="22" rx="3" fill="#8fd488"/>' +
@@ -77,7 +77,7 @@
       '<circle cx="68" cy="46" r="4.5" fill="#ffd54f"/><circle cx="78" cy="54" r="4.5" fill="#ef5350"/><circle cx="68" cy="60" r="4.5" fill="#66bb6a"/><circle cx="58" cy="54" r="4.5" fill="#42a5f5"/>') },
 
     // ---- Fetch Frenzy prizes (Lucas's list) ----
-    { id: 'sunglasses', pool: 'fetch', name: 'Sunglasses', svg: W(
+    { id: 'sunglasses', pool: 'fetch', also: ['cards'], name: 'Sunglasses', svg: W(
       '<path d="M8 40 Q50 32 92 40" stroke="#222" stroke-width="5" fill="none" stroke-linecap="round"/>' +
       '<path d="M12 40 L46 40 Q46 66 30 66 Q12 66 12 40 Z" fill="#1d1d2b" stroke="#111" stroke-width="3"/>' +
       '<path d="M54 40 L88 40 Q88 66 70 66 Q54 66 54 40 Z" fill="#1d1d2b" stroke="#111" stroke-width="3"/>' +
@@ -95,7 +95,7 @@
       '<rect x="46" y="54" width="14" height="9" rx="2" fill="#777"/>' +
       '<text x="55" y="50" font-size="9" font-weight="900" font-family="Arial" fill="#fff">7</text>') },
 
-    { id: 'sports-car', pool: 'fetch', name: 'Sports Car', svg: W(
+    { id: 'sports-car', pool: 'fetch', also: ['cards'], name: 'Sports Car', svg: W(
       '<path d="M6 64 Q8 52 24 50 L36 40 Q50 34 66 40 L78 50 Q94 52 94 64 L94 70 L6 70 Z" fill="#e53935" stroke="#8e1b19" stroke-width="2"/>' +
       '<path d="M38 43 Q50 38 62 42 L72 50 L30 50 Z" fill="#9fd8ff" stroke="#3a6f8f" stroke-width="1.5"/>' +
       '<path d="M50 40 L50 50" stroke="#8e1b19" stroke-width="2"/>' +
@@ -161,8 +161,53 @@
       '<path d="M66 78 q5 4 10 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>' +
       '<g stroke="#666" stroke-width="1.5" fill="none"><path d="M20 22 q4 -4 8 0 q4 4 8 0"/><path d="M78 14 q3 -3 6 0 q3 3 6 0"/></g>' +
       '<g fill="#333"><circle cx="26" cy="20" r="2"/><circle cx="86" cy="12" r="2"/></g>') },
+
+    // ---- card games (Blackjack + Poker): pool 'cards' (plus a few Lucas favorites marked also: ['cards']) ----
+    { id: 'golden-chip', pool: 'cards', name: 'Golden Chip', svg: W(
+      '<ellipse cx="50" cy="58" rx="38" ry="12" fill="#b8860b"/>' +
+      '<rect x="12" y="46" width="76" height="12" fill="#b8860b"/>' +
+      '<ellipse cx="50" cy="46" rx="38" ry="12" fill="#ffd23f" stroke="#b8860b" stroke-width="2"/>' +
+      '<g fill="#fff6c4"><path d="M18 42 l8 2 l-2 6 l-8 -2z"/><path d="M74 42 l8 2 l-2 6 l-8 -2z"/><path d="M45 34 h10 v4 h-10z"/><path d="M45 54 h10 v4 h-10z"/></g>' +
+      '<ellipse cx="50" cy="46" rx="22" ry="7" fill="none" stroke="#b8860b" stroke-width="2" stroke-dasharray="4 3"/>' +
+      '<text x="50" y="50" font-size="11" font-weight="900" text-anchor="middle" font-family="Arial" fill="#8a5a00">LA</text>' +
+      '<g fill="#fff"><path d="M80 18 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2z"/><path d="M20 20 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 l4 -1.5z"/></g>') },
+
+    { id: 'lucky-dice', pool: 'cards', name: 'Lucky Dice', svg: W(
+      '<g transform="rotate(-14 34 56)"><rect x="12" y="34" width="44" height="44" rx="9" fill="#ef5350" stroke="#a52a2a" stroke-width="2.5"/>' +
+      '<g fill="#fff"><circle cx="24" cy="46" r="4.5"/><circle cx="34" cy="56" r="4.5"/><circle cx="44" cy="66" r="4.5"/></g></g>' +
+      '<g transform="rotate(12 68 48)"><rect x="46" y="26" width="44" height="44" rx="9" fill="#fffaf0" stroke="#8a8fa8" stroke-width="2.5"/>' +
+      '<g fill="#2b2140"><circle cx="58" cy="38" r="4.5"/><circle cx="78" cy="38" r="4.5"/><circle cx="58" cy="58" r="4.5"/><circle cx="78" cy="58" r="4.5"/><circle cx="58" cy="48" r="4.5"/><circle cx="78" cy="48" r="4.5"/></g></g>' +
+      '<path d="M16 18 q4 -8 10 -2 M84 82 q6 2 4 8" stroke="#ffd23f" stroke-width="3" fill="none" stroke-linecap="round"/>') },
+
+    { id: 'crown', pool: 'cards', name: 'Crown', svg: W(
+      '<path d="M14 72 L10 30 L32 50 L50 20 L68 50 L90 30 L86 72 Z" fill="#ffd23f" stroke="#b8860b" stroke-width="3" stroke-linejoin="round"/>' +
+      '<rect x="14" y="70" width="72" height="14" rx="4" fill="#ffc400" stroke="#b8860b" stroke-width="3"/>' +
+      '<g stroke="#b8860b" stroke-width="2"><circle cx="10" cy="28" r="5" fill="#fff"/><circle cx="50" cy="18" r="6" fill="#fff"/><circle cx="90" cy="28" r="5" fill="#fff"/></g>' +
+      '<circle cx="50" cy="77" r="5" fill="#e53935"/><circle cx="30" cy="77" r="4" fill="#42a5f5"/><circle cx="70" cy="77" r="4" fill="#43a047"/>' +
+      '<path d="M50 44 l6 10 l-6 8 l-6 -8 z" fill="#7c5cff"/>') },
+
+    { id: 'royal-flush', pool: 'cards', name: 'Royal Flush', svg: W(
+      [-34, -17, 0, 17, 34].map((a, i) => '<g transform="rotate(' + a + ' 50 92)"><rect x="34" y="18" width="32" height="46" rx="4" fill="#fff" stroke="#8a8fa8" stroke-width="1.5"/>' +
+        '<text x="38" y="30" font-size="10" font-weight="900" font-family="Arial" fill="#d32f2f">' + ['10', 'J', 'Q', 'K', 'A'][i] + '</text>' +
+        '<path d="M50 52 c-8 -6 -8 -12 -3 -13 c2 0 3 1 3 3 c0 -2 1 -3 3 -3 c5 1 5 7 -3 13z" fill="#d32f2f"/></g>').join('')) },
+
+    { id: 'top-hat', pool: 'cards', name: 'Magic Top Hat', svg: W(
+      '<ellipse cx="50" cy="78" rx="40" ry="10" fill="#2b2140"/>' +
+      '<path d="M26 76 L28 26 Q50 18 72 26 L74 76 Q50 84 26 76 Z" fill="#3a2f55" stroke="#1a1430" stroke-width="2"/>' +
+      '<path d="M27 62 Q50 70 73 62 L73.6 70 Q50 78 26.6 70 Z" fill="#ff3d7f"/>' +
+      '<ellipse cx="50" cy="26" rx="22" ry="6" fill="#4b3f6b" stroke="#1a1430" stroke-width="2"/>' +
+      '<g fill="#ffd23f"><path d="M82 16 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2z"/><path d="M14 36 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 l4 -1.5z"/></g>') },
+
+    { id: 'trophy-cup', pool: 'cards', name: 'Champion Cup', svg: W(
+      '<path d="M28 14 H72 V38 Q72 62 50 64 Q28 62 28 38 Z" fill="#ffd23f" stroke="#b8860b" stroke-width="3"/>' +
+      '<path d="M28 22 Q12 22 14 36 Q16 48 30 48 M72 22 Q88 22 86 36 Q84 48 70 48" fill="none" stroke="#b8860b" stroke-width="5"/>' +
+      '<rect x="44" y="62" width="12" height="12" fill="#e2b33c" stroke="#b8860b" stroke-width="2"/>' +
+      '<rect x="30" y="74" width="40" height="14" rx="3" fill="#7c5cff" stroke="#4a2fc4" stroke-width="2.5"/>' +
+      '<text x="50" y="44" font-size="20" font-weight="900" text-anchor="middle" font-family="Arial" fill="#b8860b">1</text>' +
+      '<path d="M36 20 Q34 34 40 44" stroke="#fff6c4" stroke-width="3" fill="none" stroke-linecap="round"/>') },
   ];
 
+  const inPool = pool => PRIZES.filter(p => (p.pool || null) === (pool || null) || (pool && (p.also || []).includes(pool)));
   const byId = {};
   PRIZES.forEach(p => { byId[p.id] = p; });
 
@@ -171,7 +216,8 @@
     list: PRIZES,
     get: id => byId[id],
     // random(pool): each game has its own prize list (Pop the Dog = no pool, Fetch Frenzy = 'fetch')
-    random: pool => { const l = PRIZES.filter(p => (p.pool || null) === (pool || null)); return l[Math.floor(Math.random() * l.length)]; },
-    pool: pool => PRIZES.filter(p => (p.pool || null) === (pool || null)),
+    // (Blackjack + Poker = 'cards'; a prize can also join other lists with also: [...])
+    random: pool => { const l = inPool(pool); return l[Math.floor(Math.random() * l.length)]; },
+    pool: pool => inPool(pool),
   };
 })();

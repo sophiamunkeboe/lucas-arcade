@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Bella's Blackjack - Lucas's Arcade</title>
+<meta name="theme-color" content="#0f7a4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucas's Arcade">
+<link rel="manifest" href="../../manifest.json">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../../icons/icon-192.png">
+<link rel="stylesheet" href="../cards/cards.css">
+<link rel="stylesheet" href="../cards/casino.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app" class="casino-room">
+  <div class="bulbs"></div>
+  <div class="felt-table"></div>
+  <div id="wall" class="neon-wall"></div>
+  <div id="topbar">
+    <a id="homeBtn" class="round-btn" href="../../index.html" aria-label="Back to Arcade">
+      <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3 Z" fill="currentColor"/></svg>
+    </a>
+    <div id="bank" title="Your pretend chips"><span class="chip-ico"></span><span id="bankNum">1000</span></div>
+    <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
+  </div>
+
+  <!-- the dealer: Bella in a dealer visor -->
+  <div id="dealerZone">
+    <canvas id="bella" width="400" height="330" aria-label="Bella the dealer in a tuxedo"></canvas>
+    <div id="bubble" class="hidden"></div>
+    <div id="shoe" aria-hidden="true"><div class="pcard back"></div></div>
+  </div>
+  <div id="dealerRow"><div class="hand" id="dealerHand"></div><div class="total hidden" id="dealerTotal"></div></div>
+
+  <div id="feltText">
+    <svg viewBox="0 0 360 54" aria-hidden="true"><path id="arc" d="M14 44 Q180 -6 346 44" fill="none"/>
+      <text><textPath href="#arc" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath></text></svg>
+    <div class="rule">Bella stands on 17 &middot; pretend chips only</div>
+  </div>
+
+  <div id="playerRow"></div>
+
+  <div id="betSpot"><div id="betChips"></div><div id="betNum">Bet 0</div></div>
+  <div id="prizeTrack"></div>
+
+  <div id="controls">
+    <div id="betControls" class="ctl">
+      <div class="chips">
+        <button class="chipbtn c10" data-v="10">10</button>
+        <button class="chipbtn c25" data-v="25">25</button>
+        <button class="chipbtn c100" data-v="100">100</button>
+        <button class="chipbtn c500" data-v="500">500</button>
+      </div>
+      <div class="row">
+        <button id="clearBtn" class="act gray">Clear</button>
+        <button id="dealBtn" class="act green">Deal</button>
+      </div>
+      <button id="refillBtn" class="act gold hidden">Out of chips? Get 1000 more!</button>
+    </div>
+    <div id="playControls" class="ctl hidden">
+      <div class="row">
+        <button id="hitBtn" class="act green">Hit</button>
+        <button id="standBtn" class="act red">Stand</button>
+      </div>
+      <div class="row">
+        <button id="doubleBtn" class="act blue">Double</button>
+        <button id="splitBtn" class="act purple">Split</button>
+      </div>
+    </div>
+    <div id="doneControls" class="ctl hidden">
+      <div class="row"><button id="againBtn" class="act green">Next hand</button></div>
+    </div>
+  </div>
+
+  <!-- prize! -->
+  <section id="screen-prize" class="screen hidden">
+    <div class="panel prize-panel">
+      <h2 id="prizeTitle">Lucky streak!</h2>
+      <div id="card">
+        <div class="card-inner">
+          <div class="card-face card-back"><span>?</span></div>
+          <div class="card-face card-front"><div id="prizeArt"></div><div id="prizeName"></div></div>
+        </div>
+      </div>
+      <p id="prizeMsg">&nbsp;</p>
+      <div class="btn-row"><button id="keepBtn" class="big-btn">Keep playing</button></div>
+    </div>
+  </section>
+</div>
+
+<script src="../../js/storage.js"></script>
+<script src="../../js/sfx.js"></script>
+<script src="../../js/prizes.js"></script>
+<script src="../pop-the-dog/dogs.js"></script>
+<script src="../cards/cards.js"></script>
+<script src="../cards/casino.js"></script>
+<script src="game.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(() => {});
+  }
+</script>
+</body>
+</html>

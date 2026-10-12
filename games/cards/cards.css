@@ -1,0 +1,27 @@
+/* Lucas's Arcade - playing cards (see cards.js). Size with --cw (card width). */
+.pcard { --cw: 64px; position: relative; flex: 0 0 auto; width: var(--cw); height: calc(var(--cw) * 1.4); border-radius: calc(var(--cw) * .12);
+  background: linear-gradient(160deg, #fff, #f3efe6); border: 1.5px solid #c9c2b4; box-shadow: 0 3px 0 rgba(0,0,0,.25), 0 4px 10px rgba(0,0,0,.18);
+  font-family: Nunito, "Arial Rounded MT Bold", Arial, sans-serif; font-variant-emoji: text; overflow: hidden; }
+.pcard.red { color: #d42c3c; } .pcard.black { color: #1f1d2b; }
+.pcard .corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: .9; }
+.pcard .corner b { font-size: calc(var(--cw) * .3); font-weight: 900; letter-spacing: -1px; }
+.pcard .corner i { font-style: normal; font-size: calc(var(--cw) * .24); }
+.pcard .tl { left: calc(var(--cw) * .06); top: calc(var(--cw) * .06); }
+.pcard .br { right: calc(var(--cw) * .06); bottom: calc(var(--cw) * .06); transform: rotate(180deg); }
+.pcard .mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.pcard .mid i { font-style: normal; font-size: calc(var(--cw) * .56); line-height: 1; }
+.pcard .mid i.ace { font-size: calc(var(--cw) * .78); }
+.pcard.face .mid { inset: 18% 16%; border-radius: calc(var(--cw) * .08); background: #fff6d6; border: 2px solid currentColor; }
+.pcard.face .mid b { font-size: calc(var(--cw) * .42); font-weight: 900; line-height: .9; }
+.pcard.face .mid i { font-size: calc(var(--cw) * .26); }
+.pcard .crown { width: calc(var(--cw) * .36); height: auto; margin-bottom: 1px; }
+.pcard.back { background: #7c5cff; border: calc(var(--cw) * .06) solid #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='%23ffd23f' opacity='.9'%3E%3Cellipse cx='20' cy='25' rx='7' ry='6'/%3E%3Ccircle cx='11' cy='17' r='3'/%3E%3Ccircle cx='17' cy='11' r='3'/%3E%3Ccircle cx='23' cy='11' r='3'/%3E%3Ccircle cx='29' cy='17' r='3'/%3E%3C/g%3E%3C/svg%3E"),
+    repeating-linear-gradient(45deg, #7c5cff 0 8px, #6a48f0 8px 16px);
+  background-size: 70% auto, auto; background-position: center, 0 0; background-repeat: no-repeat, repeat; }
+.pcard.deal { animation: pcard-deal .32s cubic-bezier(.2,.8,.3,1) both; }
+@keyframes pcard-deal { from { transform: translate(var(--fx, 0), var(--fy, -200px)) rotate(-25deg) scale(.7); opacity: .4; } }
+.pcard.flip { animation: pcard-flip .3s ease-out both; }
+@keyframes pcard-flip { from { transform: rotateY(90deg); } }
+.pcard.dim { filter: grayscale(.6) brightness(.75); }
+.pcard.win { box-shadow: 0 0 0 3px #ffd23f, 0 0 16px 4px rgba(255,210,63,.8); }

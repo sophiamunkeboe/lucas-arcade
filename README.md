@@ -21,6 +21,8 @@ security. Trophies won before logins existed went to the first player created.
 |---|---|---|
 | **Pop the Dog** | `games/pop-the-dog/` | Toss popcorn from the recliner to Bella or Marley. Every catch puffs her up until she goes **POP!** and you win a prize. |
 | **Fetch Frenzy** | `games/fetch-frenzy/` | Throw a ball, frisbee, stick or cheeseburger for Bella, Marley or Gorda. Catch it mid-air for big points, dodge the toy thief, puddles and squirrels, fill the meter and win a prize. |
+| **Bella's Blackjack** | `games/blackjack/` | You vs Bella the dealer (in a tuxedo) at a Las Vegas casino table. Pretend chips only. |
+| **Poker Table** | `games/poker/` | Texas Hold'em for 2 to 6 players, each on their own phone, using a 4-letter table code. Pretend chips only. Needs internet. |
 | *Coming soon* | | Lucas's next idea! |
 
 ### Pop the Dog
@@ -43,8 +45,47 @@ security. Trophies won before logins existed went to the first player created.
 - Sounds: throw whoosh, paw patter, catch chomp, barks in each dog's voice, splash, squirrel chatter, the thief's playful "grr-RUFF!", prize fanfare.
 - Testing: `games/fetch-frenzy/index.html?debug=select|play|air|thief|puddle|squirrel|prize|fast|real` with `&dog=bella|marley|gorda`, `&place=backyard|park|lake|court`, `&toy=ball|frisbee|stick|burger`, `&p=0.5` (meter part-full), `&prize=<id>`, `&after=<s>`. The scene ones set up the moment and freeze it for screenshots; `fast` is a quick full round that still saves the trophy.
 
+### The casino (Blackjack + Poker)
+Both card games are set in a fancy Las Vegas casino: dark room, chasing gold marquee bulbs, green felt tables with a
+padded rail, and dog dealers in tuxedos (Bella deals Blackjack, Marley deals Poker). The walls have glowing **neon signs**
+made from the family's five business logos (Arizona Event Rentals, Munkeboe Party Rentals, Special Events Table Linens,
+Taylor Equipment and Event Rentals, Thank Q Rentals). The signs slowly rotate, hum, and one now and then flickers.
+`tools/make-neon.py` turns `art/logos/*.png` into `art/neon/<id>-on.webp` (lit) and `-off.webp` (unlit, for the flicker):
+it removes backgrounds, keeps proportions, outlines bold letters as tubes, adds glow + a white-hot core on a dark plate.
+Preview: `screens/91-neon-signs.png`.
+
+### Bella's Blackjack
+- Bet with pretend chip buttons (10 / 25 / 100 / 500), then **Hit**, **Stand**, **Double** (first two cards) or **Split** (one split; split aces get one card each).
+- 4-deck shoe, Blackjack pays 3 to 2, Bella stands on all 17s and peeks for Blackjack.
+- Bust and you get Bella's famous **RBF**. She barks when you win.
+- Chips are saved per player (start with 1,000; a refill button appears when you're out). The tile shows your best chip total.
+- **Prize card** (card-game prize list: Golden Chip, Lucky Dice, Crown, Royal Flush, Magic Top Hat, Champion Cup, plus Stack of Cash, Sunglasses and Sports Car) every 5 hand wins and the first time you reach 2,500 / 5,000 / 10,000 chips.
+- Testing: `?debug=play | bust | bj | split | prize | broke` (no login needed, nothing saved).
+
+### Poker Table (2 to 6 phones)
+- One player taps **Create a table** and gets a 4-letter code. Friends open Poker Table on their own phones and type it.
+  Anyone can join until the table is full (6) or the host taps **Start**. The host can also let people join between hands.
+- Full Texas Hold'em: dealer button and blinds (10/20) move around the table, preflop/flop/turn/river, fold/check/call/bet/raise/all-in,
+  main pot + side pots when people are all-in for different amounts, split pots, busted players are skipped,
+  **Next hand** button. Win all the chips to win the table (and a prize card); **Rematch** starts over.
+- Players who leave are folded and skipped; someone away for more than ~75 s on their turn is checked/folded automatically.
+  Close the page and come back: your seat is remembered on this phone.
+- **Needs internet.** Offline it shows a friendly "Poker needs internet" message (everything else in the arcade works offline).
+
+**How the server keeps cards secret** (Supabase project `xmxztvljmuniuojlvcxv`, SQL in `supabase/poker.sql`):
+- Tables live in a private `poker` schema that the public API doesn't expose. Row Level Security is on with a deny-all
+  policy and no table grants, so nobody can read or change the tables directly.
+- Every rule (shuffle, deal, betting, side pots, showdown) runs inside the database in SECURITY DEFINER functions.
+  The browser can only call small `public.poker_*` functions.
+- Each seat gets a random secret token when it sits down (stored only on that phone). Every call needs code + token.
+  `poker_view` returns the public table (board, pot, stacks, bets, whose turn, last actions) plus **only your own** two cards.
+  Other players' cards are sent only after a showdown. The deck is never sent.
+- Realtime: after each change the server broadcasts just a version number on the public channel `room:CODE`;
+  phones then re-fetch their own view. Phones also poll every few seconds, so nothing gets stuck.
+- Tables idle for 24 hours are deleted (hourly `pg_cron` job + on create).
+
 ## How it's built
-Plain HTML, CSS, and JavaScript with no build step and nothing loaded from the internet.
+Plain HTML, CSS, and JavaScript with no build step and nothing loaded from a CDN (Poker talks to its game server).
 
 ```
 index.html            arcade home (game buttons + Trophy Shelf)
@@ -62,6 +103,11 @@ games/fetch-frenzy/   the Fetch Frenzy game
   runners.js          side-view running dogs (Bella, Marley, Gorda, Biscuit) on one shared rig
   scenes.js           the 4 places, the toys and the squirrel
   game.js             the game itself
+games/cards/          shared by the card games: cards.js/.css (playing cards), casino.js/.css (neon wall, felt, tuxedos)
+games/blackjack/      Bella's Blackjack
+games/poker/          Poker Table (client); the server side is supabase/poker.sql
+js/vendor/supabase.js supabase-js (MIT), kept here so there's no CDN
+art/logos/, art/neon/ family business logos and the neon signs made from them (tools/make-neon.py)
 manifest.json, sw.js  make it installable + work offline
 icons/                app icons
 art/                  first character drafts
