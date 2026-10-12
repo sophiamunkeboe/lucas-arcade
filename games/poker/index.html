@@ -36,10 +36,13 @@
       <h1 class="logo">Poker Table</h1>
       <p class="tagline">Texas Hold'em &middot; a table for up to 6 &middot; each on your own phone</p>
       <div id="me" class="me-chip"></div>
-      <div id="offline" class="notice hidden"><b>Poker needs internet.</b><br>Connect to Wi-Fi, then tap Try again. (The other arcade games work offline.)
+      <div id="offline" class="notice hidden"><b>Playing with friends needs internet.</b><br><b>Play vs Dogs</b> works offline! Or connect to Wi-Fi and tap Try again.
         <button id="retryBtn" class="small-btn">Try again</button></div>
       <div id="rejoin" class="hidden"><button id="rejoinBtn" class="big-btn gold">Back to table <span id="rejoinCode"></span></button></div>
-      <button id="createBtn" class="big-btn">Create a table</button>
+      <div class="mode-row">
+        <button id="createBtn" class="big-btn">Create a table</button>
+        <button id="dogsBtn" class="big-btn dogs"><span class="paws">&#x1F43E;</span> Play vs Dogs</button>
+      </div>
       <div class="or"><span>or join a friend</span></div>
       <div class="join-row">
         <input id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Table code">
@@ -47,6 +50,21 @@
       </div>
       <p id="homeMsg" class="msg">&nbsp;</p>
       <p class="fine">Pretend chips only &ndash; everyone starts with 1,000. Win all the chips to win the table and a prize card!</p>
+    </div>
+  </section>
+
+  <!-- 1b. Play vs Dogs setup (offline, single player) -->
+  <section id="screen-dogs" class="screen hidden">
+    <div class="panel dogs-panel">
+      <h2 class="dogs-title">Play vs Dogs</h2>
+      <p class="hint">Pick 1 to 5 dogs to play against. Runs on this phone &ndash; no internet needed.</p>
+      <div id="dogList" class="dog-list"></div>
+      <div id="levelSeg" class="seg" role="group" aria-label="Difficulty">
+        <button data-level="puppy">Puppy<small>easy</small></button><button data-level="good">Good Dog<small>normal</small></button><button data-level="top">Top Dog<small>hard</small></button>
+      </div>
+      <p id="dogRecord" class="record"></p>
+      <button id="dealBtn" class="big-btn">Deal me in!</button>
+      <button id="dogsBack" class="link-btn">Back</button>
     </div>
   </section>
 
@@ -132,12 +150,16 @@
 
 <script src="../../js/storage.js"></script>
 <script src="../../js/sfx.js"></script>
+<script src="../../js/music.js"></script>
 <script src="../../js/prizes.js"></script>
 <script src="../../js/avatars.js"></script>
 <script src="../../js/vendor/supabase.js"></script>
 <script src="../pop-the-dog/dogs.js"></script>
 <script src="../cards/cards.js"></script>
 <script src="../cards/casino.js"></script>
+<script src="engine.js"></script>
+<script src="bots.js"></script>
+<script src="local.js"></script>
 <script src="game.js"></script>
 <script>
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

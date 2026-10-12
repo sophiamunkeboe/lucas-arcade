@@ -28,10 +28,13 @@
     const o = c.createOscillator(), g = c.createGain();
     g.gain.value = 0; o.connect(g); g.connect(master);
     o.start(); o.stop(c.currentTime + 0.01);
+    if (window.LA && LA.music) LA.music.sync();      // background music starts after the first tap (iOS rule)
   }
   ['pointerdown', 'touchstart', 'mousedown', 'keydown'].forEach(ev =>
     window.addEventListener(ev, unlock, { passive: true }));
 
+  // big moments push the background music down for a moment
+  const duck = (depth, ms) => { if (window.LA && LA.music) LA.music.duck(depth, ms); };
   function ready() { return ctx && !muted && ctx.state === 'running'; }
 
   function env(g, t, peak, a, d) {
@@ -66,7 +69,10 @@
       muted = !!m;
       if (window.LA && LA.store) LA.store.setMuted(muted);
       if (master) master.gain.value = muted ? 0 : 0.7;
+      if (window.LA && LA.music) LA.music.sync();     // mute silences the music too (and stops scheduling it)
     },
+    // shared with js/music.js so music + effects go through one mute switch
+    audio() { ensure(); return ctx ? { ctx, master, noiseBuf } : null; },
     toggleMute() { sfx.setMuted(!muted); return muted; },
 
     click() { if (!ready()) return; tone('triangle', 660, 990, ctx.currentTime, 0.08, 0.25); },
@@ -124,7 +130,7 @@
     },
 
     pop() {
-      if (!ready()) return; const t = ctx.currentTime;
+      if (!ready()) return; const t = ctx.currentTime; duck(0.25, 1200);
       noise(t, 0.35, 1.0, 'lowpass', 6000, 300, 0.8);
       noise(t, 0.08, 0.8, 'highpass', 2000, 0, 0.5);
       tone('sine', 160, 40, t, 0.35, 0.9);
@@ -139,6 +145,7 @@
     },
 
     fanfare() {
+      duck(0.2, 2600);
       if (!ready()) return; const t = ctx.currentTime;
       const notes = [523.25, 659.25, 783.99, 1046.5];
       notes.forEach((f, i) => { tone('square', f, 0, t + i * 0.12, 0.14, 0.12); tone('triangle', f, 0, t + i * 0.12, 0.16, 0.15); });
@@ -319,7 +326,7 @@
     },
     // short win jingle (smaller than the prize fanfare)
     win() {
-      if (!ready()) return; const t = ctx.currentTime;
+      if (!ready()) return; const t = ctx.currentTime; duck(0.4, 900);
       [659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => tone('triangle', f, 0, t + i * 0.08, 0.16, 0.14));
     },
   };

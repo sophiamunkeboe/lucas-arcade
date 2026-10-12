@@ -1,6 +1,9 @@
 /* Poker Table - Lucas's Arcade game #4. Texas Hold'em for 2 to 6 players, each on their own phone. PRETEND CHIPS ONLY.
-   Needs internet: the table lives in the arcade's Supabase project. All the rules run on the server
-   (supabase/poker.sql); this page only shows what the server says and sends taps.
+   Two ways to play, same table UI:
+   - With friends (needs internet): the table lives in the arcade's Supabase project. All the rules run on the server
+     (supabase/poker.sql); this page only shows what the server says and sends taps.
+   - Play vs Dogs (offline): local.js runs the table on this phone with engine.js (a port of the same rules)
+     and bots.js (the dogs). The UI talks to it through the same send()/view calls.
    SECURITY: each phone gets a secret seat token when it sits down (kept in localStorage so you can come back).
    The server only ever sends this phone its OWN hole cards; other players' cards are sent only after a showdown.
    Sync: Supabase Realtime broadcast "room:CODE" says "something changed" (no secrets) -> we re-fetch our view.
@@ -16,7 +19,10 @@
   if (!player) { location.replace('../../index.html'); return; }
   const SAVE_KEY = 'lucasArcade.poker.seat.' + player.id;
   const AWARD_KEY = 'lucasArcade.poker.awarded';
-  const AV = id => LA.avatars.html(id, '../../');
+  const AV = (id, face) => /^bot:/.test(id || '') ? PokerBots.avatarHTML(id.slice(4), face) : LA.avatars.html(id, '../../');
+  const Q = new URLSearchParams(location.search);
+  const DOGS_KEY = 'lucasArcade.poker.dogs';
+  let local = null;          // the offline "Play vs Dogs" table, when playing one
 
   // ---------------- network ----------------
   let sb = null, chan = null, rt = 'off', sess = null, view = null, prev = null, inflight = null, again = false, pollT = 0, fetchedAt = 0;
@@ -67,6 +73,7 @@
   }
   // one fetch at a time; if something changes meanwhile, fetch once more
   function refresh() {
+    if (local) { onView(local.view()); return Promise.resolve(); }
     if (!sess) return Promise.resolve();
     if (inflight) { again = true; return inflight; }
     inflight = rpc('poker_view', { p_code: sess.code, p_token: sess.token })
@@ -81,7 +88,7 @@
   }
 
   // ---------------- screens ----------------
-  const SCREENS = ['screen-home', 'screen-lobby', 'screen-table'];
+  const SCREENS = ['screen-home', 'screen-lobby', 'screen-table', 'screen-dogs'];
   function show(id) { SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id)); $('tablePill').classList.toggle('hidden', id !== 'screen-table'); }
 
   function home(msg) {
@@ -96,7 +103,7 @@
   function checkOnline() {
     const off = !navigator.onLine;
     $('offline').classList.toggle('hidden', !off);
-    ['createBtn', 'joinBtn', 'rejoinBtn'].forEach(id => { $(id).disabled = off; });
+    ['createBtn', 'joinBtn', 'rejoinBtn'].forEach(id => { $(id).disabled = off; });   // Play vs Dogs always works
   }
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -126,10 +133,12 @@
   function leaveLocal(msg) { clearTimeout(pollT); unsubscribe(); sess = null; view = null; save(null); home(msg); }
   async function leave() {
     sfx.click();
+    if (local) { local.stop(); local = null; view = null; prev = null; $('app').classList.remove('dogs-mode'); dogSetup(); return; }
     if (sess) { try { await rpc('poker_leave', { p_code: sess.code, p_token: sess.token }); } catch (e) { /* table may be gone */ } }
     leaveLocal();
   }
   async function send(fn, extra) {
+    if (local) { try { local.send(fn, extra); } catch (e) { toast(errText(e)); refresh(); } return; }
     if (!sess) return;
     try { const v = await rpc(fn, Object.assign({ p_code: sess.code, p_token: sess.token }, extra || {})); if (v) { fetchedAt = Date.now(); onView(v); } }
     catch (e) { toast(errText(e)); refresh(); }
@@ -140,8 +149,8 @@
     prev = view; view = v;
     if (v.status === 'lobby') { renderLobby(v); show('screen-lobby'); }
     else { show('screen-table'); renderTable(v); }
-    $('pillCode').textContent = v.code;
-    $('pillHand').textContent = v.hand_no ? 'Hand ' + v.hand_no : 'Table for up to 6';
+    $('pillCode').textContent = local ? 'vs Dogs' : v.code;
+    $('pillHand').textContent = v.hand_no ? 'Hand ' + v.hand_no + (local ? ' \u00b7 ' + PokerBots.LEVELS[local.level].name : '') : 'Table for up to 6';
     sounds(prev, v);
     over(v);
     menuSync(v);
@@ -194,6 +203,12 @@
       let cards = '';
       if (shown[s.seat]) { cls.push('showdown'); cards = shown[s.seat].cards.map(c => cardHTML(c)).join(''); }
       else if (s.has_cards) cards = cardHTML(null) + cardHTML(null);
+      const dec = local && /^bot:/.test(s.avatar) ? local.decor(s.seat) : null;
+      let bub = '';
+      if (dec && dec.bubble) {
+        const b = dec.bubble, age = Date.now() - b.at;
+        bub = '<div class="bubble' + (b.until === Infinity ? ' stay' : '') + (b.mood === 'fold' || b.mood === 'lose' ? ' cold' : '') + '" style="animation-delay:-' + age + 'ms">' + esc(b.text) + '</div>';
+      }
       let lbl = '';
       if (s.left) lbl = '<span class="lbl">left</span>';
       else if (shown[s.seat]) lbl = '<span class="lbl hand">' + esc(shown[s.seat].hand) + '</span>';
@@ -204,8 +219,8 @@
       else if (s.away) lbl = '<span class="lbl">away</span>';
       if (v.status === 'playing' && v.to_act === s.seat) lbl = '<span class="lbl">' + timeLeft(v) + '</span>';
       h += '<div class="' + cls.join(' ') + '" data-seat="' + s.seat + '">' +
-        '<div class="top">' + badgeFor(v, s.seat) + AV(s.avatar) + '<div class="who"><span class="nm">' + esc(s.name) + '</span><span class="st">' + s.stack.toLocaleString() + '</span></div></div>' +
-        '<div class="hole">' + cards + '</div>' + lbl + (s.bet ? '<span class="bet">' + s.bet + '</span>' : '') + '</div>';
+        '<div class="top">' + badgeFor(v, s.seat) + AV(s.avatar, dec && dec.face) + '<div class="who"><span class="nm">' + esc(s.name) + '</span><span class="st">' + s.stack.toLocaleString() + '</span></div></div>' +
+        '<div class="hole">' + cards + '</div>' + lbl + (s.bet ? '<span class="bet">' + s.bet + '</span>' : '') + bub + '</div>';
     });
     $('seats').innerHTML = h;
     // board
@@ -344,6 +359,7 @@
     if (v.status !== 'match_over') { o.classList.add('hidden'); return; }
     if (!o.classList.contains('hidden') && o.dataset.match === String(v.match_no)) return;
     o.dataset.match = String(v.match_no);
+    if (local) return overDogs(v, o);
     const w = v.seats.find(s => s.seat === v.winner);
     const iWon = v.winner === v.me;
     $('overTitle').textContent = iWon ? 'You win the table!' : 'Game over!';
@@ -372,9 +388,105 @@
     }
   }
 
+  // Play vs Dogs: you win by taking ALL the dogs' chips; you lose if you run out
+  function overDogs(v, o) {
+    const iWon = v.winner === v.me && !local.busted;
+    const first = local.claimAward();
+    const rec = LA.store.getData('poker-dogs') || { wins: 0, losses: 0, byLevel: {} };
+    if (first) {
+      if (iWon) { rec.wins++; rec.byLevel[local.level] = (rec.byLevel[local.level] || 0) + 1; } else rec.losses++;
+      LA.store.setData('poker-dogs', rec);
+      LA.store.recordResult(GAME_ID, { score: iWon ? (v.seats.find(s => s.seat === v.me) || {}).stack || 0 : 0 });
+    }
+    $('overTitle').textContent = iWon ? 'You beat the dogs!' : 'Out of chips!';
+    const top = v.seats.filter(s => s.seat !== v.me).sort((a, b) => b.stack - a.stack)[0];
+    $('overWho').innerHTML = iWon ? AV(player.avatar) + '<span>' + esc(player.name) + ' has all the chips!</span>'
+      : AV(top.avatar, 'happy') + '<span>' + esc(top.name) + ' has the most chips (' + top.stack.toLocaleString() + ')</span>';
+    $('card').classList.toggle('hidden', !iWon); $('card').classList.remove('flipped');
+    $('prizeMsg').innerHTML = iWon ? '&nbsp;' : 'Tap Rematch &ndash; everyone gets 1,000 chips again.<br><small>Wins vs dogs: ' + rec.wins + '</small>';
+    o.classList.remove('hidden');
+    if (iWon) {
+      let prize = LA.prizes.get(localStorage.getItem(AWARD_KEY + '.dogs')) || null;
+      if (first || !prize) {
+        prize = LA.prizes.random('cards');
+        LA.store.addTrophy(prize.id, GAME_ID, { vs: 'dogs', level: local.level });
+        try { localStorage.setItem(AWARD_KEY + '.dogs', prize.id); } catch (e) { /* */ }
+      }
+      $('prizeArt').innerHTML = prize.svg; $('prizeName').textContent = prize.name;
+      setTimeout(() => {
+        $('card').classList.add('flipped'); sfx.fanfare(); react('happy', 4000);
+        const a = /s$/.test(prize.name) ? 'some' : /^[aeiou]/i.test(prize.name) ? 'an' : 'a';
+        $('prizeMsg').innerHTML = 'You won ' + a + ' ' + esc(prize.name) + '! It\u2019s on your Trophy Shelf.<br><small>Wins vs dogs: ' + rec.wins + '</small>';
+      }, 700);
+      window.__lastPrize = prize.id;
+    } else sfx.womp();
+  }
+
+  // ---------------- Play vs Dogs: pick your dogs + difficulty ----------------
+  function dogPrefs() {
+    let p = null; try { p = JSON.parse(localStorage.getItem(DOGS_KEY)); } catch (e) { /* */ }
+    p = p || {}; if (!Array.isArray(p.dogs) || !p.dogs.length) p.dogs = ['bella', 'marley', 'gorda'];
+    if (!PokerBots.LEVELS[p.level]) p.level = 'good';
+    p.dogs = p.dogs.filter(d => PokerBots.DOGS[d]).slice(0, 5); return p;
+  }
+  function dogSetup() {
+    const p = dogPrefs();
+    $('screen-over').classList.add('hidden'); $('screen-menu').classList.add('hidden');
+    show('screen-dogs');
+    let h = '';
+    PokerBots.ORDER.forEach(id => {
+      const D = PokerBots.DOGS[id], on = p.dogs.indexOf(id) >= 0;
+      h += '<button class="dogpick' + (on ? ' on' : '') + '" data-dog="' + id + '" aria-pressed="' + on + '">' + AV('bot:' + id, on ? 'happy' : 'normal') +
+        '<span class="dn">' + esc(D.name) + '</span><span class="db">' + esc(D.blurb) + '</span><span class="tick">' + (on ? '\u2714' : '+') + '</span></button>';
+    });
+    $('dogList').innerHTML = h;
+    $('dogList').querySelectorAll('.dogpick').forEach(b => { b.onclick = () => {
+      const q = dogPrefs(), id = b.dataset.dog, i = q.dogs.indexOf(id);
+      if (i >= 0) { if (q.dogs.length === 1) { toast('Pick at least 1 dog!'); return; } q.dogs.splice(i, 1); }
+      else { q.dogs.push(id); q.dogs.sort((a, c) => PokerBots.ORDER.indexOf(a) - PokerBots.ORDER.indexOf(c)); const D = PokerBots.DOGS[id]; sfx.bark(D.voice[0], D.voice[1], 1); }
+      sfx.click(); saveDogPrefs(q); dogSetup();
+    }; });
+    document.querySelectorAll('#levelSeg button').forEach(b => {
+      b.classList.toggle('on', b.dataset.level === p.level);
+      b.onclick = () => { const q = dogPrefs(); q.level = b.dataset.level; saveDogPrefs(q); sfx.click(); dogSetup(); };
+    });
+    const rec = LA.store.getData('poker-dogs') || { wins: 0, losses: 0 };
+    $('dogRecord').innerHTML = esc(player.name) + '\u2019s wins vs dogs: <b>' + rec.wins + '</b>' + (rec.losses ? ' &middot; busts: ' + rec.losses : '');
+    $('dealBtn').textContent = 'Deal me in! (' + p.dogs.length + (p.dogs.length === 1 ? ' dog)' : ' dogs)');
+  }
+  const saveDogPrefs = p => { try { localStorage.setItem(DOGS_KEY, JSON.stringify({ dogs: p.dogs, level: p.level })); } catch (e) { /* */ } };
+  function startDogs() {
+    const p = dogPrefs();
+    sfx.click(); sfx.shuffle && sfx.shuffle();
+    if (sess) { clearTimeout(pollT); unsubscribe(); sess = null; }    // (your saved friends table stays saved for later)
+    view = null; prev = null; $('myCards').dataset.key = '';
+    $('app').classList.add('dogs-mode');
+    const force = {}; (Q.get('force') || '').split(',').forEach(x => { const [d, a] = x.split(':'); if (d && a) force[d] = a; });
+    local = PokerLocal.start({
+      dogs: p.dogs, level: p.level, name: player.name, avatar: player.avatar,
+      onView: v => { fetchedAt = Date.now(); onView(v); },
+      onEvent: dogEvent,
+      fast: Q.get('debug') === 'fast', force, freeze: +Q.get('freeze') || 0, rig: Q.get('rig'), debug: !!Q.get('debug'),
+    });
+    window.__dogs = local;
+  }
+  function dogEvent(type, s, d) {
+    const D = PokerBots.DOGS[s.bot]; if (!D) return;
+    if (type === 'act') {
+      if (d.mood === 'snore') sfx.snore();
+      else if (d.action === 'allin') sfx.bark(D.voice[0], D.voice[1], 3);
+      else if (/bet|raise/.test(d.action) || d.say === 'woof') sfx.bark(D.voice[0], D.voice[1], 1);
+    } else if (type === 'win' && s.bot === 'marley') setTimeout(() => sfx.bark(D.voice[0], D.voice[1], 2), 300);
+  }
+
   // ---------------- table menu ----------------
   function menuSync(v) {
-    $('menuCode').textContent = v.code;
+    $('menuCode').textContent = local ? 'vs Dogs' : v.code;
+    if (local) {
+      $('openRow2').classList.add('hidden');
+      $('menuSeats').textContent = 'You vs ' + local.dogs.map(d => PokerBots.DOGS[d].name).join(', ') + ' \u00b7 ' + PokerBots.LEVELS[local.level].name + '. Runs on this phone, no internet needed.';
+      return;
+    }
     const host = v.me === v.host;
     $('openRow2').classList.toggle('hidden', !host); $('openChk2').checked = !!v.allow_join;
     const n = v.seats.filter(s => !s.left).length;
@@ -409,6 +521,9 @@
   }
   $('muteBtn').onclick = () => { sfx.toggleMute(); setMuteIcon(); };
   $('createBtn').onclick = create; $('joinBtn').onclick = join;
+  $('dogsBtn').onclick = () => { sfx.click(); dogSetup(); };
+  $('dealBtn').onclick = startDogs;
+  $('dogsBack').onclick = () => { sfx.click(); home(); };
   $('codeIn').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4); });
   $('codeIn').addEventListener('keydown', e => { if (e.key === 'Enter') join(); });
   $('rejoinBtn').onclick = () => { const s = saved(); if (s) enter(s); };
@@ -430,17 +545,19 @@
   document.querySelectorAll('.quick button').forEach(b => { b.onclick = () => quick(b.dataset.q); });
   $('raiseGo').onclick = () => act(raiseTo >= view.max_raise_to ? 'allin' : (view.cur_bet === 0 ? 'bet' : 'raise'), raiseTo);
   $('nextBtn').onclick = () => { sfx.click(); $('handOverRow').classList.add('hidden'); send('poker_next'); };
+  setInterval(() => { if (local && view && view.status !== 'lobby') document.querySelectorAll('.seat .bubble:not(.stay)').forEach(b => { if (getComputedStyle(b).opacity === '0') b.remove(); }); }, 1000);
   $('rematchBtn').onclick = () => { sfx.click(); $('screen-over').classList.add('hidden'); send('poker_rematch'); };
   $('tablePill').onclick = () => { sfx.click(); $('screen-menu').classList.remove('hidden'); };
   $('menuClose').onclick = () => $('screen-menu').classList.add('hidden');
-  window.addEventListener('online', () => { checkOnline(); refresh(); });
-  window.addEventListener('offline', () => { checkOnline(); if (sess) toast('Lost internet - waiting to reconnect\u2026'); });
+  window.addEventListener('online', () => { checkOnline(); if (!local) refresh(); });
+  window.addEventListener('offline', () => { checkOnline(); if (sess && !local) toast('Lost internet - waiting to reconnect\u2026'); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
   setInterval(() => { if (view && view.status === 'playing') document.querySelectorAll('.seat.turn .lbl').forEach(l => { l.textContent = timeLeft(view); }); }, 1000);
 
   setMuteIcon();
   LA.casino.wall($('wall'), { slots: 2, start: new URLSearchParams(location.search).get('sign') || 'taylor' });
   const s0 = saved();
-  if (s0 && new URLSearchParams(location.search).get('resume') !== '0') { home(); enter(s0); } else home();
-  window.__poker = { get view() { return view; }, get rt() { return rt; }, refresh };
+  if (Q.get('dogs')) { home(); dogSetup(); if (Q.get('dogs') === 'go') startDogs(); }
+  else if (s0 && Q.get('resume') !== '0') { home(); enter(s0); } else home();
+  window.__poker = { get view() { return view; }, get rt() { return rt; }, refresh, get local() { return local; } };
 })();

@@ -159,3 +159,33 @@ button { font: inherit; }
   .screen { padding-top: calc(env(safe-area-inset-top) + 120px); }
 }
 #startBtn { font-size: 20px; padding: 12px 8px; }
+
+/* ---------- Play vs Dogs ---------- */
+.mode-row { display: flex; flex-direction: column; gap: 10px; }
+.big-btn.dogs { background: linear-gradient(180deg, #ff7ab8, #e0438b); box-shadow: 0 5px 0 #a3245e; font-size: 24px; padding-top: 14px; padding-bottom: 14px; }
+.big-btn.dogs .paws { display: inline-block; transform: rotate(-12deg); }
+.dogs-panel { padding-top: 12px; }
+.dogs-title { margin: 0 0 2px; font-size: 28px; font-weight: 900; color: #e0438b; }
+.dogs-panel .hint { margin: 2px 0 8px; font-size: 13px; }
+.dog-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.dogpick { display: grid; grid-template-columns: 48px 1fr 30px; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left;
+  background: #f1e8d8; border: 3px solid #e0d4c0; border-radius: 16px; padding: 5px 8px; font: inherit; color: #3a2a1a; }
+.dogpick .avatar { grid-row: 1 / 3; width: 46px; height: 46px; }
+.dogpick .dn { font-weight: 900; font-size: 16px; } .dogpick .db { font-size: 11.5px; font-weight: 700; color: #7a6a5a; line-height: 1.15; }
+.dogpick .tick { grid-row: 1 / 3; grid-column: 3; width: 28px; height: 28px; border-radius: 50%; background: #d8ccb8; color: #fff; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.dogpick.on { background: #fff; border-color: #31c46c; } .dogpick.on .tick { background: #31c46c; }
+.seg { display: flex; background: #e9dfcc; border-radius: 16px; padding: 4px; gap: 4px; margin-bottom: 6px; }
+.seg button { flex: 1; border: 0; border-radius: 12px; background: transparent; font: inherit; font-weight: 900; font-size: 15px; padding: 7px 2px; color: #5a4a3a; }
+.seg button small { display: block; font-size: 11px; font-weight: 700; opacity: .75; }
+.seg button.on { background: #5a2d91; color: #fff; box-shadow: 0 3px 0 #351a57; }
+.record { font-weight: 800; font-size: 14px; color: #5a4a3a; margin: 4px 0 10px; }
+.avatar.dog-av { background: #fff; } .avatar.dog-av img { object-fit: cover; }
+.dogs-mode .seat.folded .top { opacity: .8; }   /* so you can still see Bella's RBF */
+.bubble { position: absolute; top: 46px; left: 50%; transform: translateX(-50%); z-index: 5; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis;
+  background: #fff; color: #2a1a0a; font-weight: 900; font-size: 13px; padding: 4px 9px; border-radius: 14px; border: 2px solid #2a1a0a;
+  box-shadow: 0 3px 0 rgba(0,0,0,.35); animation: bubble 2.4s ease-out forwards; pointer-events: none; }
+.bubble::before { content: ''; position: absolute; top: -8px; left: 50%; margin-left: -6px; border: 6px solid transparent; border-bottom-color: #2a1a0a; border-top: 0; }
+.bubble.cold { background: #e8ecf5; }
+.bubble.stay { animation: bubblein .25s ease-out forwards; }
+@keyframes bubble { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 8% { opacity: 1; transform: translateX(-50%) scale(1.08); } 14% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes bubblein { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 100% { opacity: 1; transform: translateX(-50%) scale(1); } }

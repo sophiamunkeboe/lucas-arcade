@@ -70,7 +70,28 @@ Preview: `screens/91-neon-signs.png`.
   **Next hand** button. Win all the chips to win the table (and a prize card); **Rematch** starts over.
 - Players who leave are folded and skipped; someone away for more than ~75 s on their turn is checked/folded automatically.
   Close the page and come back: your seat is remembered on this phone.
-- **Needs internet.** Offline it shows a friendly "Poker needs internet" message (everything else in the arcade works offline).
+- **Playing with friends needs internet.** Offline the Create/Join buttons are off and a note points to Play vs Dogs.
+
+**Play vs Dogs** (one player, works offline - nobody else needed):
+- Tap the pink **Play vs Dogs** button, pick 1-5 dogs and a difficulty: **Puppy** (easy), **Good Dog**, **Top Dog** (hard).
+  Default table: Bella, Marley (in her #4 jersey) and Gorda. Extra dogs: Biscuit (the neighbor's golden dog) and Waffles the corgi.
+- Everyone starts with 1,000. Take ALL the dogs' chips to win a prize card for the Trophy Shelf; run out and it's **Rematch**.
+  Wins vs dogs are saved per player and shown on the setup screen.
+- The dogs: **Bella** is tight and careful and gives her RBF when she folds or loses. **Marley** is loose and goofy, bluffs,
+  and slobbers when she wins. **Gorda** is sleepy: she snores and checks, and once in a while wakes up and goes ALL-IN.
+  **Biscuit** plays solid; **Waffles** makes huge bets. They "think" for 0.6-1.5 s and talk in speech bubbles.
+- How a dog decides: a preflop hand chart (Chen points), then after the flop a Monte Carlo estimate of its chance to win
+  against the players still in (60 / 160 / 400 random run-outs for Puppy / Good Dog / Top Dog), pot odds, its personality,
+  and a bit of randomness (Puppy also makes silly mistakes).
+- **Same rules as the online table.** `games/poker/engine.js` is a line-by-line JavaScript port of `supabase/poker.sql`
+  (blinds, button, betting, min-raise, side pots, odd chips, hand scores). `node tools/poker-parity.mjs sim` replays the
+  4-way side-pot hand from the server tests and plays thousands of random hands checking that chips always add up;
+  `hands`/`check` compares the hand evaluator with the database's `poker.eval7` (606/606 identical).
+- **The dogs can't peek.** A dog only ever gets `PokerEngine.view(table, itsSeat)`: the same view a phone gets from the
+  server - its own two cards, the board, stacks and bets. Never your cards, never the deck.
+- Files: `engine.js` (rules), `bots.js` (dogs + faces), `local.js` (runs the table on the phone), `game.js` (the same table UI for both).
+- Testing: `?dogs=1` opens the setup screen, `?dogs=go` deals right away; add `&debug=fast` (dogs act instantly),
+  `&force=bella:fold`, `&freeze=4` (dogs stop after 4 moves, bubbles stay), `&rig=win` (you always get the aces).
 
 **How the server keeps cards secret** (Supabase project `xmxztvljmuniuojlvcxv`, SQL in `supabase/poker.sql`):
 - Tables live in a private `poker` schema that the public API doesn't expose. Row Level Security is on with a deny-all
@@ -95,6 +116,7 @@ js/prizes.js          prize pictures (SVG) - add new prizes here
 js/storage.js         players, trophies, stats + mute setting (all on the phone)
 js/avatars.js         player pictures
 js/sfx.js             all sound effects, including barks and whimpers
+js/music.js           background music (made in code, see below)
 games/pop-the-dog/    the Pop the Dog game
   gorda.js            Gorda, the background couch dog
   dogs.js             Bella + Marley drawn in parts (legs, tail, head...) + poses + tricks + outfits
@@ -105,7 +127,7 @@ games/fetch-frenzy/   the Fetch Frenzy game
   game.js             the game itself
 games/cards/          shared by the card games: cards.js/.css (playing cards), casino.js/.css (neon wall, felt, tuxedos)
 games/blackjack/      Bella's Blackjack
-games/poker/          Poker Table (client); the server side is supabase/poker.sql
+games/poker/          Poker Table: game.js (UI), engine.js + bots.js + local.js (Play vs Dogs); server: supabase/poker.sql
 js/vendor/supabase.js supabase-js (MIT), kept here so there's no CDN
 art/logos/, art/neon/ family business logos and the neon signs made from them (tools/make-neon.py)
 manifest.json, sw.js  make it installable + work offline
@@ -114,6 +136,16 @@ art/                  first character drafts
 tools/make-icons.html redraws the icons from the dog art
 screens/              screenshots
 ```
+
+### Music
+Every screen has its own original tune, generated in code with Web Audio (no song files, no copyrighted music, works offline):
+arcade home = upbeat chiptune, Pop the Dog = bouncy and playful, Fetch Frenzy = sunny and outdoorsy,
+Blackjack + Poker = smooth, swingy casino lounge. The tunes are written as note lists in `js/music.js` (TRACKS).
+- The **music note** button next to the sound button turns music on/off (saved on this device). The sound button still mutes everything.
+- Music starts after the first tap (iPhone rule), plays quietly under the sound effects, dips for POPs, wins and prize fanfares,
+  fades in on each page and fades out when you tap to another page.
+- Light on phones: one lookahead scheduler (a 100 ms timer that queues the next 0.4 s of notes on the audio clock).
+  Nothing runs while muted, music off, or the app is in the background.
 
 ### Add a new game
 1. Make a folder `games/<new-game>/` with an `index.html`.
