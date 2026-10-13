@@ -46,6 +46,16 @@
       lead: 'B4 - D5 - G5 - F#5 G5 | A5 - F#5 - D5 - . . | G5 - E5 - B4 - E5 G5 | A5 - G5 - E5 - D5 - |' +
             'B5 - A5 G5 D5 - G5 - | F#5 - A5 - D6 - A5 - | B5 - G5 - E5 - G5 A5 | G5 - E5 - D5 . . .',
       leadInst: 'whistle', drums: 'kxhxcxhxkxhkcxhx', bass: 'walk8', comp: 'strum' },
+    smash: { bpm: 140, spb: 4, bars: 8, lp: 4200,
+      chords: ['Em', 'C', 'D', 'Em', 'Em', 'C', 'D', 'B'],
+      lead: 'E5 . E5 G5 . E5 B5 . | C6 . B5 G5 . E5 G5 . | D5 . F#5 A5 . D6 C6 B5 | E5 . . B4 E5 . G5 . |' +
+            'E5 . E5 G5 . E5 B5 . | C6 . B5 G5 . E5 G5 . | A5 . F#5 D5 . F#5 A5 . | B5 . A5 . F#5 . D#5 . .',
+      leadInst: 'square', drums: 'k.hsk.hskkhsk.hs', bass: 'oct8', comp: 'stab' },
+    disco: { bpm: 120, spb: 4, bars: 8, lp: 5200,
+      chords: ['Am7', 'D7', 'Am7', 'D7', 'Fmaj7', 'Em', 'Dm7', 'G'],
+      lead: 'A5 . C6 . A5 G5 . E5 | F#5 . A5 . D6 . C6 . | A5 . C6 . E6 D6 C6 A5 | F#5 - - . D5 . . . |' +
+            'C6 . A5 . F5 . A5 C6 | B5 . G5 . E5 . G5 B5 | A5 . F5 . D5 . F5 A5 | G5 - B5 - D6 - . .',
+      leadInst: 'vibes', drums: 'kxhxkxhxkxhxkxhx', bass: 'oct8', comp: 'arp' },
     lounge: { bpm: 96, spb: 3, swing: true, bars: 8, lp: 2600,
       chords: ['Fmaj7', 'Dm7', 'Gm7', 'C7', 'Am7', 'D7', 'Gm7', 'C7'],
       lead: 'C5 - A4 C5 E5 - . . | F5 - E5 D5 C5 - A4 - | Bb4 - D5 F5 A5 - G5 - | E5 - G5 - Bb5 A5 G5 E5 |' +
@@ -216,7 +226,7 @@
 
   // which tune for this page
   const path = location.pathname;
-  want = /pop-the-dog/.test(path) ? 'pop' : /fetch-frenzy/.test(path) ? 'fetch' : /blackjack|poker/.test(path) ? 'lounge' : 'arcade';
+  want = /pop-the-dog/.test(path) ? 'pop' : /fetch-frenzy/.test(path) ? 'fetch' : /smash-room/.test(path) ? 'smash' : /blackjack|poker/.test(path) ? 'lounge' : 'arcade';
   document.addEventListener('visibilitychange', run);
   // leaving for another arcade page: quick fade so it never cuts off with a click (the next page fades in)
   document.addEventListener('click', e => {

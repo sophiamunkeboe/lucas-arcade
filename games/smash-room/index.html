@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Smash Room - Lucas's Arcade</title>
+<meta name="theme-color" content="#e2452b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucas's Arcade">
+<link rel="manifest" href="../../manifest.json">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../../icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="smash.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="c"></canvas>
+
+  <div id="topbar">
+    <a id="homeBtn" class="round-btn" href="../../index.html" aria-label="Back to Arcade">
+      <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3 Z" fill="currentColor"/></svg>
+    </a>
+    <div id="hud" class="hidden">
+      <div id="meter"><div id="meterFill"></div><span id="meterLabel">RAGE METER</span></div>
+      <div id="score">0</div>
+    </div>
+    <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
+  </div>
+  <div id="watch" class="hidden">0.0s</div>
+
+  <!-- tools + side buttons (built by game.js) -->
+  <div id="colorBar" class="hidden"></div>
+  <div id="sideBtns" class="hidden">
+    <button id="saveArtBtn" class="pill">&#11088; Save art</button>
+    <button id="cleanBtn" class="pill">&#129533; Clean</button>
+    <button id="fameBtn" class="pill">&#128444; Wall of Fame</button>
+  </div>
+  <div id="toolBar" class="hidden"></div>
+
+  <!-- 1. start -->
+  <section id="screen-start" class="screen">
+    <div class="panel">
+      <h1 class="logo">Smash Room!</h1>
+      <p class="sub">Break stuff. Turn off the signs. Make goo art!</p>
+      <ul class="steps">
+        <li><b>Pick a thing</b> from the bottom bar, then <b>tap the wall</b> to throw it.</li>
+        <li>Hit a <b>neon sign</b> once to make it flicker, twice to turn it <b>OFF</b>. Turn off all 5 to win a prize!</li>
+        <li><b>Bat &amp; sledgehammer:</b> tap to whack. <b>Fire hose:</b> drag to spray (it cleans the wall too).</li>
+        <li><b>Goo gun:</b> drag to write your name or draw. The goo oozes down! <b>Paintball:</b> tap to splat colors.</li>
+        <li>Break <b>5 things in 3 seconds</b> for a COMBO. Fill the <b>Rage Meter</b> for RAGE MODE!</li>
+        <li>Watch out for rubber dishes, ducks, and the disco ball&hellip; and don&rsquo;t break Mom&rsquo;s good china (Bella is watching).</li>
+      </ul>
+      <div class="btn-row">
+        <button id="freeBtn" class="big-btn">Free Smash</button>
+        <button id="watchBtn" class="big-btn alt">&#9201; Stopwatch</button>
+      </div>
+      <p class="howto small">Stopwatch: turn off all 5 signs as fast as you can!</p>
+      <button id="fameBtn2" class="link-btn">See the Wall of Fame</button>
+      <p class="howto small">Everything here is pretend. No real money, no real plates!</p>
+    </div>
+  </section>
+
+  <!-- 2. prize! -->
+  <section id="screen-prize" class="screen hidden">
+    <div class="panel prize-panel">
+      <h2 id="prizeTitle">Lights out!</h2>
+      <div id="card">
+        <div class="card-inner">
+          <div class="card-face card-back"><span>?</span></div>
+          <div class="card-face card-front"><div id="prizeArt"></div><div id="prizeName"></div></div>
+        </div>
+      </div>
+      <p id="prizeMsg">&nbsp;</p>
+      <div class="btn-row">
+        <button id="againBtn" class="big-btn">Keep smashing</button>
+        <button id="arcadeBtn" class="big-btn alt">Back to Arcade</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Wall of Fame -->
+  <section id="screen-fame" class="screen hidden">
+    <div class="panel">
+      <h2>Wall of Fame</h2>
+      <p class="sub small">Your best goo + paint art (saved on this phone)</p>
+      <div id="fameGrid"></div>
+      <button id="fameClose" class="big-btn">Back</button>
+    </div>
+  </section>
+
+  <div id="toast" class="hidden"></div>
+</div>
+
+<script src="../../js/storage.js"></script>
+<script src="../../js/sfx.js"></script>
+<script src="../../js/music.js"></script>
+<script src="../../js/prizes.js"></script>
+<script src="../pop-the-dog/dogs.js"></script>
+<script src="../pop-the-dog/gorda.js"></script>
+<script src="../fetch-frenzy/runners.js"></script>
+<script src="draw.js"></script>
+<script src="game.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(() => {});
+  }
+</script>
+</body>
+</html>

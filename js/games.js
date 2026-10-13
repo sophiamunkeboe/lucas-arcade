@@ -45,6 +45,15 @@ window.LA.games = [
     noFastest: true,
   },
   {
+    id: 'smash-room',
+    title: 'Smash Room',
+    tagline: 'Smash plates, kill the neon, goo the wall!',
+    url: 'games/smash-room/index.html',
+    thumb: 'games/smash-room/thumb.png',
+    color: '#e2452b',
+    statWord: 'run',             // "Best 1,240 · 21.4s run" (fastest stopwatch lights-out)
+  },
+  {
     id: 'coming-soon',
     title: 'Coming soon',
     tagline: "Lucas's next big idea!",

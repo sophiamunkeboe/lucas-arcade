@@ -1,0 +1,34 @@
+/* Smash Room extras (base styles come from style.css, shared look with Fetch Frenzy) */
+#app { background: #3b2a2a; }
+#screen-start, #screen-fame { background: radial-gradient(circle at 50% 15%, #ffb37a, #e2452b 55%, #5a1f3a); align-items: flex-start; }
+.small { font-size: 14px !important; }
+.howto { font-weight: 700; margin: 8px 0 0; }
+#meterFill { background: linear-gradient(90deg, #ffd23f, #ff5a1f, #d0103a); }
+#meter.rage #meterLabel { color: #fff; text-shadow: 0 1px 0 #900; }
+#watch { position: absolute; top: calc(env(safe-area-inset-top) + 60px); left: 50%; transform: translateX(-50%); z-index: 20;
+  background: #222; color: #7dff8a; font: 900 22px ui-monospace, monospace; padding: 4px 14px; border-radius: 12px; border: 3px solid #fff; }
+#toolBar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 15; display: flex; gap: 6px; overflow-x: auto;
+  padding: 8px 8px calc(env(safe-area-inset-bottom) + 8px); background: rgba(30,18,24,.88); scrollbar-width: none; touch-action: pan-x; }
+#toolBar::-webkit-scrollbar { display: none; }
+.tool { flex: 0 0 64px; height: 64px; border-radius: 14px; border: 3px solid #fff3; background: #4b3640; color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; font: 800 10px Nunito, system-ui, sans-serif; padding: 2px; cursor: pointer; }
+.tool canvas { width: 38px; height: 38px; }
+.tool.on { border-color: #ffd23f; background: #7a4a2c; box-shadow: 0 0 10px #ffd23f; }
+#colorBar { position: absolute; right: 8px; bottom: 96px; z-index: 15; display: flex; flex-direction: column; gap: 6px; }
+.dot { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; box-shadow: 0 2px 0 #0005; }
+.dot.on { outline: 3px solid #ffd23f; transform: scale(1.12); }
+#sideBtns { position: absolute; left: 8px; bottom: 96px; z-index: 15; display: flex; flex-direction: column; gap: 6px; }
+.pill { font: 900 11px Nunito, system-ui, sans-serif; color: #fff; background: #7c5cff; border: 2px solid #fff; border-radius: 14px;
+  padding: 4px 8px; opacity: .92; box-shadow: 0 3px 0 #4a2fc4; cursor: pointer; text-align: left; }
+#fameGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0 14px; }
+#fameGrid figure { margin: 0; background: #fff; border-radius: 12px; padding: 6px; box-shadow: 0 3px 0 #0002; }
+#fameGrid img { width: 100%; border-radius: 8px; display: block; }
+#fameGrid figcaption { font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+#fameGrid button { border: none; background: #ff3d7f; color: #fff; border-radius: 8px; font: 800 11px inherit; padding: 3px 6px; }
+#fameEmpty { grid-column: 1 / -1; font-weight: 800; color: #886; }
+#toast { position: absolute; left: 50%; top: 32%; transform: translate(-50%, -50%); z-index: 25; pointer-events: none;
+  font: 900 30px Nunito, system-ui, sans-serif; color: #fff; text-align: center; white-space: nowrap;
+  text-shadow: 3px 3px 0 #ff3d7f, -2px -2px 0 #7c5cff, 0 0 18px #000; animation: toast 1.4s ease-out forwards; }
+@keyframes toast { 0% { transform: translate(-50%,-50%) scale(.3); opacity: 0 } 15% { transform: translate(-50%,-50%) scale(1.15); opacity: 1 }
+  25% { transform: translate(-50%,-50%) scale(1) } 80% { opacity: 1 } 100% { opacity: 0; transform: translate(-50%,-70%) } }
+#screen-fame { z-index: 30; }

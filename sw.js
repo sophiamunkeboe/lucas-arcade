@@ -1,6 +1,6 @@
 /* Lucas's Arcade - service worker: keeps every file on the phone so the arcade works offline.
    When you change or add files: add them to FILES and bump VERSION. */
-const VERSION = 'lucas-arcade-v9';
+const VERSION = 'lucas-arcade-v10';
 // Note: Poker Table also needs internet to talk to its game server; its page and art are cached here so it can
 // open offline and show a friendly "Poker needs internet" message.
 const FILES = [
@@ -33,6 +33,12 @@ const FILES = [
   './games/fetch-frenzy/scenes.js',
   './games/fetch-frenzy/game.js',
   './games/fetch-frenzy/thumb.png',
+  './games/smash-room/index.html',
+  './games/smash-room/style.css',
+  './games/smash-room/smash.css',
+  './games/smash-room/draw.js',
+  './games/smash-room/game.js',
+  './games/smash-room/thumb.png',
   './games/cards/cards.js',
   './games/cards/cards.css',
   './games/cards/casino.js',
