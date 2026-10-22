@@ -39,16 +39,24 @@ export const snd = {
   meow() { catVoice(rnd(480, 560), rnd(750, 850), rnd(450, 520), rnd(0.45, 0.6)); },
   mrrp() { catVoice(400, 700, 650, 0.22, 0, 0.16); catVoice(650, 820, 760, 0.12, 0.2, 0.12); },   // chirp / trill
   yowl() { catVoice(600, 1100, 500, 0.6, 0, 0.25); },
+  // Siamese-style chatter, varied each time so it never sounds canned
+  mrrow() { const b = rnd(0.85, 1.22), d = rnd(0.3, 0.46); catVoice(330 * b, 300 * b, 330 * b, 0.07, 0, 0.1); catVoice(420 * b, rnd(760, 900) * b, rnd(480, 560) * b, d, 0.06, 0.17); },
+  strollMeow() {
+    const r = Math.random(), b = rnd(0.88, 1.25);
+    if (r < 0.4) catVoice(440 * b, rnd(700, 820) * b, rnd(820, 980) * b, rnd(0.28, 0.4), 0, 0.15);          // 'mrrow?' (rises at the end)
+    else if (r < 0.7) catVoice(700 * b, 820 * b, 640 * b, rnd(0.12, 0.18), 0, 0.12);                          // 'mew'
+    else [0, 0.08, 0.16, 0.26].forEach((t, i) => catVoice((520 + i * 60) * b, (640 + i * 50) * b, (560 + i * 40) * b, 0.07, t, 0.1));   // chatty trill
+  },
   chirp() { [0, 0.09, 0.18].forEach(t => catVoice(1200, 1700, 1300, 0.07, t, 0.1)); },
   purr(on) {
     const a = A();
-    if (!on || !a) { if (purr) { try { purr.g.gain.setTargetAtTime(0, purr.c.currentTime, 0.2); const p = purr; setTimeout(() => { try { p.s.stop(); p.lfo.stop(); } catch (e) {} }, 800); } catch (e) {} purr = null; } return; }
+    if (!on || !a) { if (purr) { try { purr.g.gain.setTargetAtTime(0, purr.c.currentTime, 0.12); const p = purr; setTimeout(() => { try { p.s.stop(); p.lfo.stop(); } catch (e) {} }, 800); } catch (e) {} purr = null; } return; }
     if (purr) return; const c = a.ctx;
     const s = c.createBufferSource(); s.buffer = a.noiseBuf; s.loop = true;
     const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 180;
     const am = c.createGain(); am.gain.value = 0;
-    const lfo = c.createOscillator(); lfo.frequency.value = 24; const lg = c.createGain(); lg.gain.value = 0.5; lfo.connect(lg); lg.connect(am.gain);
-    const g = c.createGain(); g.gain.value = 0; g.gain.setTargetAtTime(0.5, c.currentTime, 0.3);
+    const lfo = c.createOscillator(); lfo.frequency.value = 25; const lg = c.createGain(); lg.gain.value = 0.5; lfo.connect(lg); lg.connect(am.gain);
+    const g = c.createGain(); g.gain.value = 0; g.gain.setTargetAtTime(0.32, c.currentTime, 0.35);
     s.connect(f); f.connect(am); am.connect(g); g.connect(a.master); s.start(); lfo.start();
     purr = { s, lfo, g, c };
   },
@@ -71,6 +79,9 @@ export const snd = {
     }
     skid.g.gain.setTargetAtTime(0.09 * amt, skid.c.currentTime, 0.03); skid.f.frequency.setTargetAtTime(1800 + amt * 1800, skid.c.currentTime, 0.05);
   },
+  dartKick() { noise(0, 0.16, 0.12, 'bandpass', 2600, 3, 1500); tone('sine', 140, 70, 0, 0.08, 0.06); },
+  stopSkid(k = 1) { noise(0, 0.22, 0.09 * k, 'bandpass', 3200, 4, 1600); },
+  allOff() { this.purr(false); this.skid(false); this.ambience(false); },
   bonk() { tone('sine', 220, 80, 0, 0.18, 0.2); noise(0, 0.1, 0.2, 'lowpass', 700, 1); },
   wipe() { noise(0, 0.4, 0.35, 'lowpass', 900, 1, 200); tone('sine', 160, 50, 0, 0.35, 0.3); setTimeout(() => snd.yowl(), 80); },
   paw(n) { const f = 880 * Math.pow(2, Math.min(n, 12) / 12); tone('triangle', f, 0, 0, 0.12, 0.09); tone('sine', f * 2, 0, 0.04, 0.12, 0.05); },

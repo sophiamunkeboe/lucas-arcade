@@ -130,6 +130,14 @@ const ui = {
     const box = $('pops'); box.appendChild(el); while (box.children.length > 3) box.removeChild(box.firstChild);
     setTimeout(() => el.remove(), 1150);
   },
+  purr(text) {   // little ♪ / zzz / mrrow puff above Miko's head
+    if (document.body.classList.contains('clean')) return;
+    const p = miko.root.position.clone(); p.y += 0.55; p.project(camera);
+    if (p.z > 1) return;
+    const el = document.createElement('div'); el.className = 'purrPuff'; el.textContent = text;
+    el.style.left = ((p.x + 1) / 2 * innerWidth) + 'px'; el.style.top = ((1 - p.y) / 2 * innerHeight) + 'px';
+    document.body.appendChild(el); setTimeout(() => el.remove(), 1450);
+  },
   big(text, cls) { const b = $('big'); b.innerHTML = ''; const d = document.createElement('div'); d.className = cls || ''; d.textContent = text; b.appendChild(d); },
   comboPop(n, mult) {
     const c = $('combo');
@@ -357,7 +365,7 @@ setTimeout(() => $('loading').classList.add('gone'), 300);
 requestAnimationFrame(t => { last = t; frame(t); });
 
 // ---------------- test / screenshot hooks ----------------
-window.MIKO = { THREE, scene, camera, renderer, ctrl, miko, phys, zoom, house, cam, perf, input, setNight, applyLevel, get level() { return LQ.name; }, setTimeScale: s => { timeScale = s; }, setDoor };
+window.MIKO = { THREE, scene, camera, renderer, ctrl, miko, phys, zoom, house, cam, perf, input, snd, setNight, applyLevel, get level() { return LQ.name; }, setTimeScale: s => { timeScale = s; }, setDoor };
 if (SHOT) {
   document.body.classList.add('shot');
   const wait = n => new Promise(r => { const f0 = frames; const chk = () => frames - f0 >= n ? r() : requestAnimationFrame(chk); chk(); });
@@ -410,3 +418,10 @@ if (SHOT) {
   };
   go();
 }
+
+// stop all audio when the app is hidden; resume when it comes back
+document.addEventListener('visibilitychange', () => {
+  const a = LA.sfx && LA.sfx.audio && LA.sfx.audio();
+  if (document.hidden) { snd.allOff(); try { a && a.ctx && a.ctx.suspend(); } catch (e) {} }
+  else { try { a && a.ctx && a.ctx.resume(); } catch (e) {} if (night && !LA.sfx.isMuted()) setTimeout(() => snd.ambience(true), 200); }
+});

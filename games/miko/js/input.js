@@ -12,9 +12,9 @@ export function createInput(el) {
     if (e.pointerId !== pid) return;
     let dx = e.clientX - ox, dy = e.clientY - oy; const l = Math.hypot(dx, dy);
     if (l > MAXR) { dx *= MAXR / l; dy *= MAXR / l; }
-    st.x = dx / MAXR; st.y = -dy / MAXR; setKnob(dx, dy);
+    st.x = dx / MAXR; st.y = -dy / MAXR; setKnob(dx, dy); base.classList.toggle('dart', Math.hypot(st.x, st.y) > 0.85);
   });
-  const up = e => { if (e.pointerId !== pid) return; pid = null; st.x = 0; st.y = 0; st.active = false; base.classList.remove('on'); setKnob(0, 0); };
+  const up = e => { if (e.pointerId !== pid) return; pid = null; st.x = 0; st.y = 0; st.active = false; base.classList.remove('on', 'dart'); setKnob(0, 0); };
   zone.addEventListener('pointerup', up); zone.addEventListener('pointercancel', up);
   const btn = (b, key) => { if (!b) return; b.addEventListener('pointerdown', e => { e.preventDefault(); st[key] = true; b.classList.add('down'); }); const r = () => b.classList.remove('down'); b.addEventListener('pointerup', r); b.addEventListener('pointerleave', r); b.addEventListener('pointercancel', r); };
   btn(el.jump, 'jump'); btn(el.trick, 'trick'); btn(el.loaf, 'loaf'); btn(el.sit, 'sit'); btn(el.sneak, 'sneak');

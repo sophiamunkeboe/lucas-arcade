@@ -16,7 +16,7 @@ export class CatController {
     this.pos.copy(p); this.vel.set(0, 0, 0); this.heading = h; this.grounded = true; this.groundY = p.y; this.ground = null;
     this.mode = 'ground'; this.modeT = 0; this.jumps = 0; this.momentum = 0; this.speed = 0; this.wallT = 9; this.wall = null;
     this.drift = false; this.driftT = 0; this.slideT = 0; this.swatT = 0; this.flip = 0; this.flipping = false; this.climbCd = 0;
-    this.fallFrom = p.y; this.lastSurface = null; this.stepPh = 0; this.turn = 0; this.lean = 0; this.boost = 1; this.sit = false; this.sneak = false;
+    this.fallFrom = p.y; this.lastSurface = null; this.idleT = 0; this.skidT = 0; this.darting = false; this.wasSteering = false; this.steerD = 0; this.stepPh = 0; this.turn = 0; this.lean = 0; this.boost = 1; this.sit = false; this.sneak = false;
   }
   fwd(out = new THREE.Vector3()) { return out.set(Math.sin(this.heading), 0, Math.cos(this.heading)); }
   height() { return this.mode === 'slide' ? 0.16 : this.mode === 'loaf' ? 0.2 : 0.33; }
@@ -41,14 +41,36 @@ export class CatController {
       // ----- steering -----
       let turnRate = this.grounded ? (this.drift ? 4.2 : 2.7) : 1.9;
       if (auto) {
-        this.turn = -inp.x * turnRate; this.heading += this.turn * dt;
-        let target = 4.0 + this.momentum;
-        if (inp.y < -0.35) target = 1.4; else if (inp.y > 0.35) target += 0.6;
-        target *= this.boost;
-        if (this.mode === 'slide') target = hs;
-        if (this.swatT > 0 && this.grounded) target *= 0.6;
-        this.speed += (target - this.speed) * Math.min(1, dt * (target > this.speed ? 2.2 : 4));
-        if (this.grounded && this.mode === 'ground') this.momentum = Math.min(2.2, this.momentum + dt * 0.3 * (1 - Math.abs(inp.x) * 0.6));
+        // Zoomies: NO auto-run. Camera-relative stick; push a little = stroll, all the way = DART; let go = stop.
+        const mag = Math.min(1, Math.hypot(inp.x, inp.y));
+        const steering = mag > 0.15;
+        if (steering) {
+          const want = (opts.camYaw || 0) - Math.atan2(inp.x, inp.y);
+          let d = want - this.heading; d = Math.atan2(Math.sin(d), Math.cos(d));
+          if (Math.abs(d) > 2.7 && this.turnSign) d = Math.abs(d) * this.turnSign;   // U-turns: keep turning the same way
+          this.turnSign = Math.sign(d) || 1; this.steerD = d;
+          const rate = this.grounded ? (this.drift ? 7.5 : 6) : 2.6;
+          this.turn = THREE.MathUtils.clamp(d * 9, -rate, rate); this.heading += this.turn * dt;
+          const dart = mag > 0.85;
+          let target = mag < 0.6 ? 0.45 + (mag - 0.15) / 0.45 * 0.75          // stroll 0.45 .. 1.2
+            : !dart ? 1.2 + (mag - 0.6) / 0.25 * 1.9                           // trot 1.2 .. 3.1
+            : 4.3 + this.momentum;                                             // DART 4.3 .. 6.5
+          if (dart && !this.darting && this.grounded && this.mode === 'ground') { this.speed = Math.max(this.speed, 3.2); this.emit('dart'); }
+          this.darting = dart;
+          target *= this.boost;                                                // MAX ZOOM only propels while steering
+          if (this.mode === 'slide') target = hs;
+          if (this.swatT > 0 && this.grounded) target *= 0.6;
+          if (Math.abs(d) > 1.4 && this.grounded && !this.drift) target *= 0.6;  // tight turn-around
+          this.speed += (target - this.speed) * Math.min(1, dt * (target > this.speed ? (dart ? 3.2 : 4) : 5));
+          if (dart && this.grounded && this.mode === 'ground') this.momentum = Math.min(2.2, this.momentum + dt * 0.35 * (1 - Math.min(1, Math.abs(d)) * 0.6));
+          else if (!dart) this.momentum = Math.max(0, this.momentum - dt * 0.8);
+        } else {
+          this.turn = 0; this.steerD = 0; this.darting = false;
+          if (this.wasSteering && this.grounded && this.mode === 'ground' && hs > 2.2) { this.skidT = 0.32; this.emit('stopSkid', { speed: hs }); }
+          if (this.mode !== 'slide') { this.speed += (0 - this.speed) * Math.min(1, dt * 12); if (this.speed < 0.05) this.speed = 0; }
+          this.momentum = Math.max(0, this.momentum - dt * 2);
+        }
+        this.wasSteering = steering; this.skidT = Math.max(0, (this.skidT || 0) - dt);
       } else {
         // sandbox: camera-relative stick, walk / trot by how far you push
         const mag = Math.min(1, Math.hypot(inp.x, inp.y));
@@ -63,13 +85,14 @@ export class CatController {
       }
       // ----- drift (wood floor skids) -----
       if (auto && this.grounded && this.mode === 'ground') {
-        if (!this.drift && Math.abs(inp.x) > 0.62 && hs > 4.0) { this.drift = true; this.driftT = 0; this.emit('driftStart'); }
-        if (this.drift) { this.driftT += dt; this.lean = Math.sign(inp.x) * Math.min(1, this.driftT * 4);
-          if (Math.abs(inp.x) < 0.3 || hs < 2.4) { this.drift = false; this.emit('driftEnd', { t: this.driftT }); this.lean = 0; } }
+        const sd = this.steerD || 0;
+        if (!this.drift && this.wasSteering && Math.abs(sd) > 0.9 && hs > 4.0) { this.drift = true; this.driftT = 0; this.emit('driftStart'); }
+        if (this.drift) { this.driftT += dt; this.lean = -Math.sign(sd) * Math.min(1, this.driftT * 4);
+          if (Math.abs(sd) < 0.3 || hs < 2.4 || !this.wasSteering) { this.drift = false; this.emit('driftEnd', { t: this.driftT }); this.lean = 0; } }
       } else if (this.drift) { this.drift = false; this.emit('driftEnd', { t: this.driftT }); this.lean = 0; }
       // ----- velocity: grip pulls velocity toward heading -----
       const fw = this.fwd(V);
-      const grip = this.mode === 'slide' ? 0.6 : !this.grounded ? 1.6 : this.drift ? 2.2 : 13;
+      const grip = this.mode === 'slide' ? 0.6 : !this.grounded ? 1.6 : this.drift ? 2.2 : (auto && !this.wasSteering) ? 15 : 13;
       const tx = fw.x * this.speed, tz = fw.z * this.speed, k = Math.min(1, dt * grip);
       if (this.mode === 'slide') { this.vel.x *= Math.exp(-1.1 * dt); this.vel.z *= Math.exp(-1.1 * dt); this.speed = Math.hypot(this.vel.x, this.vel.z); }
       else { this.vel.x += (tx - this.vel.x) * k; this.vel.z += (tz - this.vel.z) * k; }
@@ -115,6 +138,8 @@ export class CatController {
       else this.pos.y = gy;
     }
     if (hitWall) this._wallHit(hitWall);
+    // idle timer (sit after a few seconds standing still)
+    if (this.grounded && this.mode === 'ground' && hs < 0.15 && this.swatT <= 0) this.idleT += dt; else this.idleT = 0;
     // footsteps
     if (this.grounded && (this.mode === 'ground') && hs > 0.3) {
       this.stepPh += dt * (hs > 3 ? 2.6 + hs * 0.3 : 1.6 + hs * 1.5) * 2;
@@ -230,12 +255,12 @@ export class CatController {
     else if (this.mode === 'slide') mode = 'slide';
     else if (!this.grounded) mode = 'air';
     else if (this.swatT > 0) mode = 'swat';
-    else if (this.drift) mode = 'drift';
-    else if (this.sit && hs < 0.2) mode = 'sit';
+    else if (this.drift || this.skidT > 0) mode = 'drift';
+    else if ((this.sit || (this._auto && this.idleT > 4.5)) && hs < 0.2) mode = 'sit';
     else if (hs > 2.2) mode = 'run';
     else if (hs > 0.15) mode = this.sneak ? 'sneak' : 'walk';
     else mode = this.sneak ? 'crouch' : 'idle';
     return { mode, speed: hs, vy: this.vel.y, turn: this.turn, grounded: this.grounded, t: this.mode === 'tumble' ? this.modeT : this.swatT > 0 ? 0.34 - this.swatT : this.modeT,
-      lean: this.lean, flip: this.flipping ? -this.flip * Math.PI * 2 : 0, swatSide: this.swatSide, spinDir: this.spinDir, groundY: this.groundY };
+      lean: this.skidT > 0 && !this.drift ? 0.35 * (this.turnSign || 1) : this.lean, flip: this.flipping ? -this.flip * Math.PI * 2 : 0, swatSide: this.swatSide, spinDir: this.spinDir, groundY: this.groundY };
   }
 }

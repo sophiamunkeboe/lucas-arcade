@@ -47,7 +47,8 @@ export function createZoomies(env) {
     S.combo++; S.comboT = COMBO_TIME; S.tricks++;
     if (S.combo > S.bestCombo) S.bestCombo = S.combo;
     const mult = Math.min(4, 1 + Math.floor((S.combo - 1) / 3) * 0.5) * (S.zoomT > 0 ? 2 : 1);
-    const gain = Math.round(pts * mult);
+    const fast = ctrl.darting || Math.hypot(ctrl.vel.x, ctrl.vel.z) > 3.2 || ctrl.momentum > 0.6;   // parkour points come from DARTING
+    const gain = Math.round(pts * mult * (fast ? 1 : 0.4));
     S.score += gain;
     if (S.zoomT <= 0) S.zoom = Math.min(100, S.zoom + pts / 9);
     popup(name, opts.cls || '', '+' + gain);
@@ -89,6 +90,9 @@ export function createZoomies(env) {
       case 'climbStart': snd.mrrp(); popup('CURTAIN CLIMB', 'mint'); buzz(15); break;
       case 'climbEnd': trick(d.jump ? 'CURTAIN BACKFLIP!' : 'CURTAIN CLIMB', Math.round(110 + d.height * 90 + (d.jump ? 80 : 0)), { cls: 'big' }); addNoise(3);
         fx.burst(p.clone().setY(p.y + 0.2), 12, { color: 0x8a9a80, size: 0.025, up: 0.4, speed: 1, life: 0.9, grav: 2 }); break;
+      case 'dart': snd.dartKick(); if (Math.random() < 0.5) snd.chirp(); buzz(15); env.lines && env.lines(0.8);
+        fx.burst(p.clone().setY(p.y + 0.02), 10, { color: 0x9a8b78, size: 0.035, up: 0.4, speed: 1.2, life: 0.5 }); break;
+      case 'stopSkid': snd.stopSkid(Math.min(1, d.speed / 5)); fx.burst(p.clone().setY(p.y + 0.02), 5, { color: 0x9a8b78, size: 0.03, up: 0.25, speed: 0.6, life: 0.4 }); break;
       case 'driftStart': snd.skid(true, 0.6); break;
       case 'driftEnd': snd.skid(false); if (d.t > 0.35) trick(d.t > 1.1 ? 'MEGA DRIFT!' : 'DRIFT', Math.round(40 + d.t * 140)); break;
       case 'slideStart': snd.skid(true, 1); buzz(10); break;
@@ -155,7 +159,7 @@ export function createZoomies(env) {
     if (P === 'run') ctrlInp = { x: inp.x, y: inp.y, jump: inp.jump, trick: inp.trick, auto: true };
     else if (P === 'countdown') ctrlInp.auto = false;
     else if (P === 'alert') { ctrlInp = { x: inp.x, y: inp.y, jump: false, trick: false, auto: true }; }
-    else if (P === 'watch' || P === 'caught' || P === 'ending') ctrlInp = { x: 0, y: -1, jump: false, trick: false, auto: true };
+    else if (P === 'watch' || P === 'caught' || P === 'ending') ctrlInp = { x: 0, y: 0, jump: false, trick: false, auto: true };
     else ctrlInp = { x: 0, y: 0, jump: false, trick: false, auto: false };
 
     if (P === 'countdown') {
@@ -216,7 +220,9 @@ export function createZoomies(env) {
     // freeze-pose for getting caught
     const frozen = (P === 'watch' && !S.loafed) || P === 'ending';
     const boost = S.zoomT > 0 ? 1.45 : 1;
-    ctrl.update(dt, ctrlInp, { boost, swatTarget: () => swatTarget() });
+    const cd = env.camera.getWorldDirection(new THREE.Vector3());
+    ctrl.update(dt, ctrlInp, { boost, swatTarget: () => swatTarget(), camYaw: Math.atan2(cd.x, cd.z) });
+    voice(dt, P);
     if (frozen && ctrl.grounded && ctrl.mode !== 'tumble') { ctrl.vel.x *= 0.8; ctrl.vel.z *= 0.8; }
 
     // paws: bob, spin, face the camera
@@ -228,6 +234,27 @@ export function createZoomies(env) {
       pw.m.quaternion.copy(env.camera.quaternion);
     }
     ui.hud(S, saved);
+  }
+  // ---------- Miko's voice: stroll meows, stop mrrow + purr, idle chatter ----------
+  const V = { moveT: 0, stillT: 0, lastMeow: -9, nextStroll: 3, nextIdle: 7, purring: false, puffT: 0, buzzT: 0 };
+  function voice(dt, P) {
+    const now = performance.now() / 1000, hs = Math.hypot(ctrl.vel.x, ctrl.vel.z);
+    const live = P === 'run' && !document.hidden;
+    const still = ctrl.grounded && ctrl.mode === 'ground' && hs < 0.15;
+    if (!live) { if (V.purring && P !== 'end') { snd.purr(false); V.purring = false; } V.moveT = 0; V.stillT = 0; return; }
+    if (still) {
+      V.stillT += dt;
+      if (V.stillT - dt < 0.2 && V.stillT >= 0.2 && V.moveT > 0.6 && now - V.lastMeow > 3.2) { snd.mrrow(); V.lastMeow = now; buzz(8); ui.purr && ui.purr('mrrow'); }
+      if (V.stillT > 0.9 && !V.purring) { snd.purr(true); V.purring = true; V.puffT = 0; buzz([5, 40, 5]); }
+      if (V.purring) { V.puffT -= dt; if (V.puffT <= 0) { V.puffT = 1.6 + Math.random(); ui.purr && ui.purr(V.stillT > 6 ? 'zzz' : '♪'); } }
+      if (V.stillT > 5) { V.nextIdle -= dt; if (V.nextIdle <= 0) { V.nextIdle = 6 + Math.random() * 6; if (now - V.lastMeow > 3) { Math.random() < 0.5 ? snd.chirp() : snd.strollMeow(); V.lastMeow = now; } } }
+      if (V.stillT > 0.3) V.moveT = 0;
+    } else {
+      if (hs > 0.3) { V.moveT += dt; V.stillT = 0; if (V.purring) { snd.purr(false); V.purring = false; } }
+      const strolling = ctrl.grounded && ctrl.mode === 'ground' && !ctrl.darting && hs > 0.3 && hs < 1.6;
+      if (strolling) { V.nextStroll -= dt; if (V.nextStroll <= 0) { V.nextStroll = 2.5 + Math.random() * 2.5; if (now - V.lastMeow > 2.2) { snd.strollMeow(); V.lastMeow = now; ui.purr && ui.purr('mew'); } } }
+      else V.nextStroll = Math.min(V.nextStroll, 1.2 + Math.random());
+    }
   }
   function swatTarget() {
     const f = ctrl.fwd(new THREE.Vector3()), at = ctrl.pos.clone().addScaledVector(f, 0.24);
