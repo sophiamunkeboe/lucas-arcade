@@ -29,7 +29,7 @@ with sync_playwright() as p:
         t0 = time.time()
         pg.goto(f'http://127.0.0.1:8817/games/miko/index.html?shot={name}&q=high{extra}')
         try:
-            pg.wait_for_function('window.__shotReady === true', timeout=240000)
+            pg.wait_for_function('window.__shotReady === true', timeout=700000)
         except Exception as e:
             errs.append(f'timeout: {e}')
         fps = pg.evaluate('window.MIKO ? MIKO.perf.log.join(",") : ""')

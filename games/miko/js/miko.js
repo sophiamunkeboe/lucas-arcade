@@ -5,8 +5,10 @@ import * as THREE from 'three';
 import { furMesh, skinMaterial } from './fur.js';
 
 const C = {
-  body: 0xe9e0d3, belly: 0xf0e9de, leg: 0xe2d8ca, mane: 0xf4ede3, maneRoot: 0xd9d0c4, maneTip: 0xfbf7f0,
-  ear: 0x6e645b, earIn: 0xcfa69c, nose: 0xa87a72, puffRoot: 0x7d766f, puffTip: 0xc4beb6, tail: 0xd9d0c4,
+  // lynx-point Siamese: warm cream body (darker along the back), grey-brown points (mask, ears, socks, tail)
+  body: 0xecdcc4, belly: 0xf4ece0, leg: 0xe6d6bf, mane: 0xf4ede3, maneRoot: 0xdccfbe, maneTip: 0xfbf7f0,
+  ear: 0x625850, earIn: 0xcfa69c, nose: 0x9c7068, puffRoot: 0x5c544d, puffTip: 0x9a9189, tail: 0xd8c8b2,
+  point: 0x7a7068,
 };
 
 function faceTexture() {
@@ -22,9 +24,9 @@ function faceTexture() {
   const cx = 128;
   // mask: soft grey-brown over forehead, eyes and nose bridge (inverted triangle)
   g.save(); g.filter = 'blur(9px)';
-  g.fillStyle = 'rgba(122,106,92,0.88)';
-  g.beginPath(); g.moveTo(cx - 62, 70); g.quadraticCurveTo(cx, 40, cx + 62, 70); g.lineTo(cx + 46, 128);
-  g.quadraticCurveTo(cx + 12, 140, cx + 6, 160); g.lineTo(cx - 6, 160); g.quadraticCurveTo(cx - 12, 140, cx - 46, 128); g.closePath(); g.fill();
+  g.fillStyle = 'rgba(112,96,82,0.92)';
+  g.beginPath(); g.moveTo(cx - 66, 66); g.quadraticCurveTo(cx, 34, cx + 66, 66); g.lineTo(cx + 54, 140);
+  g.quadraticCurveTo(cx + 22, 168, cx + 8, 186); g.lineTo(cx - 8, 186); g.quadraticCurveTo(cx - 22, 168, cx - 54, 140); g.closePath(); g.fill();
   // eye patches
   g.fillStyle = 'rgba(98,86,74,0.85)';
   g.beginPath(); g.ellipse(cx - 30, 118, 26, 17, -0.25, 0, Math.PI * 2); g.fill();
@@ -49,7 +51,7 @@ function faceTexture() {
   g.beginPath(); g.ellipse(cx + 44, 140, 22, 16, -0.4, 0, Math.PI * 2); g.fill();
   g.restore();
   // white muzzle and chin
-  g.save(); g.filter = 'blur(7px)'; g.fillStyle = 'rgba(250,246,240,0.95)';
+  g.save(); g.filter = 'blur(7px)'; g.fillStyle = 'rgba(244,238,228,0.9)';
   g.beginPath(); g.ellipse(cx - 18, 170, 26, 20, 0, 0, Math.PI * 2); g.fill();
   g.beginPath(); g.ellipse(cx + 18, 170, 26, 20, 0, 0, Math.PI * 2); g.fill();
   g.beginPath(); g.ellipse(cx, 196, 30, 22, 0, 0, Math.PI * 2); g.fill();
@@ -84,11 +86,11 @@ function eyeTextures() {
 function puffTexture() {   // grey tail puff with darker tabby rings
   const c = document.createElement('canvas'); c.width = 64; c.height = 256; const g = c.getContext('2d');
   const gr = g.createLinearGradient(0, 0, 0, 256);
-  gr.addColorStop(0, '#d8d2ca'); gr.addColorStop(0.25, '#bfb8ae'); gr.addColorStop(1, '#a29b92');
+  gr.addColorStop(0, '#a89e94'); gr.addColorStop(0.25, '#8e857c'); gr.addColorStop(1, '#6f675f');
   g.fillStyle = gr; g.fillRect(0, 0, 64, 256);
   g.fillStyle = 'rgba(70,64,58,.55)';
   [70, 120, 165, 205].forEach(y => g.fillRect(0, y, 64, 14));
-  g.fillStyle = '#8a837b'; g.fillRect(0, 236, 64, 20);
+  g.fillStyle = '#5e5750'; g.fillRect(0, 236, 64, 20);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
@@ -114,7 +116,7 @@ export class Miko {
     const vel = document.createElement('canvas'); vel.width = vel.height = 128; const vg = vel.getContext('2d');
     vg.fillStyle = '#fff'; vg.fillRect(0, 0, 128, 128);
     for (let i = 0; i < 2500; i++) { const v = 215 + Math.random() * 40; vg.fillStyle = `rgba(${v},${v - 3},${v - 8},.5)`; vg.fillRect(Math.random() * 128, Math.random() * 128, 1, 2 + Math.random() * 2); }
-    const dorsal = vg.createLinearGradient(0, 0, 0, 128); dorsal.addColorStop(0, 'rgba(150,138,124,.28)'); dorsal.addColorStop(0.35, 'rgba(150,138,124,0)'); vg.fillStyle = dorsal; vg.fillRect(0, 0, 128, 128);
+    const dorsal = vg.createLinearGradient(0, 0, 0, 128); dorsal.addColorStop(0, 'rgba(176,150,118,.4)'); dorsal.addColorStop(0.4, 'rgba(176,150,118,0)'); vg.fillStyle = dorsal; vg.fillRect(0, 0, 128, 128);
     const velTex = new THREE.CanvasTexture(vel); velTex.colorSpace = THREE.SRGBColorSpace; velTex.wrapS = velTex.wrapT = THREE.RepeatWrapping;
     const bodyM = skinMaterial(C.body, { rim: 0.5, map: velTex });
     const bellyM = skinMaterial(C.belly, { rim: 0.5 });
@@ -130,17 +132,17 @@ export class Miko {
     this.body = new THREE.Group(); this.body.position.set(0, 0.25, -0.1); R.add(this.body);
     this.squashG = new THREE.Group(); this.body.add(this.squashG);
     this.hips = new THREE.Group(); this.squashG.add(this.hips);
-    mesh(sph(0.1), bodyM, this.hips, [0, 0.01, -0.01], [1.05, 1.0, 1.15]);
+    mesh(sph(0.1), bodyM, this.hips, [0, 0.01, -0.01], [0.95, 0.97, 1.15]);
     this.spine = new THREE.Group(); this.spine.position.set(0, 0.02, 0.0); this.squashG.add(this.spine);
     const torso = new THREE.CapsuleGeometry(0.095, 0.16, 8, 20); torso.rotateX(Math.PI / 2);
-    mesh(torso, bodyM, this.spine, [0, 0, 0.11], [1.0, 1.0, 1.0]);
-    mesh(sph(0.085), bellyM, this.spine, [0, -0.035, 0.11], [1.0, 0.85, 1.6]);
+    mesh(torso, bodyM, this.spine, [0, 0, 0.11], [0.88, 0.95, 1.04]);
+    mesh(sph(0.085), bellyM, this.spine, [0, -0.035, 0.11], [0.9, 0.8, 1.6]);
     // back/spine: a slightly greyer saddle ridge so the shaved back reads from the chase camera
-    const saddleM = skinMaterial(0xd2c6b6, { rim: 0.6, map: velTex });
-    mesh(sph(0.06, 24, 16), saddleM, this.spine, [0, 0.062, 0.1], [1.05, 0.5, 2.9]);
+    const saddleM = skinMaterial(0xcdb798, { rim: 0.6, map: velTex });
+    mesh(sph(0.06, 24, 16), saddleM, this.spine, [0, 0.058, 0.1], [0.98, 0.5, 2.9]);
     mesh(sph(0.05, 20, 14), saddleM, this.hips, [0, 0.07, -0.02], [1.3, 0.55, 1.4]);
     this.chest = new THREE.Group(); this.chest.position.set(0, 0.0, 0.22); this.spine.add(this.chest);
-    mesh(sph(0.1), bodyM, this.chest, [0, 0.0, 0.0], [1.0, 1.05, 1.0]);
+    mesh(sph(0.1), bodyM, this.chest, [0, 0.0, 0.0], [0.92, 1.02, 1.0]);
 
     // neck + MANE (the lion cut's big fluffy ruff)
     this.neck = new THREE.Group(); this.neck.position.set(0, 0.075, 0.05); this.chest.add(this.neck);
@@ -156,19 +158,21 @@ export class Miko {
     // head
     this.head = new THREE.Group(); this.head.position.set(0, 0.08, 0.12); this.head.scale.setScalar(1.14); this.neck.add(this.head);
     const headM = skinMaterial(0xffffff, { map: faceTexture(), rim: 0.45, roughness: 0.9 });
-    mesh(sph(0.088, 40, 28), headM, this.head, [0, 0, 0], [1.08, 0.94, 0.95]);
+    mesh(sph(0.088, 40, 28), headM, this.head, [0, 0, 0], [1.0, 0.94, 1.0]);
     // fluffy cheeks
     const cheekGeo = sph(0.05, 20, 14);
     [-1, 1].forEach(s => {
       const ck = furMesh(cheekGeo, { shells: Math.ceil(S * 0.6), len: 0.02, density: new THREE.Vector2(200, 100), root: 0xe0d7cb, tip: C.maneTip, gravity: 0.6, cell: 0.0026 });
       ck.position.set(s * 0.058, -0.03, 0.025); ck.scale.set(1.0, 0.85, 0.9); this.head.add(ck); this.furs.push(ck);
     });
-    const muzzleM = skinMaterial(0xe6ded3, { rim: 0.3 });
-    [-1, 1].forEach(s => mesh(sph(0.024, 16, 12), muzzleM, this.head, [s * 0.019, -0.03, 0.07], [1.0, 0.78, 0.75]));
-    mesh(sph(0.02, 16, 12), muzzleM, this.head, [0, -0.05, 0.058], [1.1, 0.7, 0.9]);
+    const muzzleM = skinMaterial(0xe2d6c6, { rim: 0.3 });
+    [-1, 1].forEach(s => mesh(sph(0.022, 16, 12), muzzleM, this.head, [s * 0.017, -0.031, 0.076], [1.0, 0.78, 0.8]));
+    mesh(sph(0.018, 16, 12), muzzleM, this.head, [0, -0.05, 0.064], [1.05, 0.7, 0.95]);
+    // wedge: a narrower muzzle bridge in the mask colour
+    mesh(sph(0.03, 18, 12), skinMaterial(0x8a7a6a, { rim: 0.3 }), this.head, [0, -0.005, 0.066], [0.55, 0.7, 0.9]);
     const noseM = new THREE.MeshStandardMaterial({ color: C.nose, roughness: 0.45 });
     const noseGeo = new THREE.SphereGeometry(0.0115, 16, 10);
-    mesh(noseGeo, noseM, this.head, [0, -0.01, 0.087], [1.3, 0.8, 0.8]);
+    mesh(noseGeo, noseM, this.head, [0, -0.012, 0.093], [1.2, 0.8, 0.8]);
     // whiskers
     const wm = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 });
     const wp = [];
@@ -208,16 +212,21 @@ export class Miko {
 
     // legs: shaved upper + lower, fluffy paw "boots"
     const pawGeo = sph(0.034, 20, 14);
+    const sc = document.createElement('canvas'); sc.width = 8; sc.height = 128; const sg = sc.getContext('2d');
+    const sgr = sg.createLinearGradient(0, 0, 0, 128); sgr.addColorStop(0, '#e6d6bf'); sgr.addColorStop(0.5, '#a3978a'); sgr.addColorStop(1, '#7a7068');
+    sg.fillStyle = sgr; sg.fillRect(0, 0, 8, 128);
+    const sockTex = new THREE.CanvasTexture(sc); sockTex.colorSpace = THREE.SRGBColorSpace;
+    const sockM = skinMaterial(0xffffff, { rim: 0.5, map: sockTex });
     const mkLeg = (parent, x, y, z, front) => {
       const hip = new THREE.Group(); hip.position.set(x, y, z); parent.add(hip);
       const upLen = front ? 0.105 : 0.1, loLen = front ? 0.105 : 0.11;
-      const up = new THREE.CapsuleGeometry(front ? 0.03 : 0.042, upLen, 6, 14); up.translate(0, -upLen / 2, 0);
+      const up = new THREE.CapsuleGeometry(front ? 0.027 : 0.038, upLen, 6, 14); up.translate(0, -upLen / 2, 0);
       mesh(up, front ? legM : bodyM, hip);
       const knee = new THREE.Group(); knee.position.set(0, -upLen, 0); hip.add(knee);
-      const lo = new THREE.CapsuleGeometry(front ? 0.024 : 0.026, loLen, 6, 12); lo.translate(0, -loLen / 2, 0);
-      mesh(lo, legM, knee);
+      const lo = new THREE.CapsuleGeometry(front ? 0.022 : 0.024, loLen, 6, 12); lo.translate(0, -loLen / 2, 0);
+      mesh(lo, sockM, knee);
       const ankle = new THREE.Group(); ankle.position.set(0, -loLen, 0); knee.add(ankle);
-      const paw = furMesh(pawGeo, { shells: Math.ceil(S * 0.6), len: 0.012, density: new THREE.Vector2(140, 70), root: 0xd8cfc3, tip: 0xfaf6ef, gravity: 0.4, rim: 0.8, cell: 0.0024 });
+      const paw = furMesh(pawGeo, { shells: Math.ceil(S * 0.6), len: 0.012, density: new THREE.Vector2(140, 70), root: 0x6e655d, tip: 0xa39a90, gravity: 0.4, rim: 0.8, cell: 0.0024 });
       paw.position.set(0, -0.01, 0.014); paw.scale.set(1.0, 0.8, 1.25); ankle.add(paw); this.furs.push(paw);
       mesh(pawGeo, shadowOnly, ankle, [0, -0.01, 0.014], [1, 0.8, 1.25]);
       return { hip, knee, ankle, front };
@@ -236,7 +245,7 @@ export class Miko {
       const seg = new THREE.Group(); if (i > 0) seg.position.set(0, 0, -segLen); parent.add(seg);
       const r = 0.017 - i * 0.0012;
       const g = new THREE.CylinderGeometry(r * 0.9, r, segLen + 0.01, 10); g.rotateX(Math.PI / 2); g.translate(0, 0, -segLen / 2);
-      mesh(g, tailM, seg);
+      const k = i / 5; mesh(g, i === 0 ? tailM : skinMaterial(new THREE.Color(C.tail).lerp(new THREE.Color(C.point), k * 0.9).getHex(), { rim: 0.6 }), seg);
       this.tailSegs.push(seg); parent = seg;
     }
     this.puffG = new THREE.Group(); this.puffG.position.set(0, 0, -segLen); parent.add(this.puffG);
