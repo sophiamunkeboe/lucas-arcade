@@ -351,8 +351,8 @@ export function buildHouse(scene, quality) {
   L.moon.position.set(-2.2, 5.2, -9.5); L.moon.target.position.set(-1.0, 0, 0.5); scene.add(L.moon); scene.add(L.moon.target);
   L.moon.castShadow = true; L.moon.shadow.bias = -0.0004; L.moon.shadow.normalBias = 0.02; L.moon.shadow.radius = 4; L.moon.shadow.blurSamples = 12;
   const sc = L.moon.shadow.camera; sc.left = -6; sc.right = 6; sc.top = 7; sc.bottom = -7; sc.near = 1; sc.far = 25;
-  L.lamp = new THREE.PointLight(0xffa860, 5, 8, 1.4); L.lamp.position.set(2.62, 1.55, 2.6); scene.add(L.lamp);
-  L.tv = new THREE.PointLight(0xff3020, 0.25, 1.4, 2); L.tv.position.set(0.68, 0.9, 2.8); scene.add(L.tv);
+  L.lamp = new THREE.PointLight(0xffa860, 1.3, 4.5, 1.8); L.lamp.position.set(2.62, 1.55, 2.6); scene.add(L.lamp);
+  L.tv = new THREE.PointLight(0xff3020, 0.9, 2.2, 2); L.tv.position.set(0.68, 0.9, 2.8); scene.add(L.tv);
   L.phone = new THREE.PointLight(0x9cc8ff, 0.0, 1.6, 2); L.phone.position.set(1.52, 0.72, -2.38); scene.add(L.phone);
   L.clock = new THREE.PointLight(0x3dff7a, 0.35, 1.5, 2); L.clock.position.set(-6.0, 1.15, -2.1); scene.add(L.clock);
   L.night = new THREE.PointLight(0xffc98a, 0.45, 2.6, 2); L.night.position.set(-1.8, 0.35, 4.4); scene.add(L.night);    // hallway plug-in nightlight
@@ -363,11 +363,11 @@ export function buildHouse(scene, quality) {
   if (quality === 'low') { L.clock.visible = false; L.night.intensity = 0.4; }
 
   function setNight(night) {
-    L.hemi.intensity = night ? 1.0 : 0.55; L.hemi.color.set(night ? 0x4a5c90 : 0xdfe8ff); L.hemi.groundColor.set(night ? 0x2a2018 : 0x6b5a48);
+    L.hemi.intensity = night ? 0.5 : 0.55; L.hemi.color.set(night ? 0x4a5c90 : 0xdfe8ff); L.hemi.groundColor.set(night ? 0x2a2018 : 0x6b5a48);
     L.sun.intensity = night ? 0 : 0.6;
     L.moon.color.set(night ? 0xa9c0ff : 0xffe2b8); L.moon.intensity = night ? 4.0 : 3.2;
-    L.lamp.intensity = night ? 2.4 : 0; glow.shade.emissiveIntensity = night ? 0.6 : 0.05;
-    L.tv.intensity = night ? 0.5 : 0; L.clock.intensity = night && quality !== 'low' ? 0.8 : 0; L.night.intensity = night ? 0.3 : 0;
+    L.lamp.intensity = night ? 1.3 : 0; glow.shade.emissiveIntensity = night ? 0.6 : 0.05;
+    L.tv.intensity = night ? 0.9 : 0; L.clock.intensity = night && quality !== 'low' ? 0.8 : 0; L.night.intensity = night ? 0.3 : 0;
     L.phone.intensity = 0;
     skyMat.color.set(night ? 0xffffff : 0xffffff);
     skyMat.map = night ? sky : daySky(); skyMat.needsUpdate = true;

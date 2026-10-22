@@ -189,7 +189,7 @@ if (Q.get('fps')) $('perf').classList.remove('hidden');
 function setNight(n) {
   night = n; house.setNight(n); miko.setNight(n);
   scene.environmentIntensity = n ? 0.14 : 0.35;
-  renderer.toneMappingExposure = n ? 1.35 : 1.0;
+  renderer.toneMappingExposure = n ? 1.2 : 1.0;
   scene.fog = n ? new THREE.Fog(0x070a16, 7, 16) : null;
   RIM.color.value.set(n ? 0x7f9cff : 0xffe2c0); RIM.strength.value = n ? 0.55 : 0.25;
   $('dayBtn').innerHTML = n ? '&#127769;' : '&#9728;&#65039;';

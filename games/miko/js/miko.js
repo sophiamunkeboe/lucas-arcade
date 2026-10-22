@@ -6,7 +6,7 @@ import { furMesh, skinMaterial } from './fur.js';
 
 const C = {
   body: 0xe9e0d3, belly: 0xf0e9de, leg: 0xe2d8ca, mane: 0xf4ede3, maneRoot: 0xd9d0c4, maneTip: 0xfbf7f0,
-  ear: 0x8b7f74, earIn: 0xd6aea4, nose: 0xa87a72, puffRoot: 0x5f5a55, puffTip: 0xb4aea6, tail: 0xd9d0c4,
+  ear: 0x6e645b, earIn: 0xcfa69c, nose: 0xa87a72, puffRoot: 0x5f5a55, puffTip: 0xb4aea6, tail: 0xd9d0c4,
 };
 
 function faceTexture() {
@@ -22,17 +22,17 @@ function faceTexture() {
   const cx = 128;
   // mask: soft grey-brown over forehead, eyes and nose bridge (inverted triangle)
   g.save(); g.filter = 'blur(9px)';
-  g.fillStyle = 'rgba(146,132,118,0.8)';
+  g.fillStyle = 'rgba(122,106,92,0.88)';
   g.beginPath(); g.moveTo(cx - 62, 70); g.quadraticCurveTo(cx, 40, cx + 62, 70); g.lineTo(cx + 46, 128);
   g.quadraticCurveTo(cx + 12, 140, cx + 6, 160); g.lineTo(cx - 6, 160); g.quadraticCurveTo(cx - 12, 140, cx - 46, 128); g.closePath(); g.fill();
   // eye patches
-  g.fillStyle = 'rgba(128,116,104,0.7)';
+  g.fillStyle = 'rgba(98,86,74,0.85)';
   g.beginPath(); g.ellipse(cx - 30, 118, 26, 17, -0.25, 0, Math.PI * 2); g.fill();
   g.beginPath(); g.ellipse(cx + 30, 118, 26, 17, 0.25, 0, Math.PI * 2); g.fill();
   g.restore();
   // tabby forehead stripes (the "M")
-  g.save(); g.filter = 'blur(2.6px)'; g.strokeStyle = 'rgba(96,86,76,0.55)'; g.lineCap = 'round';
-  [[-15, 3], [-5, 3.5], [5, 3.5], [15, 3]].forEach(([dx, w], i) => {
+  g.save(); g.filter = 'blur(2px)'; g.strokeStyle = 'rgba(72,62,52,0.85)'; g.lineCap = 'round';
+  [[-16, 4], [-6, 4.5], [6, 4.5], [16, 4]].forEach(([dx, w], i) => {
     g.lineWidth = w; g.beginPath(); g.moveTo(cx + dx * 1.4, 52 + Math.abs(dx) * 0.6); g.quadraticCurveTo(cx + dx * 1.1, 80, cx + dx * 0.6, 102); g.stroke();
   });
   g.lineWidth = 3; g.beginPath(); g.moveTo(cx - 34, 70); g.quadraticCurveTo(cx - 24, 82, cx - 18, 96); g.stroke();
@@ -40,6 +40,13 @@ function faceTexture() {
   // "mascara" lines from the outer eye corners
   g.lineWidth = 3.5; g.beginPath(); g.moveTo(cx - 50, 118); g.quadraticCurveTo(cx - 64, 124, cx - 74, 134); g.stroke();
   g.beginPath(); g.moveTo(cx + 50, 118); g.quadraticCurveTo(cx + 64, 124, cx + 74, 134); g.stroke();
+  g.restore();
+  // darker nose bridge + cheek shading under the eyes
+  g.save(); g.filter = 'blur(6px)'; g.fillStyle = 'rgba(96,82,70,0.8)';
+  g.beginPath(); g.ellipse(cx, 135, 11, 26, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = 'rgba(120,106,94,0.55)';
+  g.beginPath(); g.ellipse(cx - 44, 140, 22, 16, 0.4, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(cx + 44, 140, 22, 16, -0.4, 0, Math.PI * 2); g.fill();
   g.restore();
   // white muzzle and chin
   g.save(); g.filter = 'blur(7px)'; g.fillStyle = 'rgba(250,246,240,0.95)';
@@ -128,6 +135,10 @@ export class Miko {
     const torso = new THREE.CapsuleGeometry(0.095, 0.16, 8, 20); torso.rotateX(Math.PI / 2);
     mesh(torso, bodyM, this.spine, [0, 0, 0.11], [1.0, 1.0, 1.0]);
     mesh(sph(0.085), bellyM, this.spine, [0, -0.035, 0.11], [1.0, 0.85, 1.6]);
+    // back/spine: a slightly greyer saddle ridge so the shaved back reads from the chase camera
+    const saddleM = skinMaterial(0xd2c6b6, { rim: 0.6, map: velTex });
+    mesh(sph(0.06, 24, 16), saddleM, this.spine, [0, 0.062, 0.1], [1.05, 0.5, 2.9]);
+    mesh(sph(0.05, 20, 14), saddleM, this.hips, [0, 0.07, -0.02], [1.3, 0.55, 1.4]);
     this.chest = new THREE.Group(); this.chest.position.set(0, 0.0, 0.22); this.spine.add(this.chest);
     mesh(sph(0.1), bodyM, this.chest, [0, 0.0, 0.0], [1.0, 1.05, 1.0]);
 
@@ -135,8 +146,8 @@ export class Miko {
     this.neck = new THREE.Group(); this.neck.position.set(0, 0.075, 0.05); this.chest.add(this.neck);
     const maneGeo = sph(0.125, 40, 28);
     this.mane = furMesh(maneGeo, { shells: S, len: 0.03, density: new THREE.Vector2(340, 170), root: C.maneRoot, tip: C.maneTip, gravity: 0.6, rim: 1.0, cell: 0.0034 });
-    this.mane.position.set(0, 0.035, -0.035); this.mane.scale.set(1.18, 1.08, 0.95); this.neck.add(this.mane); this.furs.push(this.mane);
-    mesh(sph(0.12, 16, 12), shadowOnly, this.neck, [0, 0.035, -0.035], [1.18, 1.08, 0.95]);
+    this.mane.position.set(0, 0.0, -0.015); this.mane.scale.set(1.12, 0.92, 0.82); this.neck.add(this.mane); this.furs.push(this.mane);
+    mesh(sph(0.12, 16, 12), shadowOnly, this.neck, [0, 0.0, -0.015], [1.12, 0.92, 0.82]);
     if (S === 0) this.mane.material.userData.fur.uLen.value = 0;
     // chest bib fluff
     const bib = furMesh(sph(0.075, 24, 16), { shells: Math.ceil(S * 0.6), len: 0.024, density: new THREE.Vector2(220, 110), root: C.maneRoot, tip: C.maneTip, gravity: 0.8 });
@@ -152,7 +163,7 @@ export class Miko {
       const ck = furMesh(cheekGeo, { shells: Math.ceil(S * 0.6), len: 0.02, density: new THREE.Vector2(200, 100), root: 0xe0d7cb, tip: C.maneTip, gravity: 0.6, cell: 0.0026 });
       ck.position.set(s * 0.058, -0.03, 0.025); ck.scale.set(1.0, 0.85, 0.9); this.head.add(ck); this.furs.push(ck);
     });
-    const muzzleM = skinMaterial(0xf8f3ec, { rim: 0.3 });
+    const muzzleM = skinMaterial(0xe6ded3, { rim: 0.3 });
     [-1, 1].forEach(s => mesh(sph(0.024, 16, 12), muzzleM, this.head, [s * 0.019, -0.03, 0.07], [1.0, 0.78, 0.75]));
     mesh(sph(0.02, 16, 12), muzzleM, this.head, [0, -0.05, 0.058], [1.1, 0.7, 0.9]);
     const noseM = new THREE.MeshStandardMaterial({ color: C.nose, roughness: 0.45 });
@@ -182,12 +193,14 @@ export class Miko {
     // ears: grey, with pink insides and a little tuft
     const earGeo = new THREE.ConeGeometry(0.038, 0.075, 4, 1); earGeo.translate(0, 0.0375, 0);
     const earInGeo = new THREE.ConeGeometry(0.026, 0.058, 4, 1); earInGeo.translate(0, 0.029, 0);
-    const earM = skinMaterial(C.ear, { rim: 0.8 }), earInM = skinMaterial(C.earIn, { rim: 0.2 });
+    const earM = skinMaterial(C.ear, { rim: 0.8 }), earInM = skinMaterial(C.earIn, { rim: 0.2 }), earTipM = skinMaterial(0x4a423b, { rim: 0.6 });
     this.ears = [];
     [-1, 1].forEach(s => {
       const eg = new THREE.Group(); eg.position.set(s * 0.05, 0.06, -0.005); eg.rotation.set(-0.12, 0, s * -0.35); this.head.add(eg);
       const e = mesh(earGeo, earM, eg, [0, 0, 0], [1, 1, 0.45]); e.rotation.y = Math.PI / 4;
-      const ei = mesh(earInGeo, earInM, eg, [0, 0.004, 0.009], [1, 1, 0.3], false); ei.rotation.y = Math.PI / 4;
+      const ei = mesh(earInGeo, earInM, eg, [0, 0.004, 0.009], [0.85, 0.9, 0.3], false); ei.rotation.y = Math.PI / 4;
+      const tipGeo = new THREE.ConeGeometry(0.016, 0.03, 4, 1); tipGeo.translate(0, 0.061, 0);
+      const tip = mesh(tipGeo, earTipM, eg, [0, 0.0, -0.0005], [1.05, 1, 0.5]); tip.rotation.y = Math.PI / 4;
       const tuft = furMesh(new THREE.SphereGeometry(0.007, 10, 8), { shells: Math.ceil(S * 0.5), len: 0.014, density: new THREE.Vector2(60, 30), root: 0xe6dfd6, tip: 0xffffff, gravity: -0.5, cell: 0.0018 });
       tuft.position.set(0, 0.02, 0.012); eg.add(tuft); this.furs.push(tuft);
       this.ears.push(eg);
@@ -283,7 +296,7 @@ export class Miko {
         T.bodyY = 0.24 + Math.max(0, Math.sin(ph + 0.6)) * 0.05 * k; T.bodyP = -flex * 0.12 * k;
         T.spineP = flex * 0.14 * k; T.chestP = -flex * 0.1 * k;
         T.neckP = 0.15 + flex * 0.05; T.headP = -0.15 - flex * 0.05;
-        T.tailP = 0.25 + k * 0.25; T.tailCurl = 0.05; T.tailWave = 0.35; T.earsBack = 0.25 + k * 0.4;
+        T.tailP = 0.75 + k * 0.25; T.tailCurl = 0.16; T.tailWave = 0.4; T.earsBack = 0.25 + k * 0.4;
         const aF = 0.8 + k * 0.35, aR = 0.75 + k * 0.4;
         ['FL', 'FR'].forEach((key, i) => { const p = ph + i * 0.5; const sw = Math.sin(p); L(key, -sw * aF, Math.max(0, Math.cos(p)) * 1.1, -0.2); });
         ['RL', 'RR'].forEach((key, i) => { const p = ph + Math.PI + i * 0.5; const sw = Math.sin(p); L(key, -sw * aR - 0.2, -Math.max(0, Math.cos(p)) * 0.9 - 0.2, 0.5); });
@@ -419,7 +432,7 @@ export class Miko {
     const wave = P.tailWave, flick = mode === 'idle' || mode === 'sit' || mode === 'stare' ? Math.max(0, Math.sin(t * 0.9)) ** 8 * 0.5 : 0;
     this.tailSegs.forEach((sg, i) => {
       const f = i / this.tailSegs.length;
-      sg.rotation.x = (i === 0 ? P.tailP : 0) + P.tailCurl * (i > 1 ? 1 : 0.3) * (mode === 'run' ? -0.3 : 1);
+      sg.rotation.x = (i === 0 ? P.tailP : 0) + P.tailCurl * (i > 1 ? 1 : 0.3);
       sg.rotation.y = (i === 0 ? P.tailY * 0.6 : P.tailY * 0.12) + Math.sin(t * (mode === 'run' ? 9 : 2.5) - i * 0.7) * wave * (0.3 + f) + (i > 2 ? flick * Math.sin(t * 12) : 0);
     });
     const puffT = P.puff * (1 + Math.sin(t * 2.2) * 0.02);
