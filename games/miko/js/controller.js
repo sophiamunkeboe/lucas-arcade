@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { H } from './house.js';
 
-const G = 14, R = 0.15, STEP = 0.12;
+const G = 14, R = 0.15, STEP = 0.2;
 const V = new THREE.Vector3();
 
 export class CatController {

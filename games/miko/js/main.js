@@ -385,18 +385,18 @@ if (SHOT) {
       }
       case 'wallrun': {
         zoom.startCountdown(); await wait(140);
-        ctrl.reset(new THREE.Vector3(-2.2, 0, -1.6), Math.PI); ctrl.momentum = 1; S.zoom = 45; S.noise = 20; S.time = 33.4;
+        ctrl.reset(new THREE.Vector3(-2.62, 0, -1.6), Math.PI); ctrl.momentum = 1; S.zoom = 45; S.noise = 20; S.time = 33.4;
         for (let i = 0; i < 80 && !(ctrl.mode === 'climb' && ctrl.pos.y > 0.95); i++) await wait(1);
         timeScale = 0; break;
       }
       case 'maxzoom': {
         zoom.startCountdown(); await wait(140);
-        ctrl.reset(new THREE.Vector3(-2.0, 0, 3.3), 0.0); ctrl.momentum = 2; S.zoom = 100; S.combo = 7; S.score = 4810; S.time = 22.7; ui.comboPop(7, 4);
+        ctrl.reset(new THREE.Vector3(-1.6, 0, -0.6), 0.0); ctrl.momentum = 2; S.zoom = 100; S.combo = 7; S.score = 4810; S.time = 22.7; ui.comboPop(7, 4);
         await wait(36); timeScale = 0; break;
       }
       case 'freeze': {
         zoom.startCountdown(); await wait(140);
-        ctrl.reset(new THREE.Vector3(-2.0, 0, 4.4), 0.0); S.score = 3120; S.time = 28.0; await wait(20);
+        ctrl.reset(new THREE.Vector3(-2.5, 0.54, 4.2), 0.0); S.score = 3120; S.time = 28.0; await wait(20);
         S.noise = 100; S.alertCd = 0; await wait(30); input.st.loaf = true; await wait(112); timeScale = 0; break;
       }
       case 'end': {

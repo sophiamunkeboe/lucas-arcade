@@ -9,7 +9,7 @@ const SURF = {
   'recliner seat': 'RECLINER', 'couch seat': 'COUCH', blanket: 'BLANKET', 'couch back': 'COUCH BACK', headrest: 'RECLINER HEADREST',
   console: 'CUPHOLDER CONSOLE', armrest: 'ARMREST', 'side table': 'SIDE TABLE', 'olive pot': 'OLIVE TREE POT', ottoman: 'OTTOMAN',
   'TV stand': 'TV STAND', 'bookshelf top': 'BOOKSHELF TOP', 'hall bench': 'HALL BENCH', 'hall console': 'HALL TABLE',
-  'kitchen counter': 'KITCHEN COUNTER', 'cabinet top': 'TOP OF THE CABINETS!', 'fridge top': 'FRIDGE TOP!', 'kitchen island': 'KITCHEN ISLAND',
+  'kitchen counter': 'KITCHEN COUNTER', 'entry landing': 'ENTRY LANDING', stairs: 'STAIRS', 'upper landing': 'TOP OF THE STAIRS!', 'banister rail': 'BANISTER RAIL!', 'plant pot': 'PLANT POT', speaker: 'SPEAKER', 'cabinet top': 'TOP OF THE CABINETS!', 'fridge top': 'FRIDGE TOP!', 'kitchen island': 'KITCHEN ISLAND',
 };
 const PROP_NAME = { tumbler: 'TUMBLER', bowl: 'BOWL', phone: 'PHONE', remote: 'REMOTE', mug: 'MUG', glass: 'GLASS', orange: 'ORANGE', candle: 'CANDLE', book: 'BOOK', keys: 'KEYS', vase: 'VASE' };
 const KEY = 'lucasArcade.miko.zoomies.v1';
