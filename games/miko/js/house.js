@@ -53,7 +53,7 @@ export function buildHouse(scene, quality) {
   wall(-3 - T, -3, -1.4, 1.4, 2.2, H, false);
   wall(-2.6 - T, -2.6, 3, 8.6); wall(-1.4, -1.4 + T, 3, 8.6); // hallway
   wall(-2.6, -2.25, 8.6, 8.6 + T); wall(-1.75, -1.4, 8.6, 8.6 + T); wall(-2.25, -1.75, 8.6, 8.6 + T, 2.1, H, false);
-  const ceil = add(new THREE.PlaneGeometry(9.8, 11.8), ceilMat, -1.8, H, 2.8, { rx: Math.PI / 2, cast: false });
+  const ceil = add(new THREE.BoxGeometry(9.8, 0.1, 11.8), ceilMat, -1.8, H + 0.05, 2.8, { cast: true });   // casts, so moonlight only comes in the window
   // "baked" AO: dark gradient strips along the bottoms of the walls and ceiling corners
   const aoTex = TX.vgrad('rgba(0,0,0,0)', 'rgba(0,0,0,0.55)');
   const aoMat = new THREE.MeshBasicMaterial({ map: aoTex, transparent: true, depthWrite: false });

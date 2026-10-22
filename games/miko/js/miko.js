@@ -6,7 +6,7 @@ import { furMesh, skinMaterial } from './fur.js';
 
 const C = {
   body: 0xe9e0d3, belly: 0xf0e9de, leg: 0xe2d8ca, mane: 0xf4ede3, maneRoot: 0xd9d0c4, maneTip: 0xfbf7f0,
-  ear: 0x6e645b, earIn: 0xcfa69c, nose: 0xa87a72, puffRoot: 0x5f5a55, puffTip: 0xb4aea6, tail: 0xd9d0c4,
+  ear: 0x6e645b, earIn: 0xcfa69c, nose: 0xa87a72, puffRoot: 0x7d766f, puffTip: 0xc4beb6, tail: 0xd9d0c4,
 };
 
 function faceTexture() {
@@ -88,7 +88,7 @@ function puffTexture() {   // grey tail puff with darker tabby rings
   g.fillStyle = gr; g.fillRect(0, 0, 64, 256);
   g.fillStyle = 'rgba(70,64,58,.55)';
   [70, 120, 165, 205].forEach(y => g.fillRect(0, y, 64, 14));
-  g.fillStyle = '#4f4a45'; g.fillRect(0, 236, 64, 20);
+  g.fillStyle = '#8a837b'; g.fillRect(0, 236, 64, 20);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
@@ -307,7 +307,7 @@ export class Miko {
       case 'air': {
         const up = THREE.MathUtils.clamp(s.vy / 5, -1, 1);
         T.bodyY = 0.25; T.bodyP = -up * 0.35; T.neckP = 0.1 - up * 0.2; T.headP = up * 0.2;
-        T.tailP = 0.4 - up * 0.5; T.tailCurl = 0.08; T.tailWave = 0.05; T.earsBack = 0.35;
+        T.tailP = 1.05; T.tailCurl = 0.12; T.tailWave = 0.12; T.earsBack = 0.35;
         const st2 = up > 0 ? 1 : 0.4 + (1 - Math.min(1, -up)) * 0.3;    // stretched on the way up, reach for landing
         L('FL', -1.2 * st2 + (up < 0 ? -0.2 : 0), 0.25, -0.2); L('FR', -1.1 * st2, 0.3, -0.2);
         L('RL', 1.0 * st2, -0.2, 0.2); L('RR', 1.1 * st2, -0.25, 0.2);
