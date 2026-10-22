@@ -1,6 +1,6 @@
 /* Lucas's Arcade - service worker: keeps every file on the phone so the arcade works offline.
    When you change or add files: add them to FILES and bump VERSION. */
-const VERSION = 'lucas-arcade-v10';
+const VERSION = 'lucas-arcade-v11';
 // Note: Poker Table also needs internet to talk to its game server; its page and art are cached here so it can
 // open offline and show a friendly "Poker needs internet" message.
 const FILES = [
@@ -54,6 +54,39 @@ const FILES = [
   './games/poker/bots.js',
   './games/poker/local.js',
   './games/poker/thumb.png',
+  './games/miko/fonts/LuckiestGuy.woff2',
+  './games/miko/index.html',
+  './games/miko/js/audio.js',
+  './games/miko/js/controller.js',
+  './games/miko/js/fur.js',
+  './games/miko/js/fx.js',
+  './games/miko/js/house.js',
+  './games/miko/js/input.js',
+  './games/miko/js/main.js',
+  './games/miko/js/miko.js',
+  './games/miko/js/physics.js',
+  './games/miko/js/textures.js',
+  './games/miko/js/zoomies.js',
+  './games/miko/miko.css',
+  './games/miko/vendor/cannon/cannon-es.js',
+  './games/miko/vendor/three/addons/environments/RoomEnvironment.js',
+  './games/miko/vendor/three/addons/geometries/RoundedBoxGeometry.js',
+  './games/miko/vendor/three/addons/postprocessing/BokehPass.js',
+  './games/miko/vendor/three/addons/postprocessing/EffectComposer.js',
+  './games/miko/vendor/three/addons/postprocessing/MaskPass.js',
+  './games/miko/vendor/three/addons/postprocessing/OutputPass.js',
+  './games/miko/vendor/three/addons/postprocessing/Pass.js',
+  './games/miko/vendor/three/addons/postprocessing/RenderPass.js',
+  './games/miko/vendor/three/addons/postprocessing/ShaderPass.js',
+  './games/miko/vendor/three/addons/postprocessing/UnrealBloomPass.js',
+  './games/miko/vendor/three/addons/shaders/BokehShader.js',
+  './games/miko/vendor/three/addons/shaders/CopyShader.js',
+  './games/miko/vendor/three/addons/shaders/LuminosityHighPassShader.js',
+  './games/miko/vendor/three/addons/shaders/OutputShader.js',
+  './games/miko/vendor/three/addons/utils/BufferGeometryUtils.js',
+  './games/miko/vendor/three/build/three.core.js',
+  './games/miko/vendor/three/build/three.module.js',
+  './games/miko/thumb.png',
   './js/vendor/supabase.js',
   './art/neon/aer-on.webp',
   './art/neon/aer-off.webp',

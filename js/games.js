@@ -54,6 +54,16 @@ window.LA.games = [
     statWord: 'run',             // "Best 1,240 · 21.4s run" (fastest stopwatch lights-out)
   },
   {
+    id: 'miko-zoomies',
+    title: 'Miko: Zoomies',
+    tagline: '3 AM. Run the house. Don\'t wake the human!',
+    url: 'games/miko/index.html',
+    thumb: 'games/miko/thumb.png',
+    color: '#6c5ce7',
+    statWord: 'run',
+    noFastest: true,
+  },
+  {
     id: 'coming-soon',
     title: 'Coming soon',
     tagline: "Lucas's next big idea!",
