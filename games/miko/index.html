@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Miko: Zoomies - Lucas's Arcade</title>
+<meta name="theme-color" content="#0b1230">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucas's Arcade">
+<link rel="manifest" href="../../manifest.json">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../../icons/icon-192.png">
+<link rel="stylesheet" href="miko.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/build/three.module.js",
+  "three/addons/": "./vendor/three/addons/",
+  "cannon-es": "./vendor/cannon/cannon-es.js"
+} }
+</script>
+</head>
+<body>
+<div id="app">
+  <canvas id="c"></canvas>
+  <canvas id="fxc"></canvas>
+  <div id="flash"></div>
+
+  <div id="topbar">
+    <a id="homeBtn" class="round-btn" href="../../index.html" aria-label="Back to Arcade">
+      <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3 Z" fill="currentColor"/></svg>
+    </a>
+    <div id="hud" class="hidden">
+      <div id="timer">60</div>
+      <div id="meters">
+        <div class="meter" id="zoomMeter"><div class="fill"></div><span>MAX ZOOM</span></div>
+        <div class="meter" id="noiseMeter"><div class="fill"></div><span>&#128264; NOISE</span></div>
+      </div>
+      <div id="score">0</div>
+    </div>
+    <button id="dayBtn" class="round-btn small" aria-label="Day / night">&#127769;</button>
+    <button id="muteBtn" class="round-btn" aria-label="Sound on/off"></button>
+  </div>
+  <div id="combo" class="hidden"><b>x0</b><small>COMBO</small></div>
+  <div id="pops"></div>
+  <div id="big"></div>
+
+  <!-- controls -->
+  <div id="controls" class="hidden">
+    <div id="stickZone"><div id="stickBase"><div id="stickKnob"></div></div><div id="stickHint">drag to steer</div></div>
+    <button id="btnTrick" class="act trick">TRICK<small>swat / slide / flip</small></button>
+    <button id="btnJump" class="act jump">JUMP</button>
+    <div id="sandBtns" class="hidden">
+      <button id="btnSit" class="act mini">SIT</button>
+      <button id="btnSneak" class="act mini">SNEAK</button>
+    </div>
+  </div>
+
+  <!-- human wakes up -->
+  <div id="alert" class="hidden">
+    <div class="eyes">&#128064;</div>
+    <div class="msg">The human stirs&hellip;</div>
+    <button id="btnLoaf">LOAF!<small>freeze like a bread loaf</small></button>
+  </div>
+
+  <!-- start screen -->
+  <section id="screen-menu" class="screen">
+    <div class="menu-top">
+      <div class="clock">3:00 AM</div>
+      <h1 class="title"><span>Z</span><span>O</span><span>O</span><span>M</span><span>I</span><span>E</span><span>S</span></h1>
+      <div class="starring">starring <b>MIKO</b> &middot; the lion-cut cat</div>
+    </div>
+    <div class="menu-bottom">
+      <p class="pitch">The house is dark. Everyone's asleep. Miko has the zoomies.</p>
+      <button id="startBtn" class="big-btn">START THE ZOOMIES</button>
+      <div id="bestLine" class="best"></div>
+      <button id="howBtn" class="link-btn">How to play</button>
+      <div id="how" class="how hidden">
+        <p><b>Miko runs by himself.</b> Drag on the left to steer. Pull back to brake, push up to go faster.</p>
+        <p><b>JUMP</b> (tap again in the air for a double jump). Jump next to a wall to <b>wall-kick</b>. Run into the curtains to <b>climb</b> them.</p>
+        <p><b>TRICK:</b> swats things off tables, power-slides on the floor, flips in the air. Turn hard at speed to <b>drift</b>.</p>
+        <p>Chain moves for a <b>combo</b>: couch, headrest, side table, olive pot, curtains, bookshelf, counters, belly-flop on the blanket&hellip; grab glowing paw prints and fill <b>MAXIMUM ZOOM</b>.</p>
+        <p>Too much crashing and the <b>human wakes up</b>. When the door light flickers, hit <b>LOAF!</b> and freeze.</p>
+      </div>
+      <a id="sandLink" class="link-btn small hidden" href="?mode=sandbox">free roam (dev)</a>
+    </div>
+  </section>
+
+  <!-- end screen -->
+  <section id="screen-end" class="screen hidden">
+    <div class="end-top"><h2 class="whome">Who, me?</h2></div>
+    <div class="end-card">
+      <div id="newBest" class="hidden">NEW BEST!</div>
+      <div class="final"><span>SCORE</span><b id="endScore">0</b></div>
+      <div class="stats" id="endStats"></div>
+      <div class="btn-row">
+        <button id="againBtn" class="big-btn">ZOOM AGAIN</button>
+        <a class="big-btn alt" href="../../index.html">Arcade</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="fallback" class="hidden"><div class="panel"><h2>Miko needs a newer browser</h2><p>This game uses 3D graphics (WebGL) that this phone or browser can't do. Try Safari on a newer iPhone.</p><a class="big-btn" href="../../index.html">Back to Arcade</a></div></div>
+  <div id="loading"><div class="spinner"></div><div>Miko is waking up&hellip;</div></div>
+  <div id="perf" class="hidden"></div>
+</div>
+<script src="../../js/storage.js"></script>
+<script src="../../js/sfx.js"></script>
+<script type="module" src="js/main.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(() => {});
+  }
+</script>
+</body>
+</html>
