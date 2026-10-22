@@ -200,7 +200,7 @@ let doorK = 0;
 function setDoor(k) {
   doorK = k; const d = house.glow.door, L = house.lights;
   d.pivot.rotation.y = -Math.max(0, (k - 0.35) / 0.65) * 1.1;
-  d.roomGlow.visible = k > 0.35; d.human.visible = k > 0.6;
+  d.roomGlow.visible = k > 0.35;
   d.crack.opacity = Math.min(1, k * 3);
   L.door.intensity = k * 9;
 }

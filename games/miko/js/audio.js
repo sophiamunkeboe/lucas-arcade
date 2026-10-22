@@ -77,7 +77,7 @@ export const snd = {
   trick(n) { const f = 520 * Math.pow(1.06, Math.min(n, 20)); tone('square', f, 0, 0, 0.07, 0.06); tone('square', f * 1.5, 0, 0.06, 0.12, 0.06); },
   zoom() { tone('sawtooth', 200, 1600, 0, 0.6, 0.1); noise(0, 0.6, 0.2, 'bandpass', 600, 1.5, 5000); tone('square', 1046, 0, 0.55, 0.2, 0.08); tone('square', 1318, 0, 0.65, 0.3, 0.08); },
   door() { tone('sawtooth', 90, 70, 0, 0.5, 0.05); noise(0, 0.05, 0.2, 'highpass', 3000, 1); tone('square', 1200, 0, 0.05, 0.03, 0.08); },
-  hmm() { tone('sine', 150, 120, 0, 0.35, 0.18); tone('sine', 140, 170, 0.4, 0.4, 0.18); },
+  hmm() { [0, 0.45, 0.9].forEach(t => { tone('sine', 70, 45, t, 0.18, 0.2); noise(t, 0.12, 0.12, 'lowpass', 300, 1); }); tone('sawtooth', 180, 140, 1.3, 0.35, 0.03); },   // off-screen footsteps + a floor creak
   caught() { tone('square', 400, 200, 0, 0.3, 0.1); tone('square', 300, 150, 0.3, 0.4, 0.1); },
   safe() { tone('triangle', 660, 0, 0, 0.1, 0.08); tone('triangle', 880, 0, 0.1, 0.15, 0.08); },
   tick() { tone('square', 1400, 0, 0, 0.03, 0.04); },

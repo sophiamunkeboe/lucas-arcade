@@ -285,16 +285,7 @@ export function buildHouse(scene, quality) {
   roomGlow.visible = false;
   const crack = new THREE.MeshBasicMaterial({ color: 0xffc27a, toneMapped: false, transparent: true, opacity: 0 });
   add(new THREE.PlaneGeometry(0.5, 0.025), crack, -2.0, 0.012, 8.57, { rx: -Math.PI / 2 + 0.0, cast: false, recv: false });
-  // the human's silhouette (only appears in the doorway when it's awake)
-  const humanTex = TX.textCanvas(256, 512, (g, w, h) => {
-    g.fillStyle = '#120d0b';
-    g.beginPath(); g.ellipse(128, 70, 42, 50, 0, 0, 7); g.fill();                     // head
-    g.beginPath(); g.ellipse(110, 30, 34, 22, -0.5, 0, 7); g.fill(); g.beginPath(); g.ellipse(160, 34, 30, 20, 0.6, 0, 7); g.fill(); // messy bun
-    g.beginPath(); g.moveTo(60, 140); g.quadraticCurveTo(128, 110, 196, 140); g.lineTo(220, 512); g.lineTo(36, 512); g.closePath(); g.fill(); // robe
-  });
-  const human = add(new THREE.PlaneGeometry(0.48, 1.7), new THREE.MeshBasicMaterial({ map: humanTex, transparent: true, depthWrite: false }), -2.0, 0.85, 8.66, { ry: Math.PI, cast: false, recv: false });
-  human.visible = false; human.renderOrder = 3;
-  glow.door = { pivot: doorPivot, roomGlow, crack, human };
+  glow.door = { pivot: doorPivot, roomGlow, crack };
   box(-2.25, -1.75, 0, 2.1, 8.5, 8.62, { name: 'door', type: 'wall', walk: false });
 
   // ---------------- kitchen ----------------
