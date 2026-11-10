@@ -27,7 +27,7 @@ with sync_playwright() as p:
  report['first_full_playback']=intro;report['wall_seconds']=round(time.time()-start,2)
  assert 7<=report['wall_seconds']<11
  # Replay is full length even after a session view; pointer skip is immediate.
- pg.click('#replay-intro');assert pg.evaluate('HOOPS.intro.duration')==7.4;pg.mouse.click(180,260);pg.wait_for_function("HOOPS.scene==='menu'");assert pg.evaluate('HOOPS.intro.skipped');assert not pg.evaluate('HOOPS.intro.audioReady');report['tap_skip_and_audio_stop']=True
+ pg.click('#replay-intro');assert pg.evaluate('HOOPS.intro.duration')==7.4;pg.mouse.click(180,260);pg.wait_for_function("HOOPS.scene==='menu'");assert pg.evaluate('HOOPS.intro.skipped');assert pg.evaluate('HOOPS.audio.sfxActive')==0;report['tap_skip_and_audio_stop']=True
  # Later visits in the same tab/session are a 2.6-second highlight reel.
  pg.reload();pg.wait_for_function("HOOPS.scene==='intro'");assert pg.evaluate('HOOPS.intro.shortened');assert pg.evaluate('HOOPS.intro.duration')==2.6;pg.wait_for_function("HOOPS.scene==='menu'",timeout=5000);report['short_session_revisit']=True
  pg.click('#replay-intro');pg.keyboard.press('Escape');assert pg.evaluate("HOOPS.scene==='menu'");report['keyboard_skip']=True
@@ -35,7 +35,7 @@ with sync_playwright() as p:
  pg.click('#settings');assert pg.locator('#sound-setting').inner_text()=='ON';pg.click('#sound-setting');assert pg.locator('#sound-setting').inner_text()=='OFF';pg.get_by_role('button',name='DONE',exact=True).click()
  pg.click('#replay-intro');pg.wait_for_function("HOOPS.scene==='menu'",timeout=12000);muted=pg.evaluate('HOOPS.intro');assert not muted['soundEnabled'] and muted['soundEvents']==0;report['muted_full_intro']=True
  # Canonical folder reload plus full first-view timeline work without network.
- pg.evaluate('navigator.serviceWorker.ready');pg.wait_for_function('navigator.serviceWorker.controller!==null');assert 'lucas-arcade-v15' in pg.evaluate('caches.keys()')
+ pg.evaluate('navigator.serviceWorker.ready');pg.wait_for_function('navigator.serviceWorker.controller!==null');assert 'lucas-arcade-v16' in pg.evaluate('caches.keys()')
  pg.evaluate("sessionStorage.removeItem('lucasHoops.introSeen.v1')");c.set_offline(True);pg.reload();pg.wait_for_function("HOOPS.scene==='intro'");assert pg.evaluate('HOOPS.intro.duration')==7.4;pg.wait_for_function("HOOPS.scene==='menu'",timeout=12000)
  pg.click('#quick');pg.click('#mode-3');assert pg.evaluate('HOOPS.state.players.length')==6;report['offline_full_intro_and_game']=True
  c.set_offline(False)

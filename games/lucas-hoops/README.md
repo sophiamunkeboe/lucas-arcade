@@ -1,4 +1,4 @@
-# Lucas Hoops v2 — Squad Up
+# Lucas Hoops v2.2 — Sunburst Pep Rally
 
 Original kid-friendly pixel basketball for Lucas's Arcade. All art, geometry, sound and gameplay run locally. No CDNs, official league/team logos, sponsors, analytics or paid assets. The renamed ASCII pixel font is licensed under SIL OFL (FONT-LICENSE.txt).
 
@@ -40,9 +40,21 @@ Wide, fixed full-court oblique 2D view with smaller players and real X/Y movemen
 
 Ball simulation uses X/Y/Z gravity, a backboard plane, toroidal rim collision, rebounds, passes and jump-height blocks. Simulation substeps at 120 Hz; rendering remains one animation frame. AI spreads to wings, cuts to the basket, marks opponents, helps on drives, rebounds and passes to open teammates.
 
-Synthesized dribble, rim, swish, buzzer, steal and cheer sounds need only the first tap to unlock Web Audio. Root service worker **lucas-arcade-v15** caches the folder URL, HTML, JS, CSS, font and thumbnail for standalone offline use after the first complete load.
+## Pep band, arena audio and party lights (v16)
+
+An original **126 BPM, eight-bar looping pep arrangement** layers marching snare/ghost rolls, bass drum, brass-synth stabs, bass line and handclaps. The bed is louder on menus and quiet in live play. Original organ phrases mark possession breaks, makes and timeouts. Dunks/horns duck only the pep bed; the victory fanfare or sliding sad trombone remains audible above it. All instruments, crowd vowels and noises are synthesized Web Audio, **without tracks, recordings or external audio downloads**.
+
+Settings and the HUD have independent **SFX** and **🎶 music** switches, both on by default and saved in localStorage. Music OFF also mutes organ/fanfare cues; SFX OFF independently mutes dribbling and game/intro effects. First tap unlocks browser audio. Hiding the tab stops all scheduled sources, zeroes output and suspends the context; returning safely restarts the groove. Source sets are bounded and cleaned up, and noise uses one reused buffer.
+
+Extra effects: sneaker squeaks on cuts/crossovers, backboard bangs, near-miss crowd “ooh,” streak-scaled cheers, synthesized two-syllable DE-FENSE/clap rhythms late in CPU possessions, referee whistles on charges, and an arena horn at the final buzzer. Charge remains the implemented foul type; there is no separate quarter simulation.
+
+Five original colored spotlights—purple, orange, hot pink, cyan and gold—sweep in time with the music beat. Menus, dead balls and timeouts get stronger beams; live play is subtle and lights draw **behind players/HUD**. Buckets flash the crowd, threes get a multicolor sweep, and dunks/buzzer-beaters trigger full pulsing beams, confetti and video-cube flashes. A win gets a nine-second light show with additional confetti bursts. No rapid full-screen strobe: pulses are beat-limited, and reduced-motion preferences tone them down. Five pre-rendered cone canvases use additive blending; sustained slow frames reduce beams and confetti, recovering gradually.
+
+Root service worker **lucas-arcade-v16** precaches the new audio/light modules alongside the existing intro, game, art, CSS, font, thumbnail and folder URL. Everything works offline after one complete load. Older cached HTML can safely load the new modules during an update.
 
 ## Tests
+
+`python3 tools/hoops-audio-play.py` uses real Web Audio sample metering to verify independent toggles, settings persistence, quiet gameplay music, actual event-driven arena sounds, organ/fanfare/loss cues, music duck/recovery, hidden-tab source cancellation/suspension, made-three/dunk/buzzer/win lighting, offline audio/light modules, reduced-motion and forced-low-FPS adaptation. Position/clock fixtures use normal gameplay code and real keys. `--live` targets production. New screenshots: `screens/v16-light-show.png`, `v16-victory-show.png`, `v16-three-point-sweep.png`, `v16-pep-menu.png`.
 
 `python3 tools/hoops-play.py` runs a full real-input 90-second 3v3 game, a complete 60-second Shootout, made shots, a real directional pass/catch, contextual defense/switch, 1v1/5v5, pause/rematch, the actual arcade tile, offline reload/play and real two-finger diagonal joystick + shooting/switching in phone-size Chrome. It samples 120 animation frames in 5v5. Screenshots use `screens/v2-*.png`. `--live` checks production; HOOPS_SCREEN_DIR redirects production captures outside the checkout.
 

@@ -33,7 +33,7 @@
     <button id="replay-intro" class="replay-link">&#9654; REPLAY INTRO</button>
    </nav>
   </div>
-  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.1 &nbsp; / &nbsp; SUNBURST INTRO</span></footer>
+  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.2 &nbsp; / &nbsp; PEP BAND</span></footer>
  </section>
  <div id="intro-ui" aria-label="Lucas Hoops opening cinematic">
   <button id="intro-skip" aria-label="Skip intro">TAP ANYWHERE TO SKIP &gt;</button>
@@ -41,7 +41,8 @@
  </div>
  <div id="play-ui" hidden>
   <button id="pause" class="mini-btn" aria-label="Pause game">II</button>
-  <button id="mute" class="mini-btn" aria-label="Toggle sound">SFX ON</button>
+  <button id="mute" class="mini-btn" aria-label="Toggle sound effects">SFX ON</button>
+  <button id="music" class="mini-btn" aria-label="Toggle music">&#127926; ON</button>
   <div id="controls">
    <div id="joystick-zone" aria-label="Touch and drag here to move in any direction"></div>
    <div id="joystick" hidden><div class="stick-ring"></div><div id="stick-knob"></div></div>
@@ -66,6 +67,8 @@
 </main>
 <script src="../../js/storage.js"></script>
 <script src="art.js"></script>
+<script src="audio.js"></script>
+<script src="lights.js"></script>
 <script src="intro.js"></script>
 <script src="game.js"></script>
 <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('../../sw.js', {scope:'../../'}).catch(()=>{});</script>

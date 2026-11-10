@@ -20,7 +20,7 @@ with sync_playwright() as p:
  page=context.new_page();page.on('pageerror',lambda e:errors.append('page: '+str(e)));page.on('console',lambda m:errors.append(m.text) if m.type=='error' else None)
  page.goto(BASE+'/games/lucas-hoops/');page.wait_for_function("HOOPS.scene==='menu'");page.evaluate('document.fonts.ready');page.wait_for_timeout(250)
  page.screenshot(path=str(OUT/'v2-menu.png'))
- if '--live' not in sys.argv:page.locator('.brand').screenshot(path=str(ROOT/'games/lucas-hoops/thumb.png'))
+ if '--live' not in sys.argv and not os.environ.get('HOOPS_SCREEN_DIR'):page.locator('.brand').screenshot(path=str(ROOT/'games/lucas-hoops/thumb.png'))
  page.click('#player-card');page.screenshot(path=str(OUT/'v2-lucas-closeup.png'));page.get_by_role('button',name='BACK TO THE TEAM').click()
  page.click('#how');assert 'floating stick' in page.inner_text('#dialog-body');assert 'Charge' in page.inner_text('#dialog-body');page.get_by_role('button',name="LET'S PLAY").click()
  page.click('#settings');page.click('#difficulty-setting');assert page.inner_text('#difficulty-setting')=='BALLER';page.click('#difficulty-setting');page.click('#difficulty-setting');page.get_by_role('button',name='DONE',exact=True).click()
@@ -66,7 +66,7 @@ with sync_playwright() as p:
  page.goto(BASE+'/index.html');page.evaluate("LA.players.create('Hoops Tester','bella','1234')");page.reload();page.locator('a[href="games/lucas-hoops/index.html"]').click();page.wait_for_url('**/games/lucas-hoops/index.html');report['arcade_tile']=True
  # Fresh canonical folder URL is explicitly precached, too.
  page.goto(BASE+'/games/lucas-hoops/');page.evaluate('navigator.serviceWorker.ready');page.wait_for_function('navigator.serviceWorker.controller!==null')
- report['caches']=page.evaluate('caches.keys()');assert 'lucas-arcade-v14' in report['caches']
+ report['caches']=page.evaluate('caches.keys()');assert 'lucas-arcade-v16' in report['caches']
  context.set_offline(True);page.reload();page.wait_for_function("typeof HOOPS!=='undefined'");page.click('#quick');page.click('#mode-3');page.wait_for_timeout(500);assert page.evaluate("HOOPS.scene==='play'");report['offline']=True;context.set_offline(False)
  # Real two-finger touch: diagonal floating joystick + a held/released shot.
  phone=browser.new_context(viewport={'width':844,'height':390},device_scale_factor=1,is_mobile=True,has_touch=True)
