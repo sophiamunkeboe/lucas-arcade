@@ -64,6 +64,16 @@ window.LA.games = [
     noFastest: true,
   },
   {
+    id: 'lucas-hoops',
+    title: 'Lucas Hoops',
+    tagline: 'Small pixels. Big game. Make it rain!',
+    url: 'games/lucas-hoops/index.html',
+    thumb: 'games/lucas-hoops/thumb.png',
+    color: '#2876e8',
+    statWord: 'game',
+    noFastest: true,
+  },
+  {
     id: 'coming-soon',
     title: 'Coming soon',
     tagline: "Lucas's next big idea!",

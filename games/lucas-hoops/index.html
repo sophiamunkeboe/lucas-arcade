@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#102466">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lucas Hoops | Lucas's Arcade</title>
+<link rel="manifest" href="../../manifest.json">
+<link rel="icon" href="../../icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="stage">
+ <canvas id="court" width="960" height="540" aria-label="Pixel basketball court"></canvas>
+ <section id="main-menu" class="screen">
+  <div class="ticker"><div>MAIN MENU &nbsp; + &nbsp; LUCAS'S ARCADE &nbsp; + &nbsp; MAKE SOME NOISE &nbsp; + &nbsp; MAIN MENU &nbsp; + &nbsp; LUCAS'S ARCADE &nbsp; + &nbsp; MAKE SOME NOISE &nbsp; + &nbsp;</div></div>
+  <div class="menu-layout">
+   <div class="brand">
+    <div class="eyebrow">LUCAS'S ARCADE PRESENTS</div>
+    <canvas id="logo" width="360" height="200" aria-label="Original basketball and lightning net logo"></canvas>
+    <h1><span>LUCAS</span>HOOPS<span class="logo-dot">!</span></h1>
+    <div class="brand-line">SMALL PIXELS. BIG GAME.</div>
+    <div class="best-chip"><span class="gold">&#9733;</span> SHOOTOUT BEST <b id="menu-best">0</b></div>
+   </div>
+   <nav class="menu-buttons" aria-label="Main menu">
+    <div class="panel-label">PICK YOUR GAME</div>
+    <button id="quick" class="menu-btn"><span class="icon play-icon">&#9654;</span><span>QUICK GAME<small>1 ON 1 &nbsp; / &nbsp; YOU VS CPU</small></span><i>&gt;</i></button>
+    <button id="shootout" class="menu-btn orange"><span class="icon">&#9733;</span><span>SHOOTOUT<small>60 SECONDS. ALL THREES.</small></span><i>&gt;</i></button>
+    <div class="split"><button id="how" class="menu-btn compact"><span class="icon">?</span><span>HOW TO PLAY</span></button><button id="settings" class="menu-btn compact"><span class="icon">&#9776;</span><span>SETTINGS</span></button></div>
+    <a class="arcade-link" href="../../index.html">&lt; BACK TO THE ARCADE</a>
+   </nav>
+  </div>
+  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V1.0 &nbsp; / &nbsp; OFFLINE READY</span></footer>
+ </section>
+ <div id="play-ui" hidden>
+  <button id="pause" class="mini-btn" aria-label="Pause game">II</button>
+  <button id="mute" class="mini-btn" aria-label="Toggle sound">SFX ON</button>
+  <div id="controls">
+   <div class="move-pad"><button id="left" aria-label="Move left">&#9664;</button><button id="right" aria-label="Move right">&#9654;</button><small>MOVE</small></div>
+   <div class="action-pad"><button id="steal">PASS<small>/ STEAL</small></button><button id="shoot">SHOOT<small>HOLD + RELEASE</small></button></div>
+  </div>
+ </div>
+ <section id="dialog" class="screen modal" hidden>
+  <div class="dialog-card">
+   <div class="panel-label" id="dialog-kicker">LOCKER ROOM</div>
+   <h2 id="dialog-title"></h2>
+   <div id="dialog-body"></div>
+   <div id="dialog-actions"></div>
+  </div>
+ </section>
+ <div id="rotate-hint">&#8635; TURN SIDEWAYS FOR THE BIG COURT</div>
+</main>
+<script src="../../js/storage.js"></script>
+<script src="game.js"></script>
+<script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('../../sw.js', {scope:'../../'}).catch(()=>{});</script>
+</body>
+</html>

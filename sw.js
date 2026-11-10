@@ -1,6 +1,6 @@
 /* Lucas's Arcade - service worker: keeps every file on the phone so the arcade works offline.
    When you change or add files: add them to FILES and bump VERSION. */
-const VERSION = 'lucas-arcade-v12';
+const VERSION = 'lucas-arcade-v13';
 // Note: Poker Table also needs internet to talk to its game server; its page and art are cached here so it can
 // open offline and show a friendly "Poker needs internet" message.
 const FILES = [
@@ -87,6 +87,11 @@ const FILES = [
   './games/miko/vendor/three/build/three.core.js',
   './games/miko/vendor/three/build/three.module.js',
   './games/miko/thumb.png',
+  './games/lucas-hoops/index.html',
+  './games/lucas-hoops/style.css',
+  './games/lucas-hoops/game.js',
+  './games/lucas-hoops/pixel.woff2',
+  './games/lucas-hoops/thumb.png',
   './js/vendor/supabase.js',
   './art/neon/aer-on.webp',
   './art/neon/aer-off.webp',

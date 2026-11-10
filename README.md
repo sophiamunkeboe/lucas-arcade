@@ -23,6 +23,7 @@ security. Trophies won before logins existed went to the first player created.
 | **Fetch Frenzy** | `games/fetch-frenzy/` | Throw a ball, frisbee, stick or cheeseburger for Bella, Marley or Gorda. Catch it mid-air for big points, dodge the toy thief, puddles and squirrels, fill the meter and win a prize. |
 | **Bella's Blackjack** | `games/blackjack/` | You vs Bella the dealer (in a tuxedo) at a Las Vegas casino table. Pretend chips only. |
 | **Poker Table** | `games/poker/` | Texas Hold'em for 2 to 6 players, each on their own phone, using a 4-letter table code. Pretend chips only. Needs internet. |
+| **Lucas Hoops** | `games/lucas-hoops/` | Original pixel basketball: 1v1 CPU, jump-shot timing, dunks and a 60-second three-point shootout. Works offline. |
 | *Coming soon* | | Lucas's next idea! |
 
 ### Pop the Dog
