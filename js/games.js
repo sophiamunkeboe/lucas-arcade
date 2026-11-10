@@ -66,7 +66,7 @@ window.LA.games = [
   {
     id: 'lucas-hoops',
     title: 'Lucas Hoops',
-    tagline: 'Small pixels. Big game. Make it rain!',
+    tagline: 'Lucas leads the squad. 3v3, 5v5 & shootout!',
     url: 'games/lucas-hoops/index.html',
     thumb: 'games/lucas-hoops/thumb.png',
     color: '#2876e8',

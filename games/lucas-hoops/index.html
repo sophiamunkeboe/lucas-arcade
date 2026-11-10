@@ -21,24 +21,32 @@
     <canvas id="logo" width="360" height="200" aria-label="Original basketball and lightning net logo"></canvas>
     <h1><span>LUCAS</span>HOOPS<span class="logo-dot">!</span></h1>
     <div class="brand-line">SMALL PIXELS. BIG GAME.</div>
+    <button id="player-card" class="star-card" aria-label="Meet Lucas"><canvas id="menu-player" width="72" height="84"></canvas><span>LUCAS<small>PG / SUNBURST #1</small></span></button>
     <div class="best-chip"><span class="gold">&#9733;</span> SHOOTOUT BEST <b id="menu-best">0</b></div>
    </div>
    <nav class="menu-buttons" aria-label="Main menu">
     <div class="panel-label">PICK YOUR GAME</div>
-    <button id="quick" class="menu-btn"><span class="icon play-icon">&#9654;</span><span>QUICK GAME<small>1 ON 1 &nbsp; / &nbsp; YOU VS CPU</small></span><i>&gt;</i></button>
+    <button id="quick" class="menu-btn"><span class="icon play-icon">&#9654;</span><span>QUICK GAME<small>3 ON 3 &nbsp; / &nbsp; BUILD YOUR SQUAD</small></span><i>&gt;</i></button>
     <button id="shootout" class="menu-btn orange"><span class="icon">&#9733;</span><span>SHOOTOUT<small>60 SECONDS. ALL THREES.</small></span><i>&gt;</i></button>
     <div class="split"><button id="how" class="menu-btn compact"><span class="icon">?</span><span>HOW TO PLAY</span></button><button id="settings" class="menu-btn compact"><span class="icon">&#9776;</span><span>SETTINGS</span></button></div>
     <a class="arcade-link" href="../../index.html">&lt; BACK TO THE ARCADE</a>
    </nav>
   </div>
-  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V1.0 &nbsp; / &nbsp; OFFLINE READY</span></footer>
+  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.0 &nbsp; / &nbsp; SQUAD UP</span></footer>
  </section>
  <div id="play-ui" hidden>
   <button id="pause" class="mini-btn" aria-label="Pause game">II</button>
   <button id="mute" class="mini-btn" aria-label="Toggle sound">SFX ON</button>
   <div id="controls">
-   <div class="move-pad"><button id="left" aria-label="Move left">&#9664;</button><button id="right" aria-label="Move right">&#9654;</button><small>MOVE</small></div>
-   <div class="action-pad"><button id="steal">PASS<small>/ STEAL</small></button><button id="shoot">SHOOT<small>HOLD + RELEASE</small></button></div>
+   <div id="joystick-zone" aria-label="Touch and drag here to move in any direction"></div>
+   <div id="joystick" hidden><div class="stick-ring"></div><div id="stick-knob"></div></div>
+   <div class="action-diamond">
+    <button id="action-primary" class="circle-button top" aria-label="Shoot"><span>SHOOT</span><small>HOLD / RELEASE</small></button>
+    <button id="action-secondary" class="circle-button left" aria-label="Pass"><span>PASS</span><small>E / K</small></button>
+    <button id="action-move" class="circle-button right" aria-label="Crossover or spin"><span>CROSS</span><small>/ SPIN</small></button>
+    <button id="action-fourth" class="circle-button bottom" aria-label="Sprint"><span>SPRINT</span><small>HOLD</small></button>
+   </div>
+   <div id="control-phase">OFFENSE &gt;</div>
   </div>
  </div>
  <section id="dialog" class="screen modal" hidden>
@@ -52,6 +60,7 @@
  <div id="rotate-hint">&#8635; TURN SIDEWAYS FOR THE BIG COURT</div>
 </main>
 <script src="../../js/storage.js"></script>
+<script src="art.js"></script>
 <script src="game.js"></script>
 <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('../../sw.js', {scope:'../../'}).catch(()=>{});</script>
 </body>
