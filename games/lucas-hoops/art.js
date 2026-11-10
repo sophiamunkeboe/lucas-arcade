@@ -34,12 +34,18 @@ function face(c,p,x=0,y=0,scale=1){
  c.restore();
 }
 function sprite(c,p,x,y,scale=.65,time=0,selected=false){
- const speed=Math.hypot(p.vx||0,p.vy||0),swing=speed>12?Math.sin(p.walk||0)*6:0;
+ const speed=Math.hypot(p.vx||0,p.vy||0),dribble=Number.isFinite(p.dribblePose),swing=dribble?Math.sin(p.dribblePose*2)*2:speed>12?Math.sin(p.walk||0)*6:0;
  c.save();c.translate(Math.round(x),Math.round(y));c.scale(scale,scale);
  if(p.spin>0)c.scale(Math.cos(p.spin*14)*.5+.65,1);
  const skin=p.skin||'#e5b691',shade=p.shade||'#bc8768',ours=p.team===0;
+ if(dribble){
+  // Intro-only wide stance: a clear lane for the ball to cross between his legs.
+  path(c,[[-8,-27],[-17,-16],[-21,-5]],shade,9);path(c,[[8,-27],[17,-16],[21,-5]],skin,9);
+  box(c,-25,-9,8,6,'#f7e9d5');box(c,17,-9,8,6,'#f7e9d5');box(c,-28,-5,15,5,'#181125');box(c,15,-5,15,5,'#181125');box(c,-28,-5,14,2,'#c295e0');box(c,15,-5,14,2,'#c295e0');
+ }else{
  box(c,-12,-25,8,15+swing,shade);box(c,4,-25,8,15-swing,skin);box(c,-12,-11+swing,8,7,'#f7e9d5');box(c,4,-11-swing,8,7,'#f7e9d5');
  box(c,-15,-5+swing,14,5,'#161225');box(c,2,-5-swing,15,5,'#161225');box(c,-15,-5+swing,13,2,ours?'#c295e0':'#bde4ed');box(c,2,-5-swing,14,2,ours?'#c295e0':'#bde4ed');
+ }
  box(c,-15,-34,30,12,ours?'#1c182a':'#234b7b');box(c,-15,-34,5,13,ours?'#7042a5':'#78bcd0');box(c,10,-34,5,13,ours?'#7042a5':'#78bcd0');box(c,-15,-24,30,2,'#f09b40');
  box(c,-15,-58,30,26,'#151421');box(c,-12,-56,24,23,ours?'#17151e':'#347ca9');box(c,-14,-55,5,23,ours?'#7042a5':'#a8dde4');box(c,10,-55,4,23,ours?'#7042a5':'#a8dde4');
  path(c,[[-10,-56],[-6,-53],[6,-53],[11,-56]],ours?'#f59b38':'#dceef4',3);box(c,-13,-34,27,2,ours?'#f59b38':'#dceef4');
@@ -47,7 +53,9 @@ function sprite(c,p,x,y,scale=.65,time=0,selected=false){
  if(ours){box(c,-4,-51,8,3,'#f5a24a');box(c,-6,-49,12,2,'#f5a24a');box(c,-1,-54,2,2,'#f5a24a');box(c,-8,-52,2,2,'#f5a24a');box(c,7,-52,2,2,'#f5a24a');}
  txt(c,String(p.number||1),1,-40,9,'#f7ead8','center',false);
  const arms=p.z>10||p.charging||p.plant>0;
- if(arms){box(c,-21,-72,7,25,shade);box(c,-21,-76,10,7,skin);box(c,15,-70,7,25,skin);box(c,13,-76,10,8,skin);}
+ if(dribble){const side=Math.cos(p.dribblePose),handY=-23+Math.abs(Math.sin(p.dribblePose))*8;path(c,[[-17,-50],[-22,-35],[-12+side*10,handY]],shade,7);path(c,[[17,-50],[23,-35],[12+side*10,handY]],skin,7);}
+ else if(p.introDunk){path(c,[[-17,-52],[-23,-75],[-17,-101]],shade,7);box(c,-22,-106,10,7,skin);path(c,[[17,-51],[23,-80],[18,-105]],skin,7);box(c,14,-110,10,8,skin);}
+ else if(arms){box(c,-21,-72,7,25,shade);box(c,-21,-76,10,7,skin);box(c,15,-70,7,25,skin);box(c,13,-76,10,8,skin);}
  else{box(c,-20,-53,7,24+swing*.3,shade);box(c,14,-53,7,21-swing*.3,skin);box(c,15,-35-swing*.3,9,6,skin);}
  box(c,-5,-65,12,9,shade);face(c,p,0,-62,1);c.restore();
 }
@@ -106,9 +114,9 @@ function arena(c,g,time,menu=false){
  box(c,386,94,188,22,'#1e102b');const score=g?g.score:[0,0],seconds=Math.ceil(g?.time??90),clock=`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
  txt(c,`${score[0]}  ${clock}  ${score[1]}`,480,105,11,'#f9bd69');
 }
-function hoop(c,x,net=0){
- const base=project(CY),r=base-RIMZ,dir=x<480?-1:1;
- box(c,x+dir*43-4,r-27,9,RIMZ+27,'#151326');box(c,x+dir*43-3,r-25,3,RIMZ+24,'#b4a1b6');box(c,x+dir*39-9,base,26,7,'#151322');
+function hoop(c,x,net=0,rimHeight=RIMZ){
+ const base=project(CY),r=base-rimHeight,dir=x<480?-1:1;
+ box(c,x+dir*43-4,r-27,9,rimHeight+27,'#151326');box(c,x+dir*43-3,r-25,3,rimHeight+24,'#b4a1b6');box(c,x+dir*39-9,base,26,7,'#151322');
  path(c,[[x+dir*44,r-29],[x+dir*25,r-35]],'#aa94ae',5);
  box(c,x+dir*26-3,r-49,7,63,'#d8def0');box(c,x+dir*26,r-45,2,54,'#a487b4');
  const pulse=Math.sin(net*20)*net*4;

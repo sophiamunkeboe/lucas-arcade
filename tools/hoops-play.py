@@ -18,7 +18,7 @@ with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/google-chrome',headless=True,args=['--no-sandbox','--headless=new'])
  context=browser.new_context(viewport={'width':1280,'height':720},device_scale_factor=1)
  page=context.new_page();page.on('pageerror',lambda e:errors.append('page: '+str(e)));page.on('console',lambda m:errors.append(m.text) if m.type=='error' else None)
- page.goto(BASE+'/games/lucas-hoops/');page.evaluate('document.fonts.ready');page.wait_for_timeout(250)
+ page.goto(BASE+'/games/lucas-hoops/');page.wait_for_function("HOOPS.scene==='menu'");page.evaluate('document.fonts.ready');page.wait_for_timeout(250)
  page.screenshot(path=str(OUT/'v2-menu.png'))
  if '--live' not in sys.argv:page.locator('.brand').screenshot(path=str(ROOT/'games/lucas-hoops/thumb.png'))
  page.click('#player-card');page.screenshot(path=str(OUT/'v2-lucas-closeup.png'));page.get_by_role('button',name='BACK TO THE TEAM').click()

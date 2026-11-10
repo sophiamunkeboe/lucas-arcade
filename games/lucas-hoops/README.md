@@ -23,13 +23,24 @@ Lucas is a teen-inspired pixel captain with light skin, brown hair, a cream cap 
 
 The four thin pixel-ring buttons accept separate pointer IDs, so movement and action buttons work simultaneously. Touch cancellation, lost capture and hiding the page clear held inputs safely. Scores/settings remain on the device and existing v1 records are retained.
 
+
+## Opening cinematic (v15)
+
+A real **7.4-second canvas intro** runs before the menu: sweeping purple/orange lights and a presenting title; three synchronized between-the-legs dribbles; a tracked sprint; a slow-motion, flaming-ball dunk; rim/net/screen shake, sparks and crowd roar; and a logo slam with a bass drop, shockwave, embers and camera flashes. It uses the same Lucas cap/face/jersey renderer as gameplay, plus intro-only dribbling and overhead dunk poses.
+
+Tap anywhere or press Space/Enter/Escape to skip; skipping stops the cinematic audio immediately. Later visits in the same tab/session play a **2.6-second** highlight version. **Replay Intro** on the menu always replays the full version. Hidden tabs freeze the intro; reduced-motion preferences reduce camera movement/shake.
+
+Sound uses synthesized Web Audio and the game's saved sound setting. Browsers can block first-visit autoplay audio: **Tap for Sound** enables it without skipping the animation. **Sound Off** is honored, including a true master mute for already-playing sounds. Replaying from a menu tap can play the whole soundtrack. There are no downloaded video/audio files, extra animation loops or remote assets.
+
+`python3 tools/hoops-intro-play.py` checks full playback and all three dribbles, real audio enable, mute, pointer/keyboard skip, session shortening, offline first-view playback, game handoff, and phone touch/performance. Screenshots: `screens/intro-dribble.png`, `intro-dunk.png`, `intro-logo-slam.png`. `--live` targets production; HOOPS_SCREEN_DIR keeps production images outside the checkout.
+
 ## Arena and rendering
 
 Wide, fixed full-court oblique 2D view with smaller players and real X/Y movement. Static light-maple parquet, purple paint, black/purple baselines, an original orange pixel sun-ball at center, invented retired numbers, orange LED decks and a dense dark crowd are cached into one canvas. A four-sided orange video cube displays score/clock, with deterministic camera-flash twinkles and original pixel crowd faces. The same arena is the menu intro background.
 
 Ball simulation uses X/Y/Z gravity, a backboard plane, toroidal rim collision, rebounds, passes and jump-height blocks. Simulation substeps at 120 Hz; rendering remains one animation frame. AI spreads to wings, cuts to the basket, marks opponents, helps on drives, rebounds and passes to open teammates.
 
-Synthesized dribble, rim, swish, buzzer, steal and cheer sounds need only the first tap to unlock Web Audio. Root service worker **lucas-arcade-v14** caches the folder URL, HTML, JS, CSS, font and thumbnail for standalone offline use after the first complete load.
+Synthesized dribble, rim, swish, buzzer, steal and cheer sounds need only the first tap to unlock Web Audio. Root service worker **lucas-arcade-v15** caches the folder URL, HTML, JS, CSS, font and thumbnail for standalone offline use after the first complete load.
 
 ## Tests
 

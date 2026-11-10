@@ -11,28 +11,28 @@ let settings=read('lucasHoops.settings.v1',{sound:true,difficulty:0});
 settings.difficulty=clamp(Number(settings.difficulty)||0,0,2);
 let records=read('lucasHoops.records.v1',{shootout:0,quick:0,wins:0});
 const levels=['ROOKIE','BALLER','ALL-STAR'];
-let audio,t=0,scene='menu',state=null,last=0,flash=0,shake=0,lastPhase='';
+let audio,master,intro,t=0,scene='intro',state=null,last=0,flash=0,shake=0,lastPhase='';
 const keys={left:false,right:false,up:false,down:false,sprint:false};
 const stick={id:null,x:0,y:0,ox:0,oy:0},pointers=new Map();
 let chargeHeld=false,sprintHeld=false,particles=[],messages=[];
 const noiseData=new Float32Array(22050);for(let i=0;i<noiseData.length;i++)noiseData[i]=Math.random()*2-1;
 function unlock(){
  if(!settings.sound)return;
- try{if(!audio)audio=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume().catch(()=>{});}catch(_){}
+ try{if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.connect(audio.destination);}master.gain.setValueAtTime(settings.sound?1:0,audio.currentTime);if(audio.state==='suspended')audio.resume().catch(()=>{});}catch(_){}
 }
 function tone(freq,duration,vol=.08,type='triangle',end=freq){
  if(!settings.sound||!audio||audio.state!=='running')return;
  const o=audio.createOscillator(),g=audio.createGain(),now=audio.currentTime;
  o.type=type;o.frequency.setValueAtTime(freq,now);o.frequency.exponentialRampToValueAtTime(Math.max(end,20),now+duration);
  g.gain.setValueAtTime(vol,now);g.gain.exponentialRampToValueAtTime(.001,now+duration);
- o.connect(g);g.connect(audio.destination);o.start();o.stop(now+duration);
+ o.connect(g);g.connect(master);o.start();o.stop(now+duration);
 }
 function hiss(duration,vol=.08,freq=1800){
  if(!settings.sound||!audio||audio.state!=='running')return;
  const b=audio.createBuffer(1,noiseData.length,22050);b.copyToChannel(noiseData,0);
  const s=audio.createBufferSource(),g=audio.createGain(),f=audio.createBiquadFilter();s.buffer=b;s.loop=true;f.type='bandpass';f.frequency.value=freq;f.Q.value=.7;
  const now=audio.currentTime;g.gain.setValueAtTime(vol,now);g.gain.exponentialRampToValueAtTime(.001,now+duration);
- s.connect(f);f.connect(g);g.connect(audio.destination);s.start();s.stop(now+duration);
+ s.connect(f);f.connect(g);g.connect(master);s.start();s.stop(now+duration);
 }
 function sound(name){
  if(name==='dribble')tone(145,.075,.10,'sine',47);
@@ -291,6 +291,7 @@ function physics(dt){
 function update(dt){
  t+=dt;flash=Math.max(0,flash-dt);shake=Math.max(0,shake-dt*28);
  particles=particles.filter(p=>(p.life-=dt)>0);for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=350*dt;}messages=messages.filter(m=>(m.life-=dt)>0);
+ if(scene==='intro'){if(!document.hidden)intro?.update(dt);refreshIntroSound();return;}
  if(scene!=='play'||!state)return;const g=state;
  if(!g.buzzer){g.time=Math.max(0,g.time-dt);if(!g.time){g.buzzer=true;chargeHeld=false;controlled().charging=false;sound('buzzer');pop('BUZZER!','#ffcd91',1.1);if(g.ball.owner||!g.ball.shot){finish();return;}}}
  else{g.overWait+=dt;if(g.overWait>4){finish();return;}}
@@ -304,6 +305,7 @@ function update(dt){
 }
 function render(){
  ctx.imageSmoothingEnabled=false;
+ if(scene==='intro'){if(intro)intro.draw(ctx);return;}
  if(scene==='menu'){A.arena(ctx,null,t,true);ctx.fillStyle='#110d2bbf';ctx.fillRect(0,0,W,H);return;}
  const g=state;A.arena(ctx,g,t);if(!g)return;
  ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
@@ -328,7 +330,7 @@ function dialog(title,body,actions,kicker='LOCKER ROOM'){
  $('dialog-title').textContent=title;$('dialog-body').innerHTML=body;$('dialog-actions').innerHTML='';$('dialog-kicker').textContent=kicker;
  for(const [label,fn,orange] of actions){const b=document.createElement('button');b.className='menu-btn'+(orange?' orange':'');b.textContent=label;b.onclick=()=>{unlock();sound('click');fn();};$('dialog-actions').appendChild(b);}$('dialog').hidden=false;
 }
-function showMenu(){clearInput();scene='menu';$('main-menu').hidden=false;$('play-ui').hidden=true;$('dialog').hidden=true;$('menu-best').textContent=records.shootout;}
+function showMenu(){clearInput();scene='menu';if($('intro-ui'))$('intro-ui').hidden=true;$('main-menu').hidden=false;$('play-ui').hidden=true;$('dialog').hidden=true;$('menu-best').textContent=records.shootout;}
 function quickMenu(){
  unlock();sound('click');dialog('SQUAD UP.',`<p>Lucas runs point for the <b>Sunburst</b>. Nova and Enzo join him in 3v3; Rio and Jett complete the five.</p><div class="match-options"><button id="mode-1" class="menu-btn">1v1<small>SOLO DUEL</small></button><button id="mode-3" class="menu-btn orange">3v3<small>QUICK GAME</small></button><button id="mode-5" class="menu-btn">5v5<small>FULL SQUAD</small></button></div><p class="muted-note">90 seconds. 14-second shot clock. You attack the RIGHT hoop. Every mode works offline.</p>`,[['BACK',showMenu]],'QUICK GAME');
  for(const n of [1,3,5])$('mode-'+n).onclick=()=>start('quick',n);
@@ -347,7 +349,7 @@ function finish(){
 function pause(){
  if(scene!=='play')return;scene='paused';clearInput();dialog('TIME OUT',`<p>The clock is stopped.</p><p><b>Tip:</b> Aim the joystick toward a teammate and tap Pass. On defense, Switch finds another defender. Plant with Charge before the attacker reaches you.</p>`,[['BACK TO THE COURT',()=>{scene='play';$('dialog').hidden=true;last=performance.now();},true],['MAIN MENU',showMenu]],'GAME PAUSED');
 }
-function refreshSound(){$('mute').textContent=settings.sound?'SFX ON':'SFX OFF';$('mute').setAttribute('aria-pressed',String(!settings.sound));}
+function refreshSound(){if(master&&audio)master.gain.setValueAtTime(settings.sound?1:0,audio.currentTime);$('mute').textContent=settings.sound?'SFX ON':'SFX OFF';$('mute').setAttribute('aria-pressed',String(!settings.sound));}
 function settingsDialog(){
  dialog('YOUR GAME. YOUR RULES.',`<div class="setting-row"><span>SOUND</span><button id="sound-setting">${settings.sound?'ON':'OFF'}</button></div><div class="setting-row"><span>DIFFICULTY</span><button id="difficulty-setting">${levels[settings.difficulty]}</button></div><p>Rookie = relaxed defense + a bigger timing window. Baller and All-Star pick up the pressure.</p><p class="muted-note">No accounts or downloads. Scores stay on this device.</p>`,[['DONE',showMenu]],'SETTINGS');
  $('sound-setting').onclick=()=>{settings.sound=!settings.sound;save('lucasHoops.settings.v1',settings);unlock();refreshSound();settingsDialog();};$('difficulty-setting').onclick=()=>{settings.difficulty=(settings.difficulty+1)%3;save('lucasHoops.settings.v1',settings);settingsDialog();};
@@ -375,13 +377,27 @@ function releaseStick(e){if(stick.id!==e.pointerId)return;stick.id=null;stick.x=
 zone.addEventListener('pointerup',releaseStick);zone.addEventListener('pointercancel',releaseStick);zone.addEventListener('lostpointercapture',releaseStick);
 const movement={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down'};
 window.addEventListener('keydown',e=>{
+ if(scene==='intro'&&['Space','Enter','Escape','KeyP'].includes(e.code)){e.preventDefault();intro?.skip();return;}
  if(scene!=='menu'&&[...Object.keys(movement),'Space','KeyJ','KeyE','KeyK','KeyQ','KeyR','Tab','Escape','KeyP','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();
  if(e.repeat)return;unlock();if(e.code==='Escape'||e.code==='KeyP'){if(scene==='play')pause();else if(scene==='paused'){scene='play';$('dialog').hidden=true;}return;}if(scene!=='play')return;
  if(movement[e.code])keys[movement[e.code]]=true;if(['Space','KeyJ'].includes(e.code))beginPrimary();if(['KeyE','KeyK'].includes(e.code))secondary();if(e.code==='KeyQ')cross();if(['KeyR','Tab'].includes(e.code))switchPlayer();if(e.code.startsWith('Shift'))keys.sprint=true;
 });
 window.addEventListener('keyup',e=>{if(movement[e.code])keys[movement[e.code]]=false;if(['Space','KeyJ'].includes(e.code))releasePrimary();if(e.code.startsWith('Shift'))keys.sprint=false;});
 window.addEventListener('blur',()=>{if(scene==='play')pause();clearInput();});document.addEventListener('visibilitychange',()=>{if(document.hidden){if(scene==='play')pause();if(audio)audio.suspend().catch(()=>{});}else last=performance.now();});window.addEventListener('contextmenu',e=>e.preventDefault());
-window.HOOPS={get state(){return state;},get scene(){return scene;},get input(){return{x:stick.x,y:stick.y};}};
+window.HOOPS={get state(){return state;},get scene(){return scene;},get input(){return{x:stick.x,y:stick.y};},get intro(){return intro?.snapshot||null;}};
+function beginIntro(replay=false){
+ // A cache-first v14 tab can briefly mix old HTML and new JS during an update.
+ if(!window.HoopsIntro||!$('intro-ui')){showMenu();return;}
+ clearInput();scene='intro';$('main-menu').hidden=true;$('dialog').hidden=true;$('play-ui').hidden=true;$('intro-ui').hidden=false;
+ intro=window.HoopsIntro.create({art:A,player:homeRoster[0],audio:{enabled:()=>!!settings.sound,ready:()=>!!audio&&audio.state==='running',sound,tone,hiss},onDone:result=>{if(result.skipped&&audio){const old=audio;audio=master=null;old.close().catch(()=>{});}showMenu();},replay});
+ if(navigator.userActivation?.hasBeenActive)unlock();refreshIntroSound();
+}
+function refreshIntroSound(){const el=$('intro-sound');if(!el)return;const ready=!!audio&&audio.state==='running',label=!settings.sound?'SOUND OFF':ready?'SOUND ON':'TAP FOR SOUND';if(el.textContent!==label)el.textContent=label;const pressed=String(settings.sound&&ready);if(el.getAttribute('aria-pressed')!==pressed)el.setAttribute('aria-pressed',pressed);}
+$('stage').addEventListener('pointerdown',e=>{if(scene==='intro'&&!e.target.closest('#intro-sound')){e.preventDefault();intro?.skip();}});
+if($('intro-skip'))$('intro-skip').onclick=()=>{if(scene==='intro')intro?.skip();};
+$('intro-sound')?.addEventListener('pointerdown',e=>e.stopPropagation());
+if($('intro-sound'))$('intro-sound').onclick=e=>{e.stopPropagation();if(settings.sound&&audio?.state==='running'){settings.sound=false;}else{settings.sound=true;unlock();}save('lucasHoops.settings.v1',settings);refreshSound();refreshIntroSound();};
+if($('replay-intro'))$('replay-intro').onclick=()=>{unlock();beginIntro(true);};
 function menuArt(){A.rebuild();A.logo();A.portrait($('menu-player').getContext('2d'),{...homeRoster[0],team:0},72,84);}
-Promise.all([document.fonts.load('12px Pixel'),document.fonts.ready]).then(menuArt);menuArt();showMenu();refreshSound();requestAnimationFrame(frame);
+Promise.all([document.fonts.load('12px Pixel'),document.fonts.ready]).then(menuArt);menuArt();beginIntro();refreshSound();requestAnimationFrame(frame);
 })();

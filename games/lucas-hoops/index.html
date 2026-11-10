@@ -13,7 +13,7 @@
 <body>
 <main id="stage">
  <canvas id="court" width="960" height="540" aria-label="Pixel basketball court"></canvas>
- <section id="main-menu" class="screen">
+ <section id="main-menu" class="screen" hidden>
   <div class="ticker"><div>MAIN MENU &nbsp; + &nbsp; LUCAS'S ARCADE &nbsp; + &nbsp; MAKE SOME NOISE &nbsp; + &nbsp; MAIN MENU &nbsp; + &nbsp; LUCAS'S ARCADE &nbsp; + &nbsp; MAKE SOME NOISE &nbsp; + &nbsp;</div></div>
   <div class="menu-layout">
    <div class="brand">
@@ -30,10 +30,15 @@
     <button id="shootout" class="menu-btn orange"><span class="icon">&#9733;</span><span>SHOOTOUT<small>60 SECONDS. ALL THREES.</small></span><i>&gt;</i></button>
     <div class="split"><button id="how" class="menu-btn compact"><span class="icon">?</span><span>HOW TO PLAY</span></button><button id="settings" class="menu-btn compact"><span class="icon">&#9776;</span><span>SETTINGS</span></button></div>
     <a class="arcade-link" href="../../index.html">&lt; BACK TO THE ARCADE</a>
+    <button id="replay-intro" class="replay-link">&#9654; REPLAY INTRO</button>
    </nav>
   </div>
-  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.0 &nbsp; / &nbsp; SQUAD UP</span></footer>
+  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.1 &nbsp; / &nbsp; SUNBURST INTRO</span></footer>
  </section>
+ <div id="intro-ui" aria-label="Lucas Hoops opening cinematic">
+  <button id="intro-skip" aria-label="Skip intro">TAP ANYWHERE TO SKIP &gt;</button>
+  <button id="intro-sound" aria-label="Enable intro sound">TAP FOR SOUND</button>
+ </div>
  <div id="play-ui" hidden>
   <button id="pause" class="mini-btn" aria-label="Pause game">II</button>
   <button id="mute" class="mini-btn" aria-label="Toggle sound">SFX ON</button>
@@ -61,6 +66,7 @@
 </main>
 <script src="../../js/storage.js"></script>
 <script src="art.js"></script>
+<script src="intro.js"></script>
 <script src="game.js"></script>
 <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('../../sw.js', {scope:'../../'}).catch(()=>{});</script>
 </body>
