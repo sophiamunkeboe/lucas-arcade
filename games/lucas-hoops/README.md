@@ -10,8 +10,9 @@
 - Stamina and substitutions (SUB button / timeouts open the sub screen at the next whistle; CPU auto-subs).
 - 30-second overtime, repeating (OT, OT2...).
 - Online rooms with 4-letter codes over the Poker game's Supabase Realtime broadcast (`net.js`; host-authoritative, 15 Hz snapshots).
+- **My Court:** a fifth court you paint yourself (`paint.js`): top-down painter with brush sizes, palette, eraser, fill, undo and star/flame/LH/sun stamps; saved on the phone as a small PNG and drawn on the floor under the lines with the floor projection. Not shared online (guests fall back to Sunburst). Test: `python3 tools/hoops-paint.py`.
 - Graphics polish: 2x crisp pixels, run/jump/dribble animation, ball trail/squash, floor light pools, rim flare, vignette, LED ribbon, wipes and fades.
-- Service worker **lucas-arcade-v17** adds `net.js`. Tests: `python3 tools/hoops-v23.py [sections]`.
+- Service worker **lucas-arcade-v17** adds `net.js` and `paint.js`. Tests: `python3 tools/hoops-v23.py [sections]`.
 
 ## Earlier (v2.2 — Sunburst Pep Rally)
 

@@ -96,6 +96,7 @@ const FILES = [
   './games/lucas-hoops/audio.js',
   './games/lucas-hoops/lights.js',
   './games/lucas-hoops/net.js',
+  './games/lucas-hoops/paint.js',
   './games/lucas-hoops/pixel.woff2',
   './games/lucas-hoops/thumb.png',
   './js/vendor/supabase.js',

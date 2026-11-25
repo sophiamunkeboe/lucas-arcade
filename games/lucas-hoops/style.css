@@ -60,3 +60,26 @@ body{--available-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-in
 .room-code{font-size:6cqw;letter-spacing:1.5cqw;color:#ffd173;text-align:center;text-shadow:4px 4px #17234e;margin:1cqw 0}.code-input{display:block;margin:1cqw auto;width:60%;font:3.6cqw Pixel,monospace;letter-spacing:1.4cqw;text-align:center;text-transform:uppercase;background:#0b2457;color:#ffd173;border:3px solid #72a8ff;border-radius:.6cqw;padding:.8cqw;touch-action:manipulation;-webkit-user-select:text;user-select:text}
 #stage.two-player #pause{top:17%!important;bottom:auto!important;right:2%}
 .trophy-wrap .score-big{font-size:4.2cqw;white-space:nowrap;line-height:1.1}.trophy-wrap canvas{width:12cqw;height:12.5cqw}.trophy-wrap p{margin:.5cqw 0}.dialog-card .bracket{margin:.6cqw 0}
+
+/* My Court painter */
+.theme-grid{grid-template-columns:1fr 1fr 1fr}
+#paint{z-index:60;background:#0b1530;display:flex;flex-direction:column;padding:1cqw 1.4cqw;gap:.8cqw;color:#e4eeff;touch-action:none}
+.paint-head{display:flex;align-items:baseline;gap:1.5cqw;font-size:1.6cqw;color:#ffd173}.paint-head small{font-size:.9cqw;color:#9fbdf0}
+.paint-main{flex:1;display:flex;gap:1.2cqw;min-height:0;align-items:flex-start}
+#paint-canvas{width:70cqw;aspect-ratio:864/416;image-rendering:pixelated;border:3px solid #72a8ff;touch-action:none;cursor:crosshair;background:#dfbe8d}
+.paint-tools{flex:1;display:flex;flex-direction:column;gap:.7cqw}
+.paint-row{display:flex;gap:.5cqw}.paint-row button{flex:1;min-height:4.4cqw;font:1cqw Pixel,monospace;color:#e4eeff;background:#163a80;border:2px solid #3d68b8;border-radius:.5cqw}
+.paint-row button.on{background:#fc8d25;border-color:#ffd173;color:#241033}.paint-row button:disabled{opacity:.4}
+.paint-row button.go{background:#2f9a55;border-color:#8fe3a8}.paint-row.stamps button{font-size:.85cqw}
+.paint-palette{display:grid;grid-template-columns:repeat(7,1fr);gap:.4cqw}.paint-palette button{aspect-ratio:1;border:2px solid #0b1530;border-radius:.3cqw;min-height:0}
+.paint-palette button.on{outline:3px solid #fff;outline-offset:-1px;transform:scale(1.08)}
+@media(orientation:portrait){
+ #stage:has(#paint){overflow:visible}
+ #paint{inset:auto;left:0;width:100%;top:calc((56.25vw - 100dvh) / 2);height:100dvh;padding:calc(env(safe-area-inset-top) + 4cqw) 3cqw 4cqw;gap:3cqw;overflow:auto}
+ .paint-head{flex-direction:column;gap:1cqw;font-size:4.4cqw}.paint-head small{font-size:2.6cqw}
+ .paint-main{flex-direction:column;align-items:stretch;gap:3cqw;flex:none}
+ #paint-canvas{width:100%}
+ .paint-tools{gap:2cqw}.paint-row{gap:1.6cqw}.paint-row button{min-height:11cqw;font-size:2.8cqw;border-radius:1.4cqw}.paint-row.stamps button{font-size:2.6cqw}
+ .paint-palette{gap:1.6cqw}.paint-palette button{border-radius:1cqw}
+}
+body:has(#paint) #rotate-hint{display:none}

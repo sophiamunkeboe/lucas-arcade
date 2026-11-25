@@ -141,9 +141,14 @@ pep band and party lights. New in v2.3:
 - **Overtime:** tied at the buzzer means 30 seconds of overtime, repeated until somebody wins (OT, OT2...).
 - **Online rooms:** ONLINE on the menu: host gets a 4-letter code, a friend on another phone types it to join (1v1, 3v3 or 5v5).
   Uses the same free Supabase Realtime backend as Poker (no new services); needs internet on both phones.
+- **My Court (paint your own floor):** COURT > PAINT MY COURT (or tap the MY COURT card) opens a top-down painter with faint
+  court lines: pixel brush (S/M/L), 14-color palette, eraser, fill bucket, undo, clear, and stamps (star, flame, LH badge,
+  Sunburst sun). SAVE stores it on this phone only (a ~2 KB PNG in localStorage) and picks it as the fifth court. The design is
+  laid on the slanted floor with the same floor projection as the game, under the paint and lines. Looks only; it is never
+  sent online (an online guest sees Sunburst Arena when the host plays on My Court).
 - **Graphics polish:** crisp 2x pixels on sharp screens, run/jump/dribble animations, ball shading, trail and squash,
   floor light pools, rim flare, LED ribbon boards, vignette and smoother screen transitions.
-- Tests: `python3 tools/hoops-play.py` (core game) and `python3 tools/hoops-v23.py [intro themes ot ft subs power tourney 2p online others]`.
+- Tests: `python3 tools/hoops-play.py` (core game) and `python3 tools/hoops-v23.py [intro themes ot ft subs power tourney 2p online others]` and `python3 tools/hoops-paint.py` (My Court painter).
   More detail in `games/lucas-hoops/README.md`.
 
 ## How it's built

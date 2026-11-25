@@ -95,6 +95,9 @@ const THEMES={
  street:{name:'STREET COURT',sub:'OUTDOOR / SUNSET',sky:['#2a1a4a','#c2557a','#ff9e57'],rafter:null,banner:null,glow:'#ffcf7a33',ribbon:null,rail:['#55525c','#8b8794','#efe6d2'],railText:['NO DUNKING? JK.','LUCAS HOOPS PARK'],apron:['#26242c','#3b3944'],floor:['#4b4b57','#52525e','#474753','#565662','#4e4e5a'],sheen:'#ffffff12',edge:['#34323c','#302e38'],paint:'#2e6b9e',line:'#f4f4f0',center:'sun',base:['C I T Y   C O U R T','#ffd36b'],under:['#24222a','#141218'],crowd:'fence',planks:false},
  neon:{name:'RETRO NEON',sub:'ARCADE NIGHT',sky:['#05010c','#1a0630','#2a0a40'],rafter:['#ff4bd855','#3ff3ff33'],banner:['#0b0316','#2a0a40','#ff4bd8','#3ff3ff','#c88cff'],glow:'#ff4bd833',ribbon:['#ff4bd8','#ffd0f4','#2a0130'],seatsA:['#1a0b2a','#22103a','#160924','#2a1240','#120720'],seatsB:['#ff4bd8','#3ff3ff','#3a1a55','#2a1240'],rail:['#12041f','#3ff3ff','#ff9cf0'],railText:['INSERT COIN','NEON NIGHT'],apron:['#05010c','#1f0835'],floor:['#140a26','#170b2b','#120822','#180c2e','#150a28'],sheen:'#ff4bd826',edge:['#2a0a40','#24083a'],paint:'#3a0f4f',line:'#3ff3ff',center:'neon',base:['R E T R O   N E O N','#ff8bf0'],under:['#14042a','#05010c'],crowd:'seats',grid:true}
 };
+// "My Court": the Sunburst arena with the player's own painted floor (paint.js). Cosmetic only.
+THEMES.custom={...THEMES.sunburst,name:'MY COURT',sub:'PAINTED BY YOU',paint:'#67439238',center:'none',base:['M Y   C O U R T','#f2a052'],railText:['MAKE SOME NOISE','MY COURT'],custom:true};
+let customLayer=null;function setCustom(cv){customLayer=cv||null;}
 let themeKey='sunburst';
 function owlMark(c,x,y,r){
  c.save();c.translate(x,y);box(c,-r*.8,-r*.75,r*1.6,r*1.5,'#1d5875');box(c,-r*.95,-r*.95,r*.45,r*.45,'#1d5875');box(c,r*.5,-r*.95,r*.45,r*.45,'#1d5875');
@@ -142,13 +145,15 @@ function rebuild(key){
  c.save();c.translate(0,TOP);c.scale(1,DEPTH);
  if(T.grid){c.strokeStyle='#ff4bd855';c.lineWidth=1;for(let x=48;x<=912;x+=36){c.beginPath();c.moveTo(x,40);c.lineTo(x,454);c.stroke();}for(let y=40;y<=454;y+=36){c.beginPath();c.moveTo(48,y);c.lineTo(912,y);c.stroke();}}
  box(c,32,22,896,16,T.edge[0]);box(c,32,457,896,18,T.edge[0]);box(c,32,22,15,450,T.edge[1]);box(c,913,22,15,450,T.edge[1]);
+ // Painted design: flat court cells drawn through the same floor transform (x, TOP+y*DEPTH), under paint + lines.
+ if(T.custom&&customLayer){c.imageSmoothingEnabled=false;c.drawImage(customLayer,48,40,864,414);}
  box(c,48,CY-90,146,180,T.paint);box(c,766,CY-90,146,180,T.paint);
  if(T.grid){c.shadowColor=T.line;c.shadowBlur=8;}
  c.strokeStyle=T.line;c.lineWidth=2;c.strokeRect(48,40,864,414);c.strokeRect(48,CY-90,146,180);c.strokeRect(766,CY-90,146,180);
  c.save();c.beginPath();c.rect(48,40,864,414);c.clip();c.beginPath();c.arc(194,CY,62,-Math.PI/2,Math.PI/2);c.stroke();c.beginPath();c.arc(766,CY,62,Math.PI/2,Math.PI*1.5);c.stroke();
  c.beginPath();c.arc(83,CY,265,-Math.PI/2,Math.PI/2);c.stroke();c.beginPath();c.arc(877,CY,265,Math.PI/2,Math.PI*1.5);c.stroke();
  c.restore();path(c,[[480,40],[480,454]],T.line,2);c.beginPath();c.arc(480,CY,67,0,Math.PI*2);c.stroke();c.shadowBlur=0;
- if(T.center==='owl')owlMark(c,480,CY,40);else if(T.center==='neon'){c.strokeStyle='#ff4bd8';c.lineWidth=3;c.beginPath();c.arc(480,CY,50,0,Math.PI*2);c.stroke();sun(c,480,CY,36);}else sun(c,480,CY,42);
+ if(T.center==='owl')owlMark(c,480,CY,40);else if(T.center==='neon'){c.strokeStyle='#ff4bd8';c.lineWidth=3;c.beginPath();c.arc(480,CY,50,0,Math.PI*2);c.stroke();sun(c,480,CY,36);}else if(T.center!=='none')sun(c,480,CY,42);
  c.restore();txt(c,T.base[0],480,459,12,T.base[1]);
  const floorGlow=c.createLinearGradient(0,475,0,540);floorGlow.addColorStop(0,T.under[0]);floorGlow.addColorStop(1,T.under[1]);c.fillStyle=floorGlow;c.fillRect(0,476,W,64);
 }
@@ -263,5 +268,5 @@ function logo(){
  path(c,[[104,117],[256,117]],'#ffb358',7);
  c.fillStyle='#ffe5a9';c.beginPath();c.moveTo(252,44);c.lineTo(226,91);c.lineTo(250,91);c.lineTo(226,135);c.lineTo(280,78);c.lineTo(257,78);c.lineTo(272,44);c.fill();
 }
-rebuild();return{W,H,TOP,DEPTH,CY,RIMZ,KITS,THEMES,get theme(){return themeKey;},kit,setRes,flame,pickup,trophy,ftMeter,get RES(){return RES;},project,box,path,txt,dot,sun,face,sprite,portrait,rebuild,arena,hoop,player,ball,lineup,bug,meter,logo};
+rebuild();return{W,H,TOP,DEPTH,CY,RIMZ,KITS,THEMES,get theme(){return themeKey;},kit,setRes,setCustom,flame,pickup,trophy,ftMeter,get RES(){return RES;},project,box,path,txt,dot,sun,face,sprite,portrait,rebuild,arena,hoop,player,ball,lineup,bug,meter,logo};
 })();

@@ -19,6 +19,9 @@ let settings=read('lucasHoops.settings.v1',{sound:true,difficulty:0});
 settings.difficulty=clamp(Number(settings.difficulty)||0,0,2);settings.sound=settings.sound!==false;settings.music=settings.music!==false;
 settings.powerups=settings.powerups!==false;settings.autoSubs=settings.autoSubs===true;if(!A.THEMES[settings.theme])settings.theme='sunburst';
 A.setRes(RES);A.rebuild(settings.theme);
+// My Court: load the painted floor saved on this phone (never shared online).
+const P=window.HoopsPaint;if(P){A.setCustom(P.layer);P.load(ok=>{if(!ok&&settings.theme==='custom'){settings.theme='sunburst';}if(A.theme===settings.theme||settings.theme==='custom')A.rebuild(settings.theme);});}else if(settings.theme==='custom')settings.theme='sunburst';
+const netTheme=()=>settings.theme==='custom'?'sunburst':settings.theme;
 const S=window.HoopsAudio.create(settings),L=window.HoopsLights.create(A,()=>S.beat);
 let records=read('lucasHoops.records.v1',{shootout:0,quick:0,wins:0});
 for(const k of ['shootout','quick','wins','titles','otGames','ftMade','fires','subs'])records[k]=Number(records[k])||0;
@@ -665,11 +668,15 @@ function settingsDialog(){
  $('powerups-setting').onclick=()=>{settings.powerups=!settings.powerups;save('lucasHoops.settings.v1',settings);settingsDialog();};$('autosub-setting').onclick=()=>{settings.autoSubs=!settings.autoSubs;save('lucasHoops.settings.v1',settings);settingsDialog();};
 }
 function themeDialog(){
- unlock();sound('click');const keys=Object.keys(A.THEMES);
- dialog('PICK YOUR COURT',`<div class="theme-grid">${keys.map(k=>`<button class="theme-card${k===settings.theme?' picked':''}" data-theme="${k}" id="theme-${k}"><canvas width="240" height="135" data-preview="${k}"></canvas><span>${A.THEMES[k].name}<small>${A.THEMES[k].sub}</small></span></button>`).join('')}</div>`,[['DONE',showMenu,true]],'COURT THEMES');
+ unlock();sound('click');const keys=Object.keys(A.THEMES),P=window.HoopsPaint,painted=P&&P.hasSaved();
+ dialog('PICK YOUR COURT',`<div class="theme-grid">${keys.map(k=>`<button class="theme-card${k===settings.theme?' picked':''}" data-theme="${k}" id="theme-${k}"><canvas width="240" height="135" data-preview="${k}"></canvas><span>${A.THEMES[k].name}<small>${k==='custom'&&!painted?'TAP TO PAINT':A.THEMES[k].sub}</small></span></button>`).join('')}</div>`,[['PAINT MY COURT',openPainter,false,'paint-edit'],['DONE',showMenu,true]],'COURT THEMES');
  for(const k of keys){A.rebuild(k);const c=document.querySelector(`[data-preview="${k}"]`).getContext('2d');c.setTransform(240/960,0,0,135/540,0,0);c.clearRect(0,0,960,540);A.arena(c,null,0,true);c.setTransform(1,0,0,1,0,0);}
  A.rebuild(settings.theme);
- document.querySelectorAll('[data-theme]').forEach(el=>el.onclick=()=>{settings.theme=el.dataset.theme;save('lucasHoops.settings.v1',settings);A.rebuild(settings.theme);sound('click');document.querySelectorAll('.theme-card').forEach(c=>c.classList.toggle('picked',c===el));const cl=$('court-label');if(cl)cl.textContent=themeLabel();});
+ document.querySelectorAll('[data-theme]').forEach(el=>el.onclick=()=>{if(el.dataset.theme==='custom'&&!(P&&P.hasSaved())){openPainter();return;}settings.theme=el.dataset.theme;save('lucasHoops.settings.v1',settings);A.rebuild(settings.theme);sound('click');document.querySelectorAll('.theme-card').forEach(c=>c.classList.toggle('picked',c===el));const cl=$('court-label');if(cl)cl.textContent=themeLabel();});
+}
+function openPainter(){
+ const P=window.HoopsPaint;if(!P)return;unlock();sound('click');$('dialog').hidden=true;$('main-menu').hidden=true;
+ P.open({onClose:saved=>{if(saved){settings.theme='custom';save('lucasHoops.settings.v1',settings);sound('steal');}A.rebuild(settings.theme);$('main-menu').hidden=false;themeDialog();}});
 }
 function how(){
  unlock();dialog('RUN THE WHOLE COURT.',`<p><b>MOVE:</b> Touch anywhere on the left half and drag: the floating stick moves in all directions. Keyboard: WASD or arrow keys.</p><p><b>OFFENSE:</b> Hold <b>Shoot</b> (Space/J), release at the full green meter. Close to the hoop = dunk. Aim the stick toward a teammate and <b>Pass</b> (E/K); control follows the catch. <b>Cross/Spin</b> (Q) beats pressure. Hold <b>Sprint</b> (Shift) for speed.</p><p><b>DEFENSE:</b> <b>Block</b> (Space/J) jumps; <b>Steal</b> (E/K) works nearby (reach too often and it's a foul). <b>Charge</b> (Q) plants your feet: hold your spot before the dribbler hits you for an offensive foul; plant too late and it's a blocking foul. <b>Switch</b> (R/Tab) changes defender.</p><p><b>FREE THROWS:</b> Shooting fouls send you to the line. Tap <b>Shoot</b> when the slider is in the green.</p><p><b>SUBS:</b> Watch the stamina bars. Tap <b>SUB</b> (or Timeout) and swap in a fresh player at the next whistle.</p><p><b>POWER-UPS:</b> Grab a <b>SPEED</b> token for 6 seconds of jets, or a <b>FIRE</b> token. Three buckets in a row = <b>ON FIRE</b>: easier timing and a flaming ball until the other team scores.</p><p><b>OVERTIME:</b> Tied at the horn? 30 more seconds, as many times as it takes.</p><p><b>2 PLAYERS:</b> P1 uses the left side (WASD + F/G/H, Left Shift), P2 the right side (arrows + Enter / . / , and Right Shift).</p><p><b>ONLINE:</b> Host a room, read the 4-letter code to a friend, they join on their phone. Needs internet.</p><p><b>SHOOTOUT:</b> Lucas takes long-range shots for 60 seconds. All buckets = 3. P/Escape pauses.</p>`,[['LET\'S PLAY',showMenu,true]],'HOW TO PLAY');
@@ -698,8 +705,8 @@ function drawHostLobby(){
 function hostMessage(type,data){
  if(type==='probe'){net?.send('host-here',{});return;}
  if(type==='hello'){
-  if(lobby&&!lobby.guest){lobby.guest={name:data.name||'Friend'};net.send('welcome',{size:lobby.size,theme:settings.theme});sound('steal');drawHostLobby();}
-  else if(lobby?.guest&&lobby.guest.name===data.name&&scene!=='play')net.send('welcome',{size:lobby.size,theme:settings.theme});
+  if(lobby&&!lobby.guest){lobby.guest={name:data.name||'Friend'};net.send('welcome',{size:lobby.size,theme:netTheme()});sound('steal');drawHostLobby();}
+  else if(lobby?.guest&&lobby.guest.name===data.name&&scene!=='play')net.send('welcome',{size:lobby.size,theme:netTheme()});
   else net.send('full',{});return;}
  if(type==='bye'){peerLost('YOUR FRIEND LEFT THE ROOM.');return;}
  const g=state;if(!g||g.online!=='host')return;const h=g.humans[1];
@@ -707,7 +714,7 @@ function hostMessage(type,data){
  else if(type==='ev'){if(scene==='play')doAct(h,String(data.a),!!data.d);}
 }
 function hostStart(){
- if(!net||!lobby?.guest)return;net.send('start',{size:lobby.size,theme:settings.theme});
+ if(!net||!lobby?.guest)return;net.send('start',{size:lobby.size,theme:netTheme()});
  start('online',lobby.size,{online:'host'});state.room=lobby.code;lobby.playing=true;
 }
 function joinDialog(){
@@ -722,7 +729,7 @@ async function doJoin(){
 }
 function guestMessage(type,data){
  if(type==='welcome'){if(lobby)lobby.size=data.size;return;}
- if(type==='start'){start('online',Number(data.size)||3,{online:'guest',theme:A.THEMES[data.theme]?data.theme:undefined});state.room=lobby?.code;return;}
+ if(type==='start'){start('online',Number(data.size)||3,{online:'guest',theme:A.THEMES[data.theme]&&data.theme!=='custom'?data.theme:'sunburst'});state.room=lobby?.code;return;}
  if(type==='snap'){if(state?.online==='guest')applySnap(data);return;}
  if(type==='end'){const g=state;if(g?.online==='guest'&&!g.ended){g.score=data.score;g.period=data.period||0;finish();}return;}
  if(type==='bye'){peerLost('THE HOST CLOSED THE ROOM.');}
