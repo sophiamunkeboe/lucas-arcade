@@ -4,6 +4,10 @@ window.HoopsLights=(()=>{
 const COLORS=['#a054ef','#ff8d37','#ff4bb8','#3fe0ef','#ffd36c'];
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const beams=COLORS.map(color=>{const c=document.createElement('canvas');c.width=180;c.height=620;const x=c.getContext('2d'),g=x.createLinearGradient(90,0,90,620);g.addColorStop(0,color+'b0');g.addColorStop(.7,color+'55');g.addColorStop(1,color+'00');x.fillStyle=g;x.beginPath();x.moveTo(85,0);x.lineTo(95,0);x.lineTo(180,620);x.lineTo(0,620);x.fill();return c;});
+// Render-only polish: colored floor pools where the beams land, a rim flare and a soft arena vignette.
+const pools=COLORS.map(color=>{const c=document.createElement('canvas');c.width=220;c.height=80;const x=c.getContext('2d');x.translate(110,40);x.scale(1,.36);const g=x.createRadialGradient(0,0,4,0,0,110);g.addColorStop(0,color+'cc');g.addColorStop(.55,color+'44');g.addColorStop(1,color+'00');x.fillStyle=g;x.fillRect(-110,-110,220,220);return c;});
+const flare=(()=>{const c=document.createElement('canvas');c.width=160;c.height=160;const x=c.getContext('2d'),g=x.createRadialGradient(80,80,2,80,80,80);g.addColorStop(0,'#fff6d8ff');g.addColorStop(.25,'#ffc46a99');g.addColorStop(1,'#ff7a2a00');x.fillStyle=g;x.fillRect(0,0,160,160);return c;})();
+const vignette=(()=>{const c=document.createElement('canvas');c.width=480;c.height=270;const x=c.getContext('2d'),g=x.createRadialGradient(240,150,90,240,135,300);g.addColorStop(0,'#05031000');g.addColorStop(.7,'#05031022');g.addColorStop(1,'#050310aa');x.fillStyle=g;x.fillRect(0,0,480,270);return c;})();
 function create(A,beat){
  let clock=0,show=null,confetti=[],level=2,frameEMA=16.7,slow=0,healthy=0,scene='intro',game=null,bursts=0;
  const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
@@ -14,7 +18,7 @@ function create(A,beat){
  }
  function celebrate(kind='two',x=870,y=225){
   const full=['dunk','buzzer','win'].includes(kind),duration=kind==='win'?9:full?2.7:kind==='three'?1.8:1.0;
-  show={kind,start:clock,until:clock+duration,full,lastBurst:clock};if(full)burst(x,y);
+  show={kind,start:clock,until:clock+duration,full,lastBurst:clock,x,y};if(full)burst(x,y);
  }
  function update(dt,newScene,g){
   clock+=dt;scene=newScene;game=g;if(show&&clock>show.until)show=null;
@@ -35,8 +39,11 @@ function create(A,beat){
   for(let i=0;i<count;i++){
    const source=[95,865,265,695,415,545][i],phase=musicBeat*.34+i*1.45,target=480+Math.sin(phase)*410;
    const aim=-Math.atan2(target-source,400),color=(i+Math.floor(musicBeat/4))%5;
-   c.save();c.translate(source,-12);c.rotate(aim);c.globalAlpha=base*(full?(.5+.5*pulse):(.75+.25*pulse));c.drawImage(beams[color],-90,0,180,660);c.restore();
+   const alpha=base*(full?(.5+.5*pulse):(.75+.25*pulse));
+   c.save();c.translate(source,-12);c.rotate(aim);c.globalAlpha=alpha;c.drawImage(beams[color],-90,0,180,660);c.restore();
+   const fx=source-Math.sin(aim)*540,fy=-12+Math.cos(aim)*540;if(fy>190&&level>0){c.globalAlpha=Math.min(.5,alpha*2.4);c.drawImage(pools[color],fx-110,fy-40);}
   }
+  if(show&&show.y!=null&&show.kind!=='win'){const age=clock-show.start,k=clamp(1-age/.7);if(k>0){c.globalAlpha=k*.85;const s=90+age*120;c.drawImage(flare,show.x-s/2,show.y-s/2,s,s);}}
   if(show){const age=clock-show.start,flash=clamp(1-age/(show.kind==='two'?.35:.65));
    c.globalAlpha=flash*(full?.23:.13);A.box(c,0,99,960,65,COLORS[Math.floor(musicBeat*2)%5]);
    if(full){c.globalAlpha=(reduce?.10:.10+pulse*.12);A.box(c,350,25,260,98,COLORS[Math.floor(musicBeat)%5]);}
@@ -46,7 +53,8 @@ function create(A,beat){
  function drawEffects(c){
   if(scene==='intro')return;for(const p of confetti){c.globalAlpha=clamp(p.life*1.6);const w=p.w*Math.max(.25,Math.abs(Math.sin(p.rot)));A.box(c,p.x,p.y,w,p.w*.6,p.c);}c.globalAlpha=1;
  }
- return{update,monitor,draw,drawEffects,celebrate,reset(){show=null;confetti=[];},get snapshot(){return{level,frameEMA,scene,event:show?.kind||null,full:!!show?.full,confetti:confetti.length,bursts,reducedMotion:reduce,beat:beat()};}};
+ function drawVignette(c){c.save();c.globalAlpha=1;c.drawImage(vignette,0,0,960,540);c.restore();}
+ return{update,monitor,draw,drawEffects,drawVignette,celebrate,reset(){show=null;confetti=[];},get snapshot(){return{level,frameEMA,scene,event:show?.kind||null,full:!!show?.full,confetti:confetti.length,bursts,reducedMotion:reduce,beat:beat()};}};
 }
 return{create};
 })();

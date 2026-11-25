@@ -20,3 +20,10 @@ body{--available-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-in
 #music{left:8.5%;right:auto;top:17%!important;bottom:auto!important;font-size:.65cqw!important;min-width:6.5cqw}#stage.victory .dialog-card{background:#211036dc;border-color:#ffbf70;box-shadow:0 .7cqw #090615,0 0 3cqw #a447db66,inset 0 0 0 3px #794994;animation:win-glow 1s ease-in-out infinite alternate}@keyframes win-glow{to{border-color:#e774d2;box-shadow:0 .7cqw #090615,0 0 4cqw #ee924477,inset 0 0 0 3px #b66841}}@media(prefers-reduced-motion:reduce){#stage.victory .dialog-card{animation:none}}
 
 .celebration-front{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:40;image-rendering:pixelated}#stage.victory #dialog{background:#090d182b;backdrop-filter:none}
+
+/* v2.3 visual polish: smooth screen fades and a springy dialog pop (no layout or control changes). */
+.screen:not([hidden]){animation:screen-in .28s ease-out both}#dialog:not([hidden]) .dialog-card{animation:card-pop .32s cubic-bezier(.2,1.4,.4,1) both}
+#play-ui:not([hidden]) .circle-button,#play-ui:not([hidden]) .mini-btn{animation:screen-in .35s ease-out both}
+.circle-button:before{transition:filter .08s,background-color .08s}.circle-button.active{filter:drop-shadow(0 0 .8cqw #ffb25a)}
+@keyframes screen-in{from{opacity:0}to{opacity:1}}@keyframes card-pop{from{opacity:0;transform:scale(.92) translateY(2%)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.screen:not([hidden]),#dialog:not([hidden]) .dialog-card,#play-ui:not([hidden]) .circle-button,#play-ui:not([hidden]) .mini-btn{animation:none}}
