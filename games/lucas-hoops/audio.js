@@ -1,5 +1,7 @@
-/* Lucas Hoops sound department. Every note, drum, crowd vowel and effect is synthesized.
-   Original 8-bar pep arrangement + original organ/fanfare phrases; no recordings. */
+/* Lucas Hoops sound department. Every note, drum, crowd vowel and effect is synthesized, except the DE-FENSE chant:
+   a real crowd recording (defense-chant.mp3, "defense.wav" by LS on Freesound, CC BY 3.0, trimmed + normalized).
+   If that file can't load or decode, the original synthesized chant plays instead.
+   Original 8-bar pep arrangement + original organ/fanfare phrases. */
 window.HoopsAudio=(()=>{
 'use strict';
 const BPM=126,BEAT=60/BPM,STEP=BEAT/2,midi=n=>440*Math.pow(2,(n-69)/12);
@@ -14,6 +16,13 @@ function create(settings){
  let ctx=null,sfxBus=null,musicBus=null,pepBus=null,output=null,noiseBuffer=null,scene='intro',hidden=document.hidden,unlocked=false;
  let nextStep=0,step=0,musicStart=0,duckUntil=0,duckDepth=1,lastMusicGain=-1,lastOrgan=-10,clock=0;
  const nodes={sfx:new Set(),music:new Set()},counts={},events=[];
+ let chantBuffer=null,chantState='idle';
+ function loadChant(){
+  if(chantState!=='idle'||!ctx)return;chantState='loading';
+  fetch(new URL('defense-chant.mp3',document.baseURI)).then(r=>{if(!r.ok)throw new Error('chant '+r.status);return r.arrayBuffer();})
+   .then(buf=>new Promise((ok,bad)=>{const p=ctx.decodeAudioData(buf,ok,bad);if(p&&p.then)p.then(ok,bad);}))
+   .then(b=>{chantBuffer=b;chantState='ready';}).catch(()=>{chantState='failed';});
+ }
  function count(name){counts[name]=(counts[name]||0)+1;events.push(name);if(events.length>40)events.shift();}
  function build(){
   if(ctx)return true;
@@ -23,7 +32,7 @@ function create(settings){
    const compressor=ctx.createDynamicsCompressor();compressor.threshold.value=-13;compressor.knee.value=12;compressor.ratio.value=4;compressor.attack.value=.003;compressor.release.value=.18;
    sfxBus=ctx.createGain();musicBus=ctx.createGain();pepBus=ctx.createGain();pepBus.gain.value=0;pepBus.connect(musicBus);sfxBus.connect(compressor);musicBus.connect(compressor);compressor.connect(output);output.connect(ctx.destination);
    noiseBuffer=ctx.createBuffer(1,22050,22050);const data=noiseBuffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
-   sync();return true;
+   sync();loadChant();return true;
   }catch(_){ctx=null;return false;}
  }
  function ready(bus='sfx'){return !!ctx&&ctx.state==='running'&&!hidden&&(bus==='sfx'?settings.sound:settings.music);}
@@ -107,8 +116,12 @@ function create(settings){
    tone(1500,.11,.045,'sine',2350);tone(2050,.075,.025,'triangle',1200);hiss(.085,.028,2400,'sfx',now,10);
   }
   if(name==='whistle'){tone(2700,.14,.08,'sine',2950);tone(2900,.22,.07,'sine',2500,'sfx',now+.17);hiss(.25,.025,3000,'sfx',now,6);}
-  if(name==='defense'){
-   // Synthetic D burst, EE vowel, F hiss, EH vowel, S ending: no voice samples.
+  if(name==='defense'&&chantBuffer){
+   // Real crowd DE-FENSE chant (recording), on the sound-effects bus so the SFX switch controls it.
+   const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=chantBuffer;g.gain.value=.85;s.connect(g);g.connect(sfxBus);
+   if(track(s,'sfx',[g])){s.start(now);count('defense_sample');}
+  }else if(name==='defense'){
+   // Fallback: synthetic D burst, EE vowel, F hiss, EH vowel, S ending: no voice samples.
    hiss(.035,.045,2600);vowel(now+.025,.24,150,[310,2250],.065);hiss(.07,.055,3300,'sfx',now+.36);vowel(now+.41,.28,140,[560,1700],.075);hiss(.13,.04,3600,'sfx',now+.64);
    clap(now+.83,.06,'sfx');clap(now+1.04,.06,'sfx');clap(now+1.25,.075,'sfx');
   }
@@ -127,7 +140,7 @@ function create(settings){
   else{for(const [i,n] of [53,52,50,45].entries()){const at=ctx.currentTime+i*.38;tone(midi(n),i===3?.8:.38,.11,'sawtooth',midi(n-2),'cue',at);tone(midi(n-12),.36,.045,'triangle',midi(n-1),'cue',at);}}
  }
  function visibility(isHidden){hidden=isHidden;if(!ctx)return;if(hidden){stop('sfx');stop('music');immediate(output.gain,0);ctx.suspend().catch(()=>{});}else{sync();if(unlocked&&(settings.music||settings.sound))ctx.resume().catch(()=>{});}}
- return{unlock,tone,hiss,sound,organ,finish,duck,update,sync,visibility,stopEffects:()=>stop('sfx'),get ready(){return !!ctx&&ctx.state==='running'&&!hidden;},get beat(){return ctx&&musicStart?Math.max(0,(ctx.currentTime-musicStart)/BEAT):clock/BEAT;},get snapshot(){return{state:ctx?.state||'locked',hidden,sound:settings.sound,music:settings.music,scene,sfxGain:sfxBus?.gain.value||0,musicGain:pepBus?.gain.value||0,musicMaster:musicBus?.gain.value||0,outputGain:output?.gain.value||0,sfxActive:nodes.sfx.size,musicActive:nodes.music.size,ducking:!!ctx&&ctx.currentTime<duckUntil,counts:{...counts},events:[...events],beat:this.beat};}};
+ return{unlock,tone,hiss,sound,organ,finish,duck,update,sync,visibility,stopEffects:()=>stop('sfx'),get chantSeconds(){return chantBuffer?chantBuffer.duration+.4:2.2;},get chantState(){return chantState;},get ready(){return !!ctx&&ctx.state==='running'&&!hidden;},get beat(){return ctx&&musicStart?Math.max(0,(ctx.currentTime-musicStart)/BEAT):clock/BEAT;},get snapshot(){return{state:ctx?.state||'locked',hidden,sound:settings.sound,music:settings.music,scene,sfxGain:sfxBus?.gain.value||0,musicGain:pepBus?.gain.value||0,musicMaster:musicBus?.gain.value||0,outputGain:output?.gain.value||0,sfxActive:nodes.sfx.size,musicActive:nodes.music.size,ducking:!!ctx&&ctx.currentTime<duckUntil,chant:chantState,counts:{...counts},events:[...events],beat:this.beat};}};
 }
 return{create,BPM};
 })();

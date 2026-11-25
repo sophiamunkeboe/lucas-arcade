@@ -35,7 +35,7 @@ with sync_playwright() as p:
  pg.click('#settings');assert pg.locator('#sound-setting').inner_text()=='ON';pg.click('#sound-setting');assert pg.locator('#sound-setting').inner_text()=='OFF';pg.get_by_role('button',name='DONE',exact=True).click()
  pg.click('#replay-intro');pg.wait_for_function("HOOPS.scene==='menu'",timeout=12000);muted=pg.evaluate('HOOPS.intro');assert not muted['soundEnabled'] and muted['soundEvents']==0;report['muted_full_intro']=True
  # Canonical folder reload plus full first-view timeline work without network.
- pg.evaluate('navigator.serviceWorker.ready');pg.wait_for_function('navigator.serviceWorker.controller!==null');assert 'lucas-arcade-v16' in pg.evaluate('caches.keys()')
+ pg.evaluate('navigator.serviceWorker.ready');pg.wait_for_function('navigator.serviceWorker.controller!==null');assert 'lucas-arcade-v18' in pg.evaluate('caches.keys()')
  pg.evaluate("sessionStorage.removeItem('lucasHoops.introSeen.v1')");c.set_offline(True);pg.reload();pg.wait_for_function("HOOPS.scene==='intro'");assert pg.evaluate('HOOPS.intro.duration')==7.4;pg.wait_for_function("HOOPS.scene==='menu'",timeout=12000)
  pg.click('#quick');pg.click('#mode-3');assert pg.evaluate('HOOPS.state.players.length')==6;report['offline_full_intro_and_game']=True
  c.set_offline(False)

@@ -1,4 +1,7 @@
-# Lucas Hoops v2.3 — Tournament + Online
+# Lucas Hoops v2.3.1 — Tournament + Online
+
+## New in v2.3.1
+- Real recorded crowd **DE-FENSE** chant (`defense-chant.mp3`, 4.5 s, 55 KB) replaces the synthesized one at the same trigger (CPU ball, shot clock <= 5), on the SFX bus, with the synthesized chant as fallback. It replays after the clip ends instead of every 2.2 s. Credit: "defense.wav" by LS, https://freesound.org/people/LS/sounds/11537/, CC BY 3.0; trimmed, mono, high-passed, faded, loudness-normalized. Service worker **lucas-arcade-v18** precaches it. Test: `python3 tools/hoops-chant.py`.
 
 ## New in v2.3
 - Smarter AI (shot quality, open passes, drives/spins, spacing, help defense, close-outs).
@@ -62,7 +65,7 @@ An original **126 BPM, eight-bar looping pep arrangement** layers marching snare
 
 Settings and the HUD have independent **SFX** and **🎶 music** switches, both on by default and saved in localStorage. Music OFF also mutes organ/fanfare cues; SFX OFF independently mutes dribbling and game/intro effects. First tap unlocks browser audio. Hiding the tab stops all scheduled sources, zeroes output and suspends the context; returning safely restarts the groove. Source sets are bounded and cleaned up, and noise uses one reused buffer.
 
-Extra effects: sneaker squeaks on cuts/crossovers, backboard bangs, near-miss crowd “ooh,” streak-scaled cheers, synthesized two-syllable DE-FENSE/clap rhythms late in CPU possessions, referee whistles on charges, and an arena horn at the final buzzer. Charge remains the implemented foul type; there is no separate quarter simulation.
+Extra effects: sneaker squeaks on cuts/crossovers, backboard bangs, near-miss crowd “ooh,” streak-scaled cheers, a two-syllable DE-FENSE chant late in CPU possessions (since v2.3.1 a real crowd recording, see below; the synthesized chant is the fallback), referee whistles on charges, and an arena horn at the final buzzer. Charge remains the implemented foul type; there is no separate quarter simulation.
 
 Five original colored spotlights—purple, orange, hot pink, cyan and gold—sweep in time with the music beat. Menus, dead balls and timeouts get stronger beams; live play is subtle and lights draw **behind players/HUD**. Buckets flash the crowd, threes get a multicolor sweep, and dunks/buzzer-beaters trigger full pulsing beams, confetti and video-cube flashes. A win gets a nine-second light show with additional confetti bursts. No rapid full-screen strobe: pulses are beat-limited, and reduced-motion preferences tone them down. Five pre-rendered cone canvases use additive blending; sustained slow frames reduce beams and confetti, recovering gradually.
 

@@ -68,7 +68,7 @@ with sync_playwright() as p:
  pg.click('#settings');pg.click('#music-setting');assert not pg.evaluate('HOOPS.audio.music');pg.get_by_role('button',name='DONE',exact=True).click();pg.click('#shootout');pg.evaluate('HOOPS.state.score[0]=3;HOOPS.state.time=.025');old=counts().get('victory_fanfare',0);pg.wait_for_function("HOOPS.scene==='end'");pg.wait_for_timeout(300);assert counts().get('victory_fanfare',0)==old and pg.evaluate('HOOPS.audio.musicActive')==0;report['musical_cues_respect_music_mute']=True
  report['arena_sound_counts']=counts()
  # Cached new modules, toggles and sounds work on a fresh offline reload.
- pg.evaluate('navigator.serviceWorker.ready');pg.wait_for_function('navigator.serviceWorker.controller!==null');assert 'lucas-arcade-v16' in pg.evaluate('caches.keys()')
+ pg.evaluate('navigator.serviceWorker.ready');pg.wait_for_function('navigator.serviceWorker.controller!==null');assert 'lucas-arcade-v18' in pg.evaluate('caches.keys()')
  c.set_offline(True);pg.reload();pg.wait_for_function("typeof HOOPS!=='undefined'");pg.click('#intro-skip');pg.click('#quick');pg.click('#mode-3');pg.click('#music');pg.wait_for_function('HOOPS.audio.musicActive>0');pg.keyboard.press('KeyQ');wait_sound('squeak');report['offline_audio_lights']=True;c.set_offline(False)
  report['sounds']=counts();report['audio']=pg.evaluate('HOOPS.audio')
  # Phone-size touch dunk with all music, effects and six-beam celebration active.
