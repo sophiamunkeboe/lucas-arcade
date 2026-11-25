@@ -1,4 +1,19 @@
-# Lucas Hoops v2.2 — Sunburst Pep Rally
+# Lucas Hoops v2.3 — Tournament + Online
+
+## New in v2.3
+- Smarter AI (shot quality, open passes, drives/spins, spacing, help defense, close-outs).
+- Court themes (Sunburst, Night Owls, Street, Neon) picked from **COURT**, saved in settings.
+- Power-ups (speed bolt, fire) and a 3-bucket hot streak; toggle in Settings.
+- 2 players on one phone (split controls, landscape or portrait; WASD vs arrows on a keyboard).
+- 4-team tournament (semis + final, bracket, trophy, titles counted).
+- Free throws with a timing meter (shooting fouls, blocking fouls, reach-ins; bonus at 5 team fouls).
+- Stamina and substitutions (SUB button / timeouts open the sub screen at the next whistle; CPU auto-subs).
+- 30-second overtime, repeating (OT, OT2...).
+- Online rooms with 4-letter codes over the Poker game's Supabase Realtime broadcast (`net.js`; host-authoritative, 15 Hz snapshots).
+- Graphics polish: 2x crisp pixels, run/jump/dribble animation, ball trail/squash, floor light pools, rim flare, vignette, LED ribbon, wipes and fades.
+- Service worker **lucas-arcade-v17** adds `net.js`. Tests: `python3 tools/hoops-v23.py [sections]`.
+
+## Earlier (v2.2 — Sunburst Pep Rally)
 
 Original kid-friendly pixel basketball for Lucas's Arcade. All art, geometry, sound and gameplay run locally. No CDNs, official league/team logos, sponsors, analytics or paid assets. The renamed ASCII pixel font is licensed under SIL OFL (FONT-LICENSE.txt).
 

@@ -22,18 +22,19 @@
     <h1><span>LUCAS</span>HOOPS<span class="logo-dot">!</span></h1>
     <div class="brand-line">SMALL PIXELS. BIG GAME.</div>
     <button id="player-card" class="star-card" aria-label="Meet Lucas"><canvas id="menu-player" width="72" height="84"></canvas><span>LUCAS<small>PG / SUNBURST #1</small></span></button>
-    <div class="best-chip"><span class="gold">&#9733;</span> SHOOTOUT BEST <b id="menu-best">0</b></div>
+    <div class="best-chip"><span class="gold">&#9733;</span> SHOOTOUT BEST <b id="menu-best">0</b> &nbsp; <span class="gold">&#127942;</span> CUPS <b id="menu-titles">0</b></div>
    </div>
    <nav class="menu-buttons" aria-label="Main menu">
     <div class="panel-label">PICK YOUR GAME</div>
     <button id="quick" class="menu-btn"><span class="icon play-icon">&#9654;</span><span>QUICK GAME<small>3 ON 3 &nbsp; / &nbsp; BUILD YOUR SQUAD</small></span><i>&gt;</i></button>
-    <button id="shootout" class="menu-btn orange"><span class="icon">&#9733;</span><span>SHOOTOUT<small>60 SECONDS. ALL THREES.</small></span><i>&gt;</i></button>
-    <div class="split"><button id="how" class="menu-btn compact"><span class="icon">?</span><span>HOW TO PLAY</span></button><button id="settings" class="menu-btn compact"><span class="icon">&#9776;</span><span>SETTINGS</span></button></div>
+    <div class="split"><button id="tournament" class="menu-btn compact orange"><span class="icon">&#127942;</span><span>TOURNAMENT<small>SEMIS + FINAL</small></span></button><button id="shootout" class="menu-btn compact orange"><span class="icon">&#9733;</span><span>SHOOTOUT<small>60 SEC. ALL THREES</small></span></button></div>
+    <div class="split"><button id="versus" class="menu-btn compact"><span class="icon">2P</span><span>2 PLAYERS<small>SAME PHONE</small></span></button><button id="online" class="menu-btn compact"><span class="icon">&#127760;</span><span>ONLINE<small>ROOM CODE</small></span></button></div>
+    <div class="split three"><button id="court-btn" class="menu-btn compact"><span class="icon">&#9638;</span><span>COURT<small id="court-label">SUNBURST ARENA</small></span></button><button id="how" class="menu-btn compact"><span class="icon">?</span><span>HOW TO</span></button><button id="settings" class="menu-btn compact"><span class="icon">&#9776;</span><span>SETTINGS</span></button></div>
     <a class="arcade-link" href="../../index.html">&lt; BACK TO THE ARCADE</a>
     <button id="replay-intro" class="replay-link">&#9654; REPLAY INTRO</button>
    </nav>
   </div>
-  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.2 &nbsp; / &nbsp; PEP BAND</span></footer>
+  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.3 &nbsp; / &nbsp; TOURNAMENT + ONLINE</span></footer>
  </section>
  <div id="intro-ui" aria-label="Lucas Hoops opening cinematic">
   <button id="intro-skip" aria-label="Skip intro">TAP ANYWHERE TO SKIP &gt;</button>
@@ -43,6 +44,7 @@
   <button id="pause" class="mini-btn" aria-label="Pause game">II</button>
   <button id="mute" class="mini-btn" aria-label="Toggle sound effects">SFX ON</button>
   <button id="music" class="mini-btn" aria-label="Toggle music">&#127926; ON</button>
+  <button id="subs" class="mini-btn" aria-label="Substitutions">SUB</button>
   <div id="controls">
    <div id="joystick-zone" aria-label="Touch and drag here to move in any direction"></div>
    <div id="joystick" hidden><div class="stick-ring"></div><div id="stick-knob"></div></div>
@@ -53,6 +55,17 @@
     <button id="action-fourth" class="circle-button bottom" aria-label="Sprint"><span>SPRINT</span><small>HOLD</small></button>
    </div>
    <div id="control-phase">OFFENSE &gt;</div>
+  </div>
+  <div id="controls-2" aria-label="Player 2 controls">
+   <div id="joystick-zone-2" aria-label="Player 2: touch and drag here to move"></div>
+   <div id="joystick-2" class="joystick" hidden><div class="stick-ring"></div><div id="stick-knob-2" class="stick-knob"></div></div>
+   <div class="action-diamond">
+    <button id="action-primary-2" class="circle-button top" aria-label="P2 Shoot"><span>SHOOT</span><small>HOLD / RELEASE</small></button>
+    <button id="action-secondary-2" class="circle-button left" aria-label="P2 Pass"><span>PASS</span><small>AIM</small></button>
+    <button id="action-move-2" class="circle-button right" aria-label="P2 Crossover"><span>CROSS</span><small>/ SPIN</small></button>
+    <button id="action-fourth-2" class="circle-button bottom" aria-label="P2 Sprint"><span>SPRINT</span><small>HOLD</small></button>
+   </div>
+   <div id="control-phase-2">P2 DEFENSE</div>
   </div>
  </div>
  <section id="dialog" class="screen modal" hidden>
@@ -70,6 +83,7 @@
 <script src="audio.js"></script>
 <script src="lights.js"></script>
 <script src="intro.js"></script>
+<script src="net.js"></script>
 <script src="game.js"></script>
 <script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('../../sw.js', {scope:'../../'}).catch(()=>{});</script>
 </body>

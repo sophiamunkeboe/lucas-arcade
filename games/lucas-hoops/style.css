@@ -27,3 +27,36 @@ body{--available-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-in
 .circle-button:before{transition:filter .08s,background-color .08s}.circle-button.active{filter:drop-shadow(0 0 .8cqw #ffb25a)}
 @keyframes screen-in{from{opacity:0}to{opacity:1}}@keyframes card-pop{from{opacity:0;transform:scale(.92) translateY(2%)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.screen:not([hidden]),#dialog:not([hidden]) .dialog-card,#play-ui:not([hidden]) .circle-button,#play-ui:not([hidden]) .mini-btn{animation:none}}
+
+/* v2.3 menu: more modes in the same panel. */
+.menu-buttons .split{gap:1cqw}.menu-buttons .split .menu-btn{flex:1;margin-bottom:1.1cqw}.menu-buttons .compact small{font-size:.55cqw;line-height:1.9}.menu-buttons .compact .icon{font-size:1.6cqw}.split.three .menu-btn{flex:1 1 0}.split.three #court-btn{flex:1.6 1 0}
+.menu-buttons>.menu-btn{min-height:6cqw;margin-bottom:1.1cqw}.menu-buttons .panel-label{margin-bottom:1.1cqw}
+/* Sub button + team-two controls. */
+#subs{left:15.5%;right:auto;top:17%!important;bottom:auto!important;font-size:.65cqw!important}
+#controls-2{display:none;position:absolute;inset:0;pointer-events:none}#controls-2 button{pointer-events:auto;user-select:none;-webkit-user-select:none}
+#stage.two-player #controls-2{display:block}#stage.two-player #joystick-zone{inset:15% 72% 0 0}#joystick-zone-2{pointer-events:auto;position:absolute;inset:15% 0 0 72%;touch-action:none}
+.joystick{position:absolute;width:12cqw;height:12cqw;transform:translate(-50%,-50%);pointer-events:none;z-index:4}.stick-knob{position:absolute;width:4.5cqw;height:4.5cqw;left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #fff9;border-radius:50%;background:#bfe9f677}
+#stage.two-player .circle-button{width:7.4cqw;height:7.4cqw;font-size:.9cqw}
+#stage.two-player #controls .circle-button.top{left:36%;top:66%}#stage.two-player #controls .circle-button.left{left:29.5%;top:79%}#stage.two-player #controls .circle-button.right{left:42.5%;top:79%}#stage.two-player #controls .circle-button.bottom{left:36%;top:92%}
+#controls-2 .circle-button.top{left:64%;top:66%}#controls-2 .circle-button.left{left:57.5%;top:79%}#controls-2 .circle-button.right{left:70.5%;top:79%}#controls-2 .circle-button.bottom{left:64%;top:92%}
+#controls-2 .circle-button:before{filter:hue-rotate(160deg)}#control-phase-2{position:absolute;left:2.5%;top:47%;font-size:.7cqw;color:#bfeeff;text-shadow:1px 2px #110c23;pointer-events:none}
+#stage.two-player #control-phase{right:auto;left:30%;top:57%}#stage.two-player #control-phase-2{left:58%;top:57%}
+#stage.two-player #rotate-hint{display:none!important}
+@media(orientation:portrait){
+ #stage.two-player{--below:calc((100dvh - 56.25vw) / 2);--bs:min(13cqw,calc(var(--below) * .2))}
+ #stage.two-player #joystick-zone{inset:auto;left:0;top:100%;width:50%;height:calc(var(--below) * .42)}#stage.two-player #joystick-zone-2{inset:auto;left:50%;top:100%;width:50%;height:calc(var(--below) * .42)}
+ #stage.two-player .circle-button{width:var(--bs);height:var(--bs);font-size:1.7cqw}#stage.two-player .circle-button small{font-size:1cqw}
+ #stage.two-player #controls .circle-button.top{left:25%;top:calc(100% + var(--below) * .52)}#stage.two-player #controls .circle-button.left{left:12%;top:calc(100% + var(--below) * .7)}#stage.two-player #controls .circle-button.right{left:38%;top:calc(100% + var(--below) * .7)}#stage.two-player #controls .circle-button.bottom{left:25%;top:calc(100% + var(--below) * .88)}
+ #controls-2 .circle-button.top{left:75%;top:calc(100% + var(--below) * .52)}#controls-2 .circle-button.left{left:62%;top:calc(100% + var(--below) * .7)}#controls-2 .circle-button.right{left:88%;top:calc(100% + var(--below) * .7)}#controls-2 .circle-button.bottom{left:75%;top:calc(100% + var(--below) * .88)}
+ #stage.two-player #control-phase{left:3%;top:calc(100% + 1cqw);font-size:1.6cqw}#stage.two-player #control-phase-2{left:auto;right:3%;top:calc(100% + 1cqw);font-size:1.6cqw}
+ #stage.two-player .joystick,#stage.two-player #joystick{width:20cqw;height:20cqw}
+ #stage.two-player #joystick-zone:after,#stage.two-player #joystick-zone-2:after{content:"DRAG TO MOVE";position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);font-size:1.4cqw;color:#ffffff44;pointer-events:none}
+}
+/* Dialog extras: bracket, trophy, subs, themes, room codes. */
+.bracket{display:flex;gap:1.2cqw;align-items:center;margin:1cqw 0}.bracket .round{display:flex;flex-direction:column;gap:1cqw;flex:1}.bracket .match{background:#0b2457;border:2px solid #3d68b8;padding:.8cqw;display:flex;flex-direction:column;gap:.4cqw;font-size:.85cqw;color:#cfe0ff}.bracket .match b{color:#ffd173;font-size:.8cqw}.bracket span.you{color:#ffbc6b}.bracket span.out{color:#6c80a8;text-decoration:line-through}.bracket .champ{align-items:center;font-size:2.4cqw;border-color:#ffcf4a}.bracket .champ span{font-size:.8cqw;color:#ffe29a}
+.trophy-wrap{display:flex;align-items:center;gap:2cqw}.trophy-wrap canvas{width:16cqw;height:16.7cqw;image-rendering:pixelated;animation:trophy-bob 1.2s ease-in-out infinite alternate}@keyframes trophy-bob{to{transform:translateY(-4%) rotate(2deg)}}
+.sub-team{margin:.6cqw 0 1cqw}.sub-row{display:flex;flex-wrap:wrap;gap:.6cqw;margin:.4cqw 0 .8cqw}.sub-chip{border:2px solid #5d8fe0;background:#0f2c66;color:#e4eeff;font-size:.8cqw;padding:.6cqw .8cqw;border-radius:.5cqw;min-width:9cqw;text-align:left}.sub-chip.bench{border-color:#7a6aa8;background:#22184a}.sub-chip.picked{border-color:#ffbc6b;background:#4a2a12}.stam{display:block;height:.5cqw;background:#0a0716;margin-top:.4cqw}.stam i{display:block;height:100%}
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:1cqw}.theme-card{border:3px solid #3d68b8;background:#0b2457;padding:.6cqw;display:flex;flex-direction:column;gap:.5cqw;color:#e4eeff;font-size:.9cqw;text-align:left}.theme-card canvas{width:100%;aspect-ratio:16/9;image-rendering:pixelated}.theme-card small{display:block;font-size:.6cqw;color:#9fbdf0;line-height:2}.theme-card.picked{border-color:#ffbc6b;box-shadow:0 0 0 2px #ffbc6b55}
+.room-code{font-size:6cqw;letter-spacing:1.5cqw;color:#ffd173;text-align:center;text-shadow:4px 4px #17234e;margin:1cqw 0}.code-input{display:block;margin:1cqw auto;width:60%;font:3.6cqw Pixel,monospace;letter-spacing:1.4cqw;text-align:center;text-transform:uppercase;background:#0b2457;color:#ffd173;border:3px solid #72a8ff;border-radius:.6cqw;padding:.8cqw;touch-action:manipulation;-webkit-user-select:text;user-select:text}
+#stage.two-player #pause{top:17%!important;bottom:auto!important;right:2%}
+.trophy-wrap .score-big{font-size:4.2cqw;white-space:nowrap;line-height:1.1}.trophy-wrap canvas{width:12cqw;height:12.5cqw}.trophy-wrap p{margin:.5cqw 0}.dialog-card .bracket{margin:.6cqw 0}

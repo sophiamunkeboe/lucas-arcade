@@ -23,7 +23,9 @@ security. Trophies won before logins existed went to the first player created.
 | **Fetch Frenzy** | `games/fetch-frenzy/` | Throw a ball, frisbee, stick or cheeseburger for Bella, Marley or Gorda. Catch it mid-air for big points, dodge the toy thief, puddles and squirrels, fill the meter and win a prize. |
 | **Bella's Blackjack** | `games/blackjack/` | You vs Bella the dealer (in a tuxedo) at a Las Vegas casino table. Pretend chips only. |
 | **Poker Table** | `games/poker/` | Texas Hold'em for 2 to 6 players, each on their own phone, using a 4-letter table code. Pretend chips only. Needs internet. |
-| **Lucas Hoops** | `games/lucas-hoops/` | Original pixel basketball: 3v3/1v1/5v5 squads, floating joystick, contextual defense, passing and a 60-second shootout. Works offline. |
+| **Smash Room** | `games/smash-room/` | Throw dishes, TVs, printers and bowling balls at a brick wall, knock out the 5 neon signs, goo and paint the wall, fill the Rage Meter. |
+| **Miko: Zoomies** | `games/miko/` | 3D 60-second 3 AM parkour run through the house as Miko the cat (Three.js + cannon-es, vendored). Don't wake the human! |
+| **Lucas Hoops** | `games/lucas-hoops/` | Original pixel basketball: 3v3/1v1/5v5, smart AI, 4 courts, power-ups, free throws, subs, overtime, a 4-team tournament, 2 players on one phone and online rooms. |
 | *Coming soon* | | Lucas's next idea! |
 
 ### Pop the Dog
@@ -105,6 +107,44 @@ Preview: `screens/91-neon-signs.png`.
 - Realtime: after each change the server broadcasts just a version number on the public channel `room:CODE`;
   phones then re-fetch their own view. Phones also poll every few seconds, so nothing gets stuck.
 - Tables idle for 24 hours are deleted (hourly `pg_cron` job + on create).
+
+### Smash Room
+- Pick a tool (plates, mugs, TVs, printers, bowling balls, goo gun, paintball, fire hose...) and fling it at the brick wall.
+- The 5 neon store signs hang up high: the first hit makes one flicker, the second turns it **OUT**. Turn off all 5 to win a prize.
+- Goo and paint stay on the wall until the fire hose washes them off, and a good wall can be saved to the **Wall of Fame**.
+- **Rage Meter**, 5-hits-in-3-seconds combos, a stopwatch challenge (the tile shows the fastest lights-out run) and surprises:
+  rubber dishes, a duck, a disco-ball party, Marley's broom, Gorda's cake patrol and Bella's RBF from the doorway.
+- Test links: `?debug=play` (skips login, no saving) and `&shot=art|party|dogs|prize|start`.
+
+### Miko: Zoomies
+- It's 3 AM and Miko (lion-cut lynx-point cat) has the zoomies: a 60-second 3D parkour run through the living room, hallway and kitchen.
+- Drag on the left to steer (pull back to brake, push up to go faster), JUMP (tap again for a double jump, wall-kicks, curtain climbing),
+  TRICK (swat things, power-slide, air flips), drift on the wood floor, and tap LOAF! when the human stirs.
+- Built on Three.js r186 and cannon-es 0.20, **vendored** in `games/miko/vendor/` so nothing loads from a CDN. Details and
+  URL options are in `games/miko/README.md`. Adaptive quality keeps it smooth on older phones.
+
+### Lucas Hoops (v2.3)
+Pixel Lucas (cream Suns cap, black/purple/orange jersey) leads the **Sunburst** against the **Night Owls**: 90-second games,
+14-second shot clock, floating joystick plus contextual buttons, 3 difficulty levels, trophy stats, the opening cinematic,
+pep band and party lights. New in v2.3:
+- **Smarter AI:** picks shots by quality (distance, how open, shot clock), finds the best open pass, drives open lanes and
+  spins (Baller/All-Star), spaces the floor and cuts; defenders stay between their man and the hoop, help and rotate, and close out on passes.
+- **Court themes:** Sunburst Arena, Night Owls Roost, Street Court (sunset asphalt) and Retro Neon. Pick with **COURT** on the menu; it's saved.
+- **Power-ups** (toggle in Settings): grab a bolt for a 6-second speed boost or a flame to catch fire; 3 straight team buckets
+  also puts you **ON FIRE** (better shooting, flame trail) until the other team scores.
+- **2 players on one phone:** 2 PLAYERS on the menu. P1 is the Sunburst (left controls), P2 is the Night Owls (right controls).
+  Landscape splits the court; portrait puts both control sets under the court. Keyboard: P1 = WASD + F/G/H/Left Shift/R, P2 = arrows + Enter/./,/Right Shift/Slash.
+- **Tournament:** 4 teams (Sunburst, Night Owls, Coyotes, Monsoon), semifinal and final with a bracket; win it for the trophy (titles count on the menu).
+- **Free throws:** shooting fouls, blocking fouls and reach-ins (in the bonus at 5 team fouls) give free throws, shot with a timing meter.
+- **Substitutions:** every player has stamina (tired players are slower and miss more). The SUB button or a timeout opens the
+  sub screen at the next whistle; the CPU subs on its own (auto-sub for your team is a Setting).
+- **Overtime:** tied at the buzzer means 30 seconds of overtime, repeated until somebody wins (OT, OT2...).
+- **Online rooms:** ONLINE on the menu: host gets a 4-letter code, a friend on another phone types it to join (1v1, 3v3 or 5v5).
+  Uses the same free Supabase Realtime backend as Poker (no new services); needs internet on both phones.
+- **Graphics polish:** crisp 2x pixels on sharp screens, run/jump/dribble animations, ball shading, trail and squash,
+  floor light pools, rim flare, LED ribbon boards, vignette and smoother screen transitions.
+- Tests: `python3 tools/hoops-play.py` (core game) and `python3 tools/hoops-v23.py [intro themes ot ft subs power tourney 2p online others]`.
+  More detail in `games/lucas-hoops/README.md`.
 
 ## How it's built
 Plain HTML, CSS, and JavaScript with no build step and nothing loaded from a CDN (Poker talks to its game server).
