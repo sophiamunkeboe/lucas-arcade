@@ -1,6 +1,7 @@
 """v2.3.2: does a player actually hear the DE-FENSE chant in normal play? Chromium AND WebKit, phone sizes.
 No fixtures: real tap to unlock audio, a normal 3v3 vs CPU (player idle), plus 2 PLAYERS and the tournament.
-Passes if the recorded chant (defense_sample) plays within 30 s of tip-off in each.
+Passes if the recorded chant (defense_sample) plays within 45 s of tip-off in each (typically 4-16 s; it needs the
+Night Owls to get the ball, and a run of Sunburst fouls/side-outs can delay that).
 python3 tools/hoops-chant-play.py [--live] [chromium|webkit]"""
 import functools,http.server,json,os,socketserver,sys,threading,time
 from pathlib import Path
@@ -17,8 +18,8 @@ ENGINES=[e for e in ['chromium','webkit'] if e in sys.argv] or ['chromium','webk
 PHONE={'iphone13_land':dict(viewport={'width':844,'height':390},device_scale_factor=3,has_touch=True),'android_small':dict(viewport={'width':640,'height':360},device_scale_factor=2,has_touch=True)}
 report={};errors=[]
 def n(pg):return pg.evaluate('HOOPS.audio.counts.defense_sample||0')
-def first_chant(pg,limit=30):
- t0=time.time();base=n(pg)
+def first_chant(pg,base,t0,limit=45):
+ # base/t0 are taken BEFORE tip-off, so a chant right at the opening possession counts.
  while time.time()-t0<limit:
   if n(pg)>base:return round(time.time()-t0,1)
   pg.wait_for_timeout(250)
@@ -32,17 +33,17 @@ with sync_playwright() as p:
    pg.on('response',lambda res:mp3.append([res.status,res.headers.get('content-type')]) if 'defense-chant.mp3' in res.url else None)
    pg.goto(BASE+'/games/lucas-hoops/');pg.wait_for_function("typeof HOOPS!=='undefined'&&(HOOPS.scene==='intro'||HOOPS.scene==='menu')",timeout=30000)
    if pg.locator('#intro-skip').is_visible():pg.locator('#intro-skip').tap()
-   pg.wait_for_function("HOOPS.scene==='menu'");pg.locator('#quick').tap();pg.locator('#mode-3').tap()
+   pg.wait_for_function("HOOPS.scene==='menu'");b0=n(pg);t0=time.time();pg.locator('#quick').tap();pg.locator('#mode-3').tap()
    pg.wait_for_function("HOOPS.audio.state==='running'",timeout=10000);pg.wait_for_function("HOOPS.audio.chant!=='loading'&&HOOPS.audio.chant!=='idle'",timeout=15000)
    r['version']=pg.evaluate('HOOPS.version');r['decode']=pg.evaluate('HOOPS.audio.chant');r['mp3']=mp3[:1];assert r['decode']=='ready',r
-   r['quick_3v3_first_chant_s']=first_chant(pg);assert r['quick_3v3_first_chant_s'] is not None,(tag,'no chant in 30 s')
+   r['quick_3v3_first_chant_s']=first_chant(pg,b0,t0);assert r['quick_3v3_first_chant_s'] is not None,(tag,'no chant in 45 s',r,pg.evaluate('JSON.stringify({c:HOOPS.audio.counts,st:HOOPS.audio.state,ch:HOOPS.audio.chant,sc:HOOPS.state&&HOOPS.state.score,pos:HOOPS.state&&HOOPS.state.possession,t:HOOPS.state&&HOOPS.state.time})'))
    pg.screenshot(path=str(OUT/f'chant-real-{eng}-{name}.png'))
    if name=='iphone13_land':
     # 2 PLAYERS on one phone (P2 = Night Owls): crowd chants for the home team's defense too.
-    pg.keyboard.press('KeyP');pg.get_by_role('button',name='MAIN MENU',exact=True).click();pg.click('#versus');pg.click('#vs-3');pg.wait_for_function("HOOPS.scene==='play'")
-    r['two_player_first_chant_s']=first_chant(pg);assert r['two_player_first_chant_s'] is not None,(tag,'2P')
-    pg.keyboard.press('KeyP');pg.get_by_role('button',name='MAIN MENU',exact=True).click();pg.click('#tournament');pg.click('#cup-3');pg.wait_for_function("HOOPS.scene==='play'")
-    r['tournament_first_chant_s']=first_chant(pg);assert r['tournament_first_chant_s'] is not None,(tag,'tournament')
+    pg.keyboard.press('KeyP');pg.get_by_role('button',name='MAIN MENU',exact=True).click();pg.click('#versus');b0=n(pg);t0=time.time();pg.click('#vs-3');pg.wait_for_function("HOOPS.scene==='play'")
+    r['two_player_first_chant_s']=first_chant(pg,b0,t0);assert r['two_player_first_chant_s'] is not None,(tag,'2P')
+    pg.keyboard.press('KeyP');pg.get_by_role('button',name='MAIN MENU',exact=True).click();pg.click('#tournament');b0=n(pg);t0=time.time();pg.click('#cup-3');pg.wait_for_function("HOOPS.scene==='play'")
+    r['tournament_first_chant_s']=first_chant(pg,b0,t0);assert r['tournament_first_chant_s'] is not None,(tag,'tournament')
     # SFX off: no chant.
     pg.click('#mute');n0=n(pg);pg.evaluate("HOOPS.state.chantCool=0;HOOPS.state.chantPoss=false");pg.wait_for_timeout(12000);r['sfx_off_chants']=n(pg)-n0;assert r['sfx_off_chants']==0,(r,pg.evaluate('HOOPS.audio.sound'))
    report[tag]=r;c.close()
