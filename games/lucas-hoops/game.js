@@ -1,4 +1,4 @@
-/* Lucas Hoops v2.3.1: squads, tournament, 2 players on one phone, online room codes, free throws, subs, overtime,
+/* Lucas Hoops v2.3.2: squads, tournament, 2 players on one phone, online room codes, free throws, subs, overtime,
    power-ups and court themes. Original art and sound, offline-first (online play is the only part that needs internet). */
 (async()=>{
 'use strict';
@@ -511,7 +511,13 @@ function update(dt){
   if(g.dead<=0){if(g.pendingFT)startFT();else nextPossession();}return;}
  for(const h of g.humans)if(h.chargeHeld){h.holdTime+=dt;h.charge=clamp(1-Math.abs(h.holdTime-.6)/.6,0,1);if(h.holdTime>=1.19)releasePrimary(h);}
  ai(dt);integratePlayers(dt);physics(dt);if(scene!=='play')return;powerTick(dt);staminaTick(dt);
- g.chantTimer=(g.chantTimer||0)-dt;if(g.humans.length===1&&g.possession===1&&g.shotClock<=5&&g.shotClock>0&&g.dead<=0&&g.chantTimer<=0){sound('defense');g.chantTimer=S.chantSeconds;}
+ // Home-crowd DE-FENSE chant while the Night Owls (CPU, or P2) have the ball: once as they bring it up (10 s cooldown),
+ // and again late in the shot clock. Measured before v2.3.2: the smarter AI shoots with 8-12 s left, so the late-clock
+ // chant alone almost never played.
+ g.chantTimer=(g.chantTimer||0)-dt;g.chantCool=(g.chantCool||0)-dt;if(g.possession!==1)g.chantPoss=false;
+ if(g.mode!=='shootout'&&g.possession===1&&g.dead<=0&&!g.ft&&g.chantTimer<=0){const o=owner();
+  if(!g.chantPoss&&g.chantCool<=0&&o&&o.team===1){g.chantPoss=true;g.chantCool=10;sound('defense');g.chantTimer=S.chantSeconds;g.metrics.chants=(g.metrics.chants||0)+1;}
+  else if(g.shotClock<=5&&g.shotClock>0){sound('defense');g.chantTimer=S.chantSeconds;g.metrics.chants=(g.metrics.chants||0)+1;}}
  if(g.autoSwitch<=0){g.autoSwitch=.8;for(const h of g.humans)autoDefender(h);}
  if(g.mode!=='shootout'&&!g.buzzer&&g.dead<=0){g.shotClock=Math.max(0,g.shotClock-dt);if(g.shotClock<=0&&(!g.ball.shot||g.ball.age>3.8)){g.next=1-g.possession;g.dead=.9;g.ball.owner=null;g.ball.shot=g.ball.pass=false;for(const h of g.humans){h.chargeHeld=false;const p=controlled(h);if(p)p.charging=false;}pop('SHOT CLOCK! SWITCH BALL.','#ffd0a0',1);sound('buzzer');}}
  if(g.buzzer&&!g.ball.shot&&g.dead<=0&&!g.pendingFT&&!g.ft)gameOver();updateControls();
@@ -823,7 +829,7 @@ window.addEventListener('keyup',e=>{
 window.addEventListener('blur',()=>{if(scene==='play'&&!state?.online)pause();clearInput();});
 document.addEventListener('visibilitychange',()=>{S.visibility(document.hidden);if(document.hidden){if(scene==='play'&&!state?.online)pause();}else last=performance.now();});window.addEventListener('contextmenu',e=>e.preventDefault());
 window.HOOPS={get state(){return state;},get scene(){return scene;},get input(){return{x:sticks[0].x,y:sticks[0].y};},get intro(){return intro?.snapshot||null;},get audio(){return S.snapshot;},get lights(){return L.snapshot;},get records(){return records;},get settings(){return settings;},get net(){return net?{role:net.role,code:net.code,status:net.status}:null;},get lobby(){return lobby;},
- version:'2.3.1',debug:{startFT(team=0,n=2){const g=state,p=g.players.find(q=>q.team===team);g.pendingFT={team,shooter:p.id,n};startFT();},forceOT(){const g=state;g.score[1]=g.score[0];g.time=.05;},start(mode,size,opts){start(mode,size,opts);},spawn(type='bolt',x=480,y=220){state.pickups=[{type,x,y,life:9}];},act(slot,a,d){act(slot,a,d);}}};
+ version:'2.3.2',debug:{startFT(team=0,n=2){const g=state,p=g.players.find(q=>q.team===team);g.pendingFT={team,shooter:p.id,n};startFT();},forceOT(){const g=state;g.score[1]=g.score[0];g.time=.05;},start(mode,size,opts){start(mode,size,opts);},spawn(type='bolt',x=480,y=220){state.pickups=[{type,x,y,life:9}];},act(slot,a,d){act(slot,a,d);}}};
 function beginIntro(replay=false){
  // A cache-first v14 tab can briefly mix old HTML and new JS during an update.
  if(!window.HoopsIntro||!$('intro-ui')){showMenu();return;}

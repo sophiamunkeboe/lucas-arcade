@@ -123,7 +123,7 @@ Preview: `screens/91-neon-signs.png`.
 - Built on Three.js r186 and cannon-es 0.20, **vendored** in `games/miko/vendor/` so nothing loads from a CDN. Details and
   URL options are in `games/miko/README.md`. Adaptive quality keeps it smooth on older phones.
 
-### Lucas Hoops (v2.3.1)
+### Lucas Hoops (v2.3.2)
 Pixel Lucas (cream Suns cap, black/purple/orange jersey) leads the **Sunburst** against the **Night Owls**: 90-second games,
 14-second shot clock, floating joystick plus contextual buttons, 3 difficulty levels, trophy stats, the opening cinematic,
 pep band and party lights. New in v2.3:
@@ -146,14 +146,14 @@ pep band and party lights. New in v2.3:
   Sunburst sun). SAVE stores it on this phone only (a ~2 KB PNG in localStorage) and picks it as the fifth court. The design is
   laid on the slanted floor with the same floor projection as the game, under the paint and lines. Looks only; it is never
   sent online (an online guest sees Sunburst Arena when the host plays on My Court).
-- **Real DE-FENSE chant (v2.3.1):** late in CPU possessions (shot clock 5 or under) the crowd chants a real recorded
-  "DE-FENSE!" (`games/lucas-hoops/defense-chant.mp3`, 4.5 s, 55 KB). It is a sound effect, so the SFX switch controls it,
+- **Real DE-FENSE chant (v2.3.1, retimed in v2.3.2):** when the Night Owls (CPU or P2) bring the ball up (at most every
+  10 s) and again late in their shot clock (5 or under), the home crowd chants a real recorded "DE-FENSE!" (`games/lucas-hoops/defense-chant.mp3`, 4.5 s, 55 KB). It is a sound effect, so the SFX switch controls it,
   and it falls back to the old synthesized chant if the file can't load. Credit: "defense.wav" by LS,
   https://freesound.org/people/LS/sounds/11537/ , licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/);
   trimmed to 4.5 s, made mono, high-passed, faded and loudness-normalized for the game.
 - **Graphics polish:** crisp 2x pixels on sharp screens, run/jump/dribble animations, ball shading, trail and squash,
   floor light pools, rim flare, LED ribbon boards, vignette and smoother screen transitions.
-- Tests: `python3 tools/hoops-play.py` (core game) and `python3 tools/hoops-v23.py [intro themes ot ft subs power tourney 2p online others]` and `python3 tools/hoops-paint.py` (My Court painter) and `python3 tools/hoops-chant.py` (DE-FENSE chant).
+- Tests: `python3 tools/hoops-play.py` (core game) and `python3 tools/hoops-v23.py [intro themes ot ft subs power tourney 2p online others]` and `python3 tools/hoops-paint.py` (My Court painter) and `python3 tools/hoops-chant.py` + `python3 tools/hoops-chant-play.py` (DE-FENSE chant, Chromium + WebKit).
   More detail in `games/lucas-hoops/README.md`.
 
 ## How it's built

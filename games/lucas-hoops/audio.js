@@ -27,6 +27,8 @@ function create(settings){
  function build(){
   if(ctx)return true;
   try{
+   // iOS 16.4+: 'playback' lets game audio play even with the ring/silent switch on silent.
+   try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(_){}
    const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;ctx=new C();
    output=ctx.createGain();output.gain.value=hidden?0:.78;
    const compressor=ctx.createDynamicsCompressor();compressor.threshold.value=-13;compressor.knee.value=12;compressor.ratio.value=4;compressor.attack.value=.003;compressor.release.value=.18;

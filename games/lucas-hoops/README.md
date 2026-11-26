@@ -1,4 +1,9 @@
-# Lucas Hoops v2.3.1 — Tournament + Online
+# Lucas Hoops v2.3.2 — Tournament + Online
+
+## New in v2.3.2
+- The DE-FENSE chant now plays in normal games. Before, it only fired when the CPU still had the ball with 5 or fewer seconds on the shot clock, and the v2.3 AI shoots with 8-12 s left, so it almost never played (0 times in 40 s of 1v1, 3v3 and 5v5 test games), and never in 2 PLAYERS. Now the home crowd chants once when the Night Owls (CPU or P2) bring the ball up (10 s cooldown), plus the late-clock chant. Fires within ~15 s of tip-off in Chromium and WebKit (`tools/hoops-chant-play.py`).
+- iOS 16.4+: `navigator.audioSession.type='playback'` so game audio isn't muted by the silent switch.
+- The page reloads itself once (only on the intro/menu) when a newer version takes over, so phones don't keep running old code. Service worker **lucas-arcade-v19**.
 
 ## New in v2.3.1
 - Real recorded crowd **DE-FENSE** chant (`defense-chant.mp3`, 4.5 s, 55 KB) replaces the synthesized one at the same trigger (CPU ball, shot clock <= 5), on the SFX bus, with the synthesized chant as fallback. It replays after the clip ends instead of every 2.2 s. Credit: "defense.wav" by LS, https://freesound.org/people/LS/sounds/11537/, CC BY 3.0; trimmed, mono, high-passed, faded, loudness-normalized. Service worker **lucas-arcade-v18** precaches it. Test: `python3 tools/hoops-chant.py`.

@@ -34,7 +34,7 @@
     <button id="replay-intro" class="replay-link">&#9654; REPLAY INTRO</button>
    </nav>
   </div>
-  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.3.1 &nbsp; / &nbsp; TOURNAMENT + ONLINE</span></footer>
+  <footer><span class="status-dot"></span> BUILT FOR LUCAS <span class="version">V2.3.2 &nbsp; / &nbsp; TOURNAMENT + ONLINE</span></footer>
  </section>
  <div id="intro-ui" aria-label="Lucas Hoops opening cinematic">
   <button id="intro-skip" aria-label="Skip intro">TAP ANYWHERE TO SKIP &gt;</button>
@@ -86,6 +86,14 @@
 <script src="net.js"></script>
 <script src="paint.js"></script>
 <script src="game.js"></script>
-<script>if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('../../sw.js', {scope:'../../'}).catch(()=>{});</script>
+<script>if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  // When a newer version takes over, reload once so the new game code runs, but only on the intro/menu, never mid-game.
+  const hadSW = !!navigator.serviceWorker.controller; let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadSW || reloaded) return; const s = window.HOOPS && HOOPS.scene;
+    if (!s || s === 'intro' || s === 'menu') { reloaded = true; location.reload(); }
+  });
+  navigator.serviceWorker.register('../../sw.js', {scope:'../../'}).catch(()=>{});
+}</script>
 </body>
 </html>

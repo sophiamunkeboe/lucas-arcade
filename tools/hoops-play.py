@@ -66,7 +66,7 @@ with sync_playwright() as p:
  page.goto(BASE+'/index.html');page.evaluate("LA.players.create('Hoops Tester','bella','1234')");page.reload();page.locator('a[href="games/lucas-hoops/index.html"]').click();page.wait_for_url('**/games/lucas-hoops/index.html');report['arcade_tile']=True
  # Fresh canonical folder URL is explicitly precached, too.
  page.goto(BASE+'/games/lucas-hoops/');page.evaluate('navigator.serviceWorker.ready');page.wait_for_function('navigator.serviceWorker.controller!==null')
- report['caches']=page.evaluate('caches.keys()');assert 'lucas-arcade-v18' in report['caches']
+ report['caches']=page.evaluate('caches.keys()');assert 'lucas-arcade-v19' in report['caches']
  context.set_offline(True);page.reload();page.wait_for_function("typeof HOOPS!=='undefined'");page.click('#quick');page.click('#mode-3');page.wait_for_timeout(500);assert page.evaluate("HOOPS.scene==='play'");report['offline']=True;context.set_offline(False)
  # Real two-finger touch: diagonal floating joystick + a held/released shot.
  phone=browser.new_context(viewport={'width':844,'height':390},device_scale_factor=1,is_mobile=True,has_touch=True)

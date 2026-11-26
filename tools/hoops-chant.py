@@ -31,7 +31,7 @@ with sync_playwright() as p:
   pg.locator('#intro-skip').tap() if pg.locator('#intro-skip').is_visible() else pg.keyboard.press('Space')
   pg.wait_for_function("HOOPS.scene==='menu'");pg.wait_for_function("HOOPS.audio.state==='running'",timeout=10000)
   pg.wait_for_function("HOOPS.audio.chant==='ready'",timeout=15000);r['file_status']=statuses[:1];assert 200 in statuses,statuses
-  r['version']=pg.evaluate('HOOPS.version');assert r['version']=='2.3.1'
+  r['version']=pg.evaluate('HOOPS.version');assert r['version']=='2.3.2'
   # Music off so the meter hears only effects.
   pg.click('#settings');
   if pg.inner_text('#music-setting')=='ON':pg.click('#music-setting')
@@ -49,8 +49,8 @@ with sync_playwright() as p:
   if name=='iphone13_land':
    pg.evaluate('navigator.serviceWorker.ready');pg.wait_for_function('navigator.serviceWorker.controller!==null',timeout=15000)
    pg.wait_for_function("caches.keys().then(k=>window.__k=k)||true");pg.wait_for_timeout(500)
-   r['caches']=pg.evaluate('caches.keys()');assert 'lucas-arcade-v18' in r['caches'],r['caches']
-   r['precached']=pg.evaluate("caches.open('lucas-arcade-v18').then(c=>c.keys()).then(k=>k.some(q=>q.url.endsWith('/games/lucas-hoops/defense-chant.mp3')))");assert r['precached']
+   r['caches']=pg.evaluate('caches.keys()');assert 'lucas-arcade-v19' in r['caches'],r['caches']
+   r['precached']=pg.evaluate("caches.open('lucas-arcade-v19').then(c=>c.keys()).then(k=>k.some(q=>q.url.endsWith('/games/lucas-hoops/defense-chant.mp3')))");assert r['precached']
   report[name]=r;c.close()
  b.close()
 server.shutdown()
